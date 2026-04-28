@@ -75,7 +75,7 @@ exports.signupPost = async (req,res)=>{
     }
         await UserModel.create({ username, email,minerId,role:'users', password: hashedPassword });
 
-       res.redirect('/login')
+       res.redirect('/user/login')
        // res.status(201).json({ user });
     } catch (error) {
         res.status(500).json({ error: error.message });
