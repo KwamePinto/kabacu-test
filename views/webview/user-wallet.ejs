@@ -1,0 +1,378 @@
+
+
+    <!-- Preloader -->
+    <div id="biof-loading">
+        <div class="biof-loading-center">
+            <div class="biof-loading-center-absolute">
+                <div class="dot dot-one"></div>
+                <div class="dot dot-two"></div>
+                <div class="dot dot-three"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+   <%- include('../partials/header.ejs')%>
+
+    <!--Hero Section-->
+    <div class="hero-section hero-background">
+        <h1 class="page-title">My Wallet</h1>
+    </div>
+
+    <!--Navigation section-->
+    <div class="container">
+        <nav class="biolife-nav">
+            <ul>
+                <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
+                <li class="nav-item"><span class="current-page">Wallet</span></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="page-contain single-product">
+        <div class="container">
+
+            <!-- Main content -->
+            <div id="main-content" class="main-content">
+
+       <div class="sumary-product single-layout">
+
+    <!-- WALLET HEADER -->
+  <div class="summary-info">
+
+    <h4 style="margin-top:10px;">
+        BTT Balance:
+        <span style="color:#28a745; font-weight:bold;">
+            ₦<%= wallet && wallet.balances ? wallet.balances.BTT.toFixed(2) : '0.00' %>
+        </span>
+    </h4>
+
+    <h4 style="margin-top:5px;">
+        RP Balance:
+        <span style="color:#007bff; font-weight:bold;">
+            ₦<%= wallet && wallet.balances ? wallet.balances.RP.toFixed(2) : '0.00' %>
+        </span>
+    </h4>
+
+     <h4 style="margin-top:5px;">
+        USDT Balance:
+        <span style="color:#ff0088; font-weight:bold;">
+            ₦<%= wallet && wallet.balances ? wallet.balances.USDT.toFixed(2) : '0.00' %>
+        </span>
+    </h4>
+
+</div>
+
+    <div class="action-form">
+
+      <div class="quantity-box">
+    <span class="title">Wallet Type:</span>
+    <div class="qty-input">
+        <select id="walletType" style="width:100%; border:none;">
+            <option value="BTT">BTT</option>
+            <option value="RP">RP</option>
+            <option value="USDT">USDT</option>
+        </select>
+    </div>
+</div>
+
+        <!-- AMOUNT INPUT (Styled like quantity box) -->
+        <div class="quantity-box">
+            <span class="title">Top-up Amount:</span>
+            <div class="qty-input">
+                <input 
+                    type="number" 
+                    id="amount" 
+                    placeholder="Enter amount"
+                    style="width:100%; border:none; outline:none;"
+                >
+            </div>
+        </div>
+
+        <!-- BUTTONS -->
+       
+<div class="buttons" style="margin-top:15px;">
+    <button id="startTopup" class="btn add-to-cart-btn">
+        Top Up Wallet
+    </button>
+</div>
+
+        <!-- OTP SECTION -->
+        <div id="otpBox" style="display:none; margin-top:20px;">
+            <div class="quantity-box">
+                <span class="title">Enter OTP:</span>
+                <div class="qty-input">
+                    <input 
+                        type="text" 
+                        id="otp" 
+                        placeholder="Enter OTP"
+                        style="width:100%; border:none; outline:none;"
+                    >
+                </div>
+            </div>
+
+            <button id="confirmTopup" class="btn btn-success" style="margin-top:10px;">
+                Confirm Top Up
+            </button>
+        </div>
+
+        <!-- OPTIONAL INFO SECTION -->
+        <div class="location-shipping-to" style="margin-top:20px;">
+            <span class="title">Note:</span>
+            <p style="font-size:13px;">
+                OTP will be sent to your Telegram wallet bot. 
+                Enter it here to complete your wallet funding.
+            </p>
+        </div>
+
+        <!-- KEEP EXISTING PAYMENT ICONS -->
+        <div class="acepted-payment-methods">
+            <ul class="payment-methods">
+                <li><img src="assets/images/card1.jpg" width="51"></li>
+                <li><img src="assets/images/card2.jpg" width="51"></li>
+                <li><img src="assets/images/card3.jpg" width="51"></li>
+                <li><img src="assets/images/card4.jpg" width="51"></li>
+            </ul>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+</div>
+                
+                <!-- summary info -->
+               
+              
+
+                
+            </div>
+
+
+
+            
+
+
+        </div>
+    </div>
+
+      <%- include('../partials/footer.ejs')%>
+
+    <!--Footer For Mobile-->
+    <div class="mobile-footer">
+        <div class="mobile-footer-inner">
+            <div class="mobile-block block-menu-main">
+                <a class="menu-bar menu-toggle btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
+                    <span class="fa fa-bars"></span>
+                    <span class="text">Menu</span>
+                </a>
+            </div>
+            <div class="mobile-block block-sidebar">
+                <a class="menu-bar filter-toggle btn-toggle" data-object="open-mobile-filter" href="javascript:void(0)">
+                    <i class="fa fa-sliders" aria-hidden="true"></i>
+                    <span class="text">Sidebar</span>
+                </a>
+            </div>
+            <div class="mobile-block block-minicart">
+                <a class="link-to-cart" href="#">
+                    <span class="fa fa-shopping-bag" aria-hidden="true"></span>
+                    <span class="text">Cart</span>
+                </a>
+            </div>
+            <div class="mobile-block block-global">
+                <a class="menu-bar myaccount-toggle btn-toggle" data-object="global-panel-opened" href="javascript:void(0)">
+                    <span class="fa fa-globe"></span>
+                    <span class="text">Global</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-block-global">
+        <div class="biolife-mobile-panels">
+            <span class="biolife-current-panel-title">Global</span>
+            <a class="biolife-close-btn" data-object="global-panel-opened" href="#">&times;</a>
+        </div>
+        <div class="block-global-contain">
+            <div class="glb-item my-account">
+                <b class="title">My Account</b>
+                <ul class="list">
+                    <li class="list-item"><a href="#">Login/register</a></li>
+                    <li class="list-item"><a href="#">Wishlist <span class="index">(8)</span></a></li>
+                    <li class="list-item"><a href="#">Checkout</a></li>
+                </ul>
+            </div>
+            <div class="glb-item currency">
+                <b class="title">Currency</b>
+                <ul class="list">
+                    <li class="list-item"><a href="#">€ EUR (Euro)</a></li>
+                    <li class="list-item"><a href="#">$ USD (Dollar)</a></li>
+                    <li class="list-item"><a href="#">£ GBP (Pound)</a></li>
+                    <li class="list-item"><a href="#">¥ JPY (Yen)</a></li>
+                </ul>
+            </div>
+            <div class="glb-item languages">
+                <b class="title">Language</b>
+                <ul class="list inline">
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/us.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/fr.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/ger.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/jap.jpg" alt="flag" width="24" height="18"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Top Button -->
+    <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
+
+   <script>
+
+    let topupId = null;
+
+document.getElementById('startTopup').addEventListener('click', async () => {
+
+    const amount = document.getElementById('amount').value;
+    const balanceType = document.getElementById('walletType').value;
+
+    const res = await fetch('/wallet/start-topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, balanceType })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        topupId = data.topupId;
+        document.getElementById('otpBox').style.display = 'block';
+        alert('OTP sent');
+    } else {
+        alert(data.message);
+    }
+});
+
+
+document.getElementById('confirmTopup').addEventListener('click', async () => {
+
+    const otp = document.getElementById('otp').value;
+
+    const res = await fetch('/wallet/confirm-topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp, topupId })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert('Wallet funded successfully');
+        location.reload();
+    } else {
+        alert(data.message);
+    }
+});
+
+// let topupId = null;
+
+// // Start Topup
+// document.getElementById('startTopup').addEventListener('click', async () => {
+//     const amount = document.getElementById('amount').value;
+
+//     const res = await fetch('/wallet/start-topup', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ amount })
+//     });
+
+//     const data = await res.json();
+
+//     if(data.success){
+//         topupId = data.topupId;
+//         alert('OTP sent to Telegram');
+//         document.getElementById('otpBox').style.display = 'block';
+//     } else {
+//         alert(data.message);
+//     }
+// });
+
+
+// // Confirm Topup
+// document.getElementById('confirmTopup').addEventListener('click', async () => {
+//     const otp = document.getElementById('otp').value;
+
+//     const res = await fetch('/wallet/confirm-topup', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ otp, topupId })
+//     });
+
+//     const data = await res.json();
+
+//     if(data.success){
+//         alert('Wallet funded successfully');
+//         location.reload();
+//     } else {
+//         alert(data.message);
+//     }
+// });
+</script>
+
+
+
+
+
+
+
+ <!-- <div class="sumary-product single-layout">
+                   
+                    
+                    <div class="action-form">
+                        <div class="quantity-box">
+                            <span class="title">Quantity:</span>
+                            <div class="qty-input">
+                                <input type="text" name="qty12554" value="1" data-max_value="20" data-min_value="1" data-step="1">
+                                <a href="#" class="qty-btn btn-up"><i class="fa fa-caret-up" aria-hidden="true"></i></a>
+                                <a href="#" class="qty-btn btn-down"><i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                        <div class="buttons">
+                            <a href="#" class="btn add-to-cart-btn">add to cart</a>
+                            <p class="pull-row">
+                                <a href="#" class="btn wishlist-btn">wishlist</a>
+                                <a href="#" class="btn compare-btn">compare</a>
+                            </p>
+                        </div>
+                        <div class="location-shipping-to">
+                            <span class="title">Ship to:</span>
+                            <select name="shipping_to" class="country">
+                                <option value="-1">Select Country</option>
+                                <option value="america">America</option>
+                                <option value="france">France</option>
+                                <option value="germany">Germany</option>
+                                <option value="japan">Japan</option>
+                            </select>
+                        </div>
+                        <div class="social-media">
+                            <ul class="social-list">
+                                <li><a href="#" class="social-link"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+                                <li><a href="#" class="social-link"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                                <li><a href="#" class="social-link"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+                                <li><a href="#" class="social-link"><i class="fa fa-share-alt" aria-hidden="true"></i></a></li>
+                                <li><a href="#" class="social-link"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="acepted-payment-methods">
+                            <ul class="payment-methods">
+                                <li><img src="assets/images/card1.jpg" alt="" width="51" height="36"></li>
+                                <li><img src="assets/images/card2.jpg" alt="" width="51" height="36"></li>
+                                <li><img src="assets/images/card3.jpg" alt="" width="51" height="36"></li>
+                                <li><img src="assets/images/card4.jpg" alt="" width="51" height="36"></li>
+                            </ul>
+                        </div>
+                    </div> 
+                </div> -->

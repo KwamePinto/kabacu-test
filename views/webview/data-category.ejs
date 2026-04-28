@@ -1,0 +1,306 @@
+
+
+    <!-- Preloader -->
+    <div id="biof-loading">
+        <div class="biof-loading-center">
+            <div class="biof-loading-center-absolute">
+                <div class="dot dot-one"></div>
+                <div class="dot dot-two"></div>
+                <div class="dot dot-three"></div>
+            </div>
+        </div>
+    </div>
+
+      <!-- HEADER -->
+   <%- include('../partials/header.ejs')%>
+    <!--Hero Section-->
+    <div class="hero-section hero-background">
+        <h1 class="page-title">Data Products</h1>
+    </div>
+
+    <!--Navigation section-->
+    <div class="container">
+        <nav class="biolife-nav">
+            <ul>
+                <li class="nav-item"><a href="/" class="permal-link">Home</a></li>
+                <li class="nav-item"><a href="#" class="permal-link">Data</a></li>
+                
+            </ul>
+        </nav>
+    </div>
+
+    <div class="page-contain category-page no-sidebar">
+        <div class="container">
+            <div class="row">
+
+                <!-- Main content -->
+                <div id="main-content" class="main-content col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                   
+
+                    <div class="product-category grid-style">
+
+                        <div id="top-functions-area" class="top-functions-area" >
+                            <div class="flt-item to-left group-on-mobile">
+                                <span class="flt-title">Refine</span>
+                                <a href="#" class="icon-for-mobile">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </a>
+                                <div class="wrap-selectors">
+                                    <form action="#" name="frm-refine" method="get">
+                                        <span class="title-for-mobile">Refine Products By</span>
+                                        <div data-title="Price:" class="selector-item">
+                                            <select name="price" class="selector">
+                                                <option value="all">Price</option>
+                                                <option value="class-1st">Less than 5$</option>
+                                                <option value="class-2nd">$5-10$</option>
+                                                <option value="class-3rd">$10-20$</option>
+                                                <option value="class-4th">$20-45$</option>
+                                                <option value="class-5th">$45-100$</option>
+                                                <option value="class-6th">$100-150$</option>
+                                                <option value="class-7th">More than 150$</option>
+                                            </select>
+                                        </div>
+                                        <div data-title="Brand:" class="selector-item">
+                                            <select name="brad" class="selector">
+                                                <option value="all">Top brands</option>
+                                                <option value="br2">Brand first</option>
+                                                <option value="br3">Brand second</option>
+                                                <option value="br4">Brand third</option>
+                                                <option value="br5">Brand fourth</option>
+                                                <option value="br6">Brand fiveth</option>
+                                            </select>
+                                        </div>
+                                        <div data-title="Avalability:" class="selector-item">
+                                            <select name="ability" class="selector">
+                                                <option value="all">Availability</option>
+                                                <option value="vl2">Availability 1</option>
+                                                <option value="vl3">Availability 2</option>
+                                                <option value="vl4">Availability 3</option>
+                                                <option value="vl5">Availability 4</option>
+                                                <option value="vl6">Availability 5</option>
+                                            </select>
+                                        </div>
+                                        <p class="btn-for-mobile"><button type="submit" class="btn-submit">Go</button></p>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="flt-item to-right">
+                                <span class="flt-title">Sort</span>
+                                <div class="wrap-selectors">
+                                    <div class="selector-item orderby-selector">
+                                        <select name="orderby" class="orderby" aria-label="Shop order">
+                                            <option value="menu_order" selected="selected">Default sorting</option>
+                                            <option value="popularity">popularity</option>
+                                            <option value="rating">average rating</option>
+                                            <option value="date">newness</option>
+                                            <option value="price">price: low to high</option>
+                                            <option value="price-desc">price: high to low</option>
+                                        </select>
+                                    </div>
+                                    <div class="selector-item viewmode-selector">
+                                        <a href="category-grid-left-sidebar.html" class="viewmode grid-mode active"><i class="biolife-icon icon-grid"></i></a>
+                                        <a href="category-list-left-sidebar.html" class="viewmode detail-mode"><i class="biolife-icon icon-list"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <ul class="products-list">
+                                <% if(dataProducts.length > 0){ %>
+                                        <% dataProducts.forEach(function(product){ %>
+                                 <li class="product-item col-lg-2 col-md-3 col-sm-4 col-xs-6">
+                                    <div class="contain-product layout-default">
+                                        <div class="product-thumb">
+                                            <a href="#" class="link-to-product">
+                                                <img src="<%= product.images[0] %>" alt="dd" width="270" height="270" class="product-thumnail">
+                                            </a>
+                                        </div>
+                                        <div class="info">
+                                            <b class="categories">Fresh Fruit</b>
+                                            <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
+                                            <div class="price">
+                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
+                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                                            </div>
+                                            <div class="shipping-info">
+                                                <p class="shipping-day">3-Day Shipping</p>
+                                                <p class="for-today">Pree Pickup Today</p>
+                                            </div>
+                                            <div class="slide-down-box">
+                                                <p class="message">All products are carefully selected to ensure food safety.</p>
+                                                <div class="buttons">
+                                                    <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
+                                                    <a href="#" class="btn add-to-cart-btn" data-id="<%= dataProducts._id %>" id="buyNowBtn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
+                                                    <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <% }) %>
+                                        <% } else { %>
+                                        <p>No data products</p>
+                                        <% } %>
+                                
+
+                            </ul>
+                        </div>
+
+                        <div class="biolife-panigations-block">
+                            <ul class="panigation-contain">
+                                <li><span class="current-page">1</span></li>
+                                <li><a href="#" class="link-page">2</a></li>
+                                <li><a href="#" class="link-page">3</a></li>
+                                <li><span class="sep">....</span></li>
+                                <li><a href="#" class="link-page">20</a></li>
+                                <li><a href="#" class="link-page next"><i class="fa fa-angle-right" aria-hidden="true"></i></a></li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+     <div id="paymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999;">
+    <div style="background:#fff; width:350px; margin:100px auto; padding:20px; border-radius:8px; text-align:center;">
+        
+        <h4>Select Payment Method</h4>
+
+        <br>
+
+        <button id="paystackBtn" class="btn btn-success">Pay with Paystack</button>
+        <br><br>
+        <button id="walletBtn" class="btn btn-primary">Pay with Wallet(USDT)</button>
+        <br><br>
+        <button id="cancelPaymentBtn" class="btn btn-danger">Cancel</button>
+
+    </div>
+</div>
+
+    <!-- FOOTER -->
+     <!-- HEADER -->
+   <%- include('../partials/footer.ejs')%>
+
+    <!--Footer For Mobile-->
+    <div class="mobile-footer">
+        <div class="mobile-footer-inner">
+            <div class="mobile-block block-menu-main">
+                <a class="menu-bar menu-toggle btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
+                    <span class="fa fa-bars"></span>
+                    <span class="text">Menu</span>
+                </a>
+            </div>
+            <div class="mobile-block block-sidebar">
+                <a class="menu-bar filter-toggle btn-toggle" data-object="open-mobile-filter" href="javascript:void(0)">
+                    <i class="fa fa-sliders" aria-hidden="true"></i>
+                    <span class="text">Sidebar</span>
+                </a>
+            </div>
+            <div class="mobile-block block-minicart">
+                <a class="link-to-cart" href="#">
+                    <span class="fa fa-shopping-bag" aria-hidden="true"></span>
+                    <span class="text">Cart</span>
+                </a>
+            </div>
+            <div class="mobile-block block-global">
+                <a class="menu-bar myaccount-toggle btn-toggle" data-object="global-panel-opened" href="javascript:void(0)">
+                    <span class="fa fa-globe"></span>
+                    <span class="text">Global</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-block-global">
+        <div class="biolife-mobile-panels">
+            <span class="biolife-current-panel-title">Global</span>
+            <a class="biolife-close-btn" data-object="global-panel-opened" href="#">&times;</a>
+        </div>
+        <div class="block-global-contain">
+            <div class="glb-item my-account">
+                <b class="title">My Account</b>
+                <ul class="list">
+                    <li class="list-item"><a href="#">Login/register</a></li>
+                    <li class="list-item"><a href="#">Wishlist <span class="index">(8)</span></a></li>
+                    <li class="list-item"><a href="#">Checkout</a></li>
+                </ul>
+            </div>
+            <div class="glb-item currency">
+                <b class="title">Currency</b>
+                <ul class="list">
+                    <li class="list-item"><a href="#">€ EUR (Euro)</a></li>
+                    <li class="list-item"><a href="#">$ USD (Dollar)</a></li>
+                    <li class="list-item"><a href="#">£ GBP (Pound)</a></li>
+                    <li class="list-item"><a href="#">¥ JPY (Yen)</a></li>
+                </ul>
+            </div>
+            <div class="glb-item languages">
+                <b class="title">Language</b>
+                <ul class="list inline">
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/us.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/fr.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/ger.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/jap.jpg" alt="flag" width="24" height="18"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Top Button -->
+    <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
+
+       <script>
+const modal = document.getElementById('paymentModal');
+let selectedProductId = null;
+
+// Open modal
+document.getElementById('buyNowBtn').addEventListener('click', function(e){
+    e.preventDefault();
+    
+    selectedProductId = this.dataset.id; // ✅ store productId
+    modal.style.display = 'block';
+});
+
+// Cancel
+document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+// Paystack
+document.getElementById('paystackBtn').addEventListener('click', () => {
+    window.location.href = '/payment/paystack';
+});
+
+// ✅ Wallet payment (NEW LOGIC)
+document.getElementById('walletBtn').addEventListener('click', async () => {
+    try {
+        const res = await fetch('/wallet/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: selectedProductId }) // ✅ send productId
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            alert('✅ Payment successful');
+            modal.style.display = 'none';
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+
+    } catch (error) {
+        console.log(error);
+        alert('Payment error');
+    }
+});
+</script>

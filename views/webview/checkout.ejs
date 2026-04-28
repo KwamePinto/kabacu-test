@@ -1,0 +1,345 @@
+ 
+
+    <!-- Preloader -->
+    <!-- <div id="biof-loading">
+        <div class="biof-loading-center">
+            <div class="biof-loading-center-absolute">
+                <div class="dot dot-one"></div>
+                <div class="dot dot-two"></div>
+                <div class="dot dot-three"></div>
+            </div>
+        </div>
+    </div> -->
+
+    <script>
+        <!-- ✅ Your SweetAlert Logic -->
+
+    const successMsg = <%- JSON.stringify(success_msg) %>;
+    const errorMsg = <%- JSON.stringify(error_msg) %>;
+
+    if (successMsg.length > 0) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: successMsg[0]
+        });
+    }
+
+    if (errorMsg.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMsg[0]
+        });
+    }
+
+
+    </script>
+
+    <!-- <script id="checkout-script">
+document.addEventListener('DOMContentLoaded', function(){
+
+    const data = JSON.parse(localStorage.getItem('checkoutData'));
+
+    if(!data) return;
+
+    document.getElementById('productName').innerText = data.name;
+    document.getElementById('productPrice').innerText = data.price;
+    document.getElementById('productTotal').innerText = data.price;
+    document.getElementById('phoneNumber').innerText = data.phone;
+
+});
+</script> -->
+<%- include('../partials/header.ejs')%>
+
+    <!--Hero Section-->
+    <div class="hero-section hero-background">
+        <h1 class="page-title">Checkout</h1>
+    </div>
+
+    <!--Navigation section-->
+    <div class="container">
+        <nav class="biolife-nav">
+            <ul>
+                <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
+                <li class="nav-item"><span class="current-page">My Package</span></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="page-contain shopping-cart">
+
+        <!-- Main content -->
+        <div id="main-content" class="main-content">
+            <div class="container">
+
+
+                <!--Cart Table-->
+                <div class="shopping-cart-container">
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <h3 class="box-title">Your cart items</h3>
+                            <form class="shopping-cart-form" action="#" method="post">
+                                <table class="shop_table cart-form">
+                                    <thead>
+                                    <tr>
+                                        <th class="product-name">Contact</th>
+                                        <th class="product-price">Network </th>
+                                        <th class="product-quantity">Package</th>
+                                        <th class="product-subtotal">Price</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr class="cart_item">
+                                        <td class="product-thumbnail" data-title="Product Name">
+                                             <a class="prd-thumb" href="#">
+                                                <figure><img width="113" height="113" src="/assets/images/products/p1.png" alt="shipping cart"></figure>
+                                            </a> 
+                                            <a class="prd-name" href="#" id="productName"><%= checkout.phone %></a>
+                                            <div class="action">
+                                                <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                                <a href="#" class="remove"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                                            </div>
+                                        </td>
+
+                                        <td class="product-thumbnail" data-title="Product Name">
+                                            
+                                            <a class="prd-name" href="#" ><%= checkout.product.dataDetails.network %></a>
+                                           
+                                        </td>
+
+                                        <td class="product-thumbnail" data-title="Product Name">
+                                           
+                                            <a class="prd-name" href="#" id="productPrice"><%= checkout.product.dataDetails.plan_type %>  <%= checkout.product.dataDetails.plan_name %></a>
+                                           
+                                        </td>
+
+                                         <td class="product-thumbnail" data-title="Product Name">
+                                           
+                                            <a class="prd-name" href="#" id="productPrice">₦<%= checkout.product.dataDetails.amount %></a>
+                                           
+                                        </td>
+                                        
+                                       
+                                    </tr>
+                                 
+                                    <tr class="cart_item wrap-buttons">
+                                        <td class="wrap-btn-control" colspan="4">
+                                            <a href="/" class="btn back-to-shop">Back to Shop</a>
+                                            <!-- <button class="btn btn-update" type="submit" disabled>update</button> -->
+                                            <a href="#" id="buyNowBtn" data-id="<%= checkout.product._id %>" class="btn btn-shop">Buy</a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </form>
+                        </div>
+                        <!-- <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                            <div class="shpcart-subtotal-block">
+                                <div class="subtotal-line">
+                                    <b class="stt-name">Subtotal <span class="sub">(2ittems)</span></b>
+                                    <span class="stt-price">£170.00</span>
+                                </div>
+                                <div class="subtotal-line">
+                                    <b class="stt-name">Shipping</b>
+                                    <span class="stt-price">£0.00</span>
+                                </div>
+                                <div class="tax-fee">
+                                    <p class="title">Est. Taxes & Fees</p>
+                                    <p class="desc">Based on 56789</p>
+                                </div>
+                                <div class="btn-checkout">
+                                    <a href="#" class="btn checkout">Check out</a>
+                                </div>
+                                <div class="biolife-progress-bar">
+                                    <table>
+                                        <tr>
+                                            <td class="first-position">
+                                                <span class="index">$0</span>
+                                            </td>
+                                            <td class="mid-position">
+                                                <div class="progress">
+                                                    <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                            <td class="last-position">
+                                                <span class="index">$99</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <p class="pickup-info"><b>Free Pickup</b> is available as soon as today More about shipping and pickup</p>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+
+                <!--Related Product-->
+                <div class="product-related-box single-layout">
+                  
+            
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="paymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999;">
+    <div style="background:#fff; width:350px; margin:100px auto; padding:20px; border-radius:8px; text-align:center;">
+        
+        <h4>Select Payment Method</h4>
+
+        <br>
+
+        <button id="paystackBtn" class="btn btn-success">Pay with Paystack</button>
+        <br><br>
+        <button id="walletBtn" class="btn btn-primary">Pay with Wallet(USDT)</button>
+        <br><br>
+        <button id="cancelPaymentBtn" class="btn btn-danger">Cancel</button>
+
+    </div>
+</div>
+ <%- include('../partials/footer.ejs')%>
+
+    <!--Footer For Mobile-->
+    <div class="mobile-footer">
+        <div class="mobile-footer-inner">
+            <div class="mobile-block block-menu-main">
+                <a class="menu-bar menu-toggle btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
+                    <span class="fa fa-bars"></span>
+                    <span class="text">Menu</span>
+                </a>
+            </div>
+            <div class="mobile-block block-sidebar">
+                <a class="menu-bar filter-toggle btn-toggle" data-object="open-mobile-filter" href="javascript:void(0)">
+                    <i class="fa fa-sliders" aria-hidden="true"></i>
+                    <span class="text">Sidebar</span>
+                </a>
+            </div>
+            <div class="mobile-block block-minicart">
+                <a class="link-to-cart" href="#">
+                    <span class="fa fa-shopping-bag" aria-hidden="true"></span>
+                    <span class="text">Cart</span>
+                </a>
+            </div>
+            <div class="mobile-block block-global">
+                <a class="menu-bar myaccount-toggle btn-toggle" data-object="global-panel-opened" href="javascript:void(0)">
+                    <span class="fa fa-globe"></span>
+                    <span class="text">Global</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-block-global">
+        <div class="biolife-mobile-panels">
+            <span class="biolife-current-panel-title">Global</span>
+            <a class="biolife-close-btn" data-object="global-panel-opened" href="#">&times;</a>
+        </div>
+        <div class="block-global-contain">
+            <div class="glb-item my-account">
+                <b class="title">My Account</b>
+                <ul class="list">
+                    <li class="list-item"><a href="#">Login/register</a></li>
+                    <li class="list-item"><a href="#">Wishlist <span class="index">(8)</span></a></li>
+                    <li class="list-item"><a href="#">Checkout</a></li>
+                </ul>
+            </div>
+            <div class="glb-item currency">
+                <b class="title">Currency</b>
+                <ul class="list">
+                    <li class="list-item"><a href="#">€ EUR (Euro)</a></li>
+                    <li class="list-item"><a href="#">$ USD (Dollar)</a></li>
+                    <li class="list-item"><a href="#">£ GBP (Pound)</a></li>
+                    <li class="list-item"><a href="#">¥ JPY (Yen)</a></li>
+                </ul>
+            </div>
+            <div class="glb-item languages">
+                <b class="title">Language</b>
+                <ul class="list inline">
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/us.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/fr.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/ger.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/jap.jpg" alt="flag" width="24" height="18"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Top Button -->
+    <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
+
+
+    <script>
+const modal = document.getElementById('paymentModal');
+let selectedProductId = null;
+
+// Open modal
+document.getElementById('buyNowBtn').addEventListener('click', function(e){
+    e.preventDefault();
+    
+    selectedProductId = this.dataset.id; // ✅ store productId
+    modal.style.display = 'block';
+});
+
+// Cancel
+document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+// Paystack
+document.getElementById('paystackBtn').addEventListener('click', () => {
+    window.location.href = '/payment/paystack';
+});
+
+// ✅ Wallet payment (NEW LOGIC)
+document.getElementById('walletBtn').addEventListener('click', async () => {
+    try {
+        const res = await fetch('/wallet/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: selectedProductId }) // ✅ send productId
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            alert('✅ Payment successful');
+            modal.style.display = 'none';
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+
+    } catch (error) {
+        console.log(error);
+        alert('Payment error');
+    }
+});
+</script>
+   
+<!-- <script id="payment-script">
+
+const modal = document.getElementById('paymentModal');
+
+// Open modal
+document.getElementById('buyNowBtn').addEventListener('click', function(e){
+    e.preventDefault();
+    modal.style.display = 'block';
+});
+
+// Cancel
+document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+// Paystack
+document.getElementById('paystackBtn').addEventListener('click', () => {
+    window.location.href = '/payment/paystack';
+});
+
+// Wallet
+document.getElementById('walletBtn').addEventListener('click', () => {
+    window.location.href = '/wallet/checkout';
+});
+</script> -->

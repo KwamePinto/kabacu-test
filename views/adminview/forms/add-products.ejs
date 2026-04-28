@@ -1,0 +1,412 @@
+
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+                             <!--header-->
+<%- include('../../partials/headerAdmin.ejs')%>
+
+<!--sidebar-->
+<%- include('../../partials/sideMenuAdmin.ejs')%>
+      <!-- Main Content -->
+      <div class="main-content">
+        <section class="section">
+          <div class="section-body">
+            <div class="row">
+              <div class="col-12 col-md-6 col-lg-8">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Add Product</h4>
+                  </div>
+                  <div class="card-body">
+                    <form method="post" action="/admin/product/add-product" enctype="multipart/form-data">
+
+                      <div class="form-group">
+                      <label>Category</label>
+                     <select class="form-control" name="category" id="categorySelect">
+                      <!-- <option value="">Select Category</option>
+                      <option value="DATA">DATA</option>
+                      <option value="AUTOMOBILE">AUTOMOBILE</option> -->
+                       <option value="">Select Category</option>
+                      <% category.forEach(function(cat){ %>
+                       
+                        <option value="<%= cat.category_name %>">
+                          <%= cat.category_name %>
+                        </option>
+                      <% }) %>
+                    </select>
+                    </div>
+
+                    <!--Normal Item-->
+                    <div id="normalFields">
+
+                    <div class="form-group">
+                      <label>Item Name</label>
+                      <input type="text" name="item_name" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                      <label>Item Price</label>
+                      <input type="number" name="item_price" class="form-control">
+                    </div>
+
+                     <div class="form-group">
+                      <label>Item Name</label>
+                      <textarea  name="description" class="form-control">
+                        Enter Product Description.....
+                        </textarea>
+                    </div>
+
+                    
+
+                  </div>
+
+                  <!-- Data -->
+                  <div id="dataFields" style="display:none;">
+
+                      <div class="form-group">
+                        <label>Plan ID</label>
+                        <input type="number" name="plan_id" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Network</label>
+                        <input type="text" name="network" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Plan Type</label>
+                        <input type="text" name="plan_type" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Plan Name</label>
+                        <input type="text" name="plan_name" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" name="amount" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Validate Period</label>
+                        <input type="text" name="validate_period" class="form-control">
+                      </div>
+
+                    </div>
+
+
+
+                    <!-- AUTOMOBILE -->
+                     <div id="automobileFields" style="display:none;">
+
+                      <div class="form-group">
+                        <label>Brand</label>
+                        <input type="text" name="brand" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Model</label>
+                        <input type="text" name="model" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Year</label>
+                        <input type="number" name="year" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Fuel Type</label>
+                        <input type="text" name="fuel_type" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Transmission</label>
+                        <input type="text" name="transmission" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Condition</label>
+                        <select name="condition" class="form-control">
+                          <option value="new">New</option>
+                          <option value="used">Used</option>
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" name="auto_price" class="form-control">
+                      </div>
+
+                    </div>
+
+
+
+
+                    <!-- ELECTRONICS -->
+                     <div id="electronicsFields" style="display:none;">
+
+                      <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="itemName" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Brand</label>
+                        <input type="text" name="brandItem" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Type</label>
+                        <input type="text" name="itemtype" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" name="items_price" class="form-control">
+                      </div>
+
+                      
+
+                    
+
+                    </div>
+
+
+
+                     <!-- COURSES -->
+                     <div id="courseFields" style="display:none;">
+
+                      <div class="form-group">
+                        <label>Course Title</label>
+                        <input type="text" name="title" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Instructor</label>
+                        <input type="text" name="instructor" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Course Description</label>
+                        <input type="text" name="course_description" class="form-control">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" name="course_price" class="form-control">
+                      </div>
+
+                      
+
+                    
+
+                    </div>
+
+
+
+
+                     <div class="form-group">
+                        <label>RP</label>
+                        <input type="number" name="reward_point" class="form-control">
+                      </div>
+
+                    <div class="form-group">
+                  <label>Upload Images (Max 3)</label>
+                  <input type="file" id="imageInput" name="images" multiple accept="image/*" class="form-control">
+                </div>
+
+                  <!--  PREVIEW AREA -->
+                  <div id="imagePreview" style="display:flex; gap:10px; margin-top:10px;"></div>
+                      
+                   
+                   
+                  <div class="card-footer text-right">
+                    <button class="btn btn-primary mr-1" type="submit">Submit</button>
+                   
+                  </div>
+                  </form>
+                </div>
+
+
+              </div>
+
+
+            </div>
+          </div>
+        </section>
+        <div class="settingSidebar">
+          <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
+          </a>
+          <div class="settingSidebar-body ps-container ps-theme-default">
+            <div class=" fade show active">
+              <div class="setting-panel-header">Setting Panel
+              </div>
+              <div class="p-15 border-bottom">
+                <h6 class="font-medium m-b-10">Select Layout</h6>
+                <div class="selectgroup layout-color w-50">
+                  <label class="selectgroup-item">
+                    <input type="radio" name="value" value="1" class="selectgroup-input-radio select-layout" checked>
+                    <span class="selectgroup-button">Light</span>
+                  </label>
+                  <label class="selectgroup-item">
+                    <input type="radio" name="value" value="2" class="selectgroup-input-radio select-layout">
+                    <span class="selectgroup-button">Dark</span>
+                  </label>
+                </div>
+              </div>
+              <div class="p-15 border-bottom">
+                <h6 class="font-medium m-b-10">Sidebar Color</h6>
+                <div class="selectgroup selectgroup-pills sidebar-color">
+                  <label class="selectgroup-item">
+                    <input type="radio" name="icon-input" value="1" class="selectgroup-input select-sidebar">
+                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
+                      data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
+                  </label>
+                  <label class="selectgroup-item">
+                    <input type="radio" name="icon-input" value="2" class="selectgroup-input select-sidebar" checked>
+                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
+                      data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
+                  </label>
+                </div>
+              </div>
+              <div class="p-15 border-bottom">
+                <h6 class="font-medium m-b-10">Color Theme</h6>
+                <div class="theme-setting-options">
+                  <ul class="choose-theme list-unstyled mb-0">
+                    <li title="white" class="active">
+                      <div class="white"></div>
+                    </li>
+                    <li title="cyan">
+                      <div class="cyan"></div>
+                    </li>
+                    <li title="black">
+                      <div class="black"></div>
+                    </li>
+                    <li title="purple">
+                      <div class="purple"></div>
+                    </li>
+                    <li title="orange">
+                      <div class="orange"></div>
+                    </li>
+                    <li title="green">
+                      <div class="green"></div>
+                    </li>
+                    <li title="red">
+                      <div class="red"></div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="p-15 border-bottom">
+                <div class="theme-setting-options">
+                  <label class="m-b-0">
+                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
+                      id="mini_sidebar_setting">
+                    <span class="custom-switch-indicator"></span>
+                    <span class="control-label p-l-10">Mini Sidebar</span>
+                  </label>
+                </div>
+              </div>
+              <div class="p-15 border-bottom">
+                <div class="theme-setting-options">
+                  <label class="m-b-0">
+                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
+                      id="sticky_header_setting">
+                    <span class="custom-switch-indicator"></span>
+                    <span class="control-label p-l-10">Sticky Header</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mt-4 mb-4 p-3 align-center rt-sidebar-last-ele">
+                <a href="#" class="btn btn-icon icon-left btn-primary btn-restore-theme">
+                  <i class="fas fa-undo"></i> Restore Default
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="main-footer">
+        <div class="footer-left">
+          <a href="templateshub.net">Templateshub</a></a>
+        </div>
+        <div class="footer-right">
+        </div>
+      </footer>
+    </div>
+  </div>
+ 
+  <script>
+const categorySelect = document.getElementById('categorySelect');
+
+const normalFields = document.getElementById('normalFields');
+const dataFields = document.getElementById('dataFields');
+const automobileFields = document.getElementById('automobileFields');
+const electronicsFields = document.getElementById('electronicsFields');
+const courseFields = document.getElementById('courseFields');
+
+categorySelect.addEventListener('change', function() {
+
+  // Reset all
+  normalFields.style.display = 'none';
+  dataFields.style.display = 'none';
+  automobileFields.style.display = 'none';
+   electronicsFields.style.display = 'none';
+
+  if (this.value === 'DATA') {
+    dataFields.style.display = 'block';
+  } 
+  else if (this.value === 'AUTOMOBILE') {
+    automobileFields.style.display = 'block';
+  } 
+   else if (this.value === 'ELECTRONICS') {
+    electronicsFields.style.display = 'block';
+  }
+   else if (this.value === 'COURSES') {
+    courseFields.style.display = 'block';
+  }
+  else {
+    normalFields.style.display = 'block';
+  }
+
+});
+
+
+
+const imageInput = document.getElementById('imageInput');
+const previewContainer = document.getElementById('imagePreview');
+
+imageInput.addEventListener('change', function () {
+
+    previewContainer.innerHTML = ''; // clear old preview
+
+    const files = Array.from(this.files);
+
+    // ❌ LIMIT TO 3
+    if (files.length > 3) {
+        alert('You can only upload maximum of 3 images');
+        this.value = '';
+        return;
+    }
+
+    files.forEach(file => {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = '100px';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '6px';
+
+            previewContainer.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+    });
+});
+
+</script>
