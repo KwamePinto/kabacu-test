@@ -78,8 +78,8 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-        //mongoUrl: process.env.MONGO_URI,
-        mongoUrl: process.env.MONGODBMLAB,
+        mongoUrl: process.env.MONGO_URI,
+       // mongoUrl: process.env.MONGODBMLAB,
         collectionName: 'sessions',
         ttl: 14 * 24 * 60 * 60 // 14 days
     })
