@@ -13,6 +13,7 @@ const mongoose = require('mongoose');
 
 
 
+
 exports.packagesView = async (req, res) => {
    try {
 
@@ -47,6 +48,18 @@ console.log("corses",coursesProducts)
 // res.render('webview/checkout')
 
 // }
+
+exports.dataForm = async(req,res)=>{
+try{
+    res.render("webview/dataform")
+}catch(error){
+  
+}
+
+
+
+}
+
 
 
 // CREATE CHECKOUT
@@ -398,7 +411,8 @@ exports.startTopUp = async (req, res) => {
 
     await axios.post(
       'https://dev-api.bittokenapp.com/api/user/send-otp',
-      { minerId: user.minerId }
+      { minerId: user.minerId },
+      
     );
 
     res.json({ success: true, topupId: topup._id });
@@ -433,7 +447,8 @@ exports.confirmTopUp = async (req, res) => {
         otp,
         amount: topup.amount,
         balance_type: topup.balanceType
-      }
+      },
+      
     );
 
     if (response.data.status !== 200) {
@@ -670,12 +685,33 @@ exports.payWithWallet = async (req, res) => {
 
 
 
+ 
 
 
-exports.paystack =  (req, res) => {
-    // later you integrate Paystack here
-    res.send('Redirecting to Paystack...');
+  
+
+async function sendSimpleMessage() {
+  const mailgun = new Mailgun(FormData);
+  const mg = mailgun.client({
+    username: "api",
+    key: process.env.API_KEY || "7af6646bb47d1e6262a12c3591cefcb8-4293193c-51ba3f6a",
+    // When you have an EU-domain, you must specify the endpoint:
+    // url: "https://api.eu.mailgun.net"
+  });
+  try {
+    const data = await mg.messages.create("sandbox7ddc7b3132b44a939c0eda59f6d1827b.mailgun.org", {
+      from: "Mailgun Sandbox <postmaster@sandbox7ddc7b3132b44a939c0eda59f6d1827b.mailgun.org>",
+      to: ["john ecklu <ecklujohn@gmail.com>"],
+      subject: "Hello john ecklu",
+      text: "Congratulations john ecklu, you just sent an email with Mailgun! You are truly awesome!",
+    });
+
+    console.log(data); // logs response data
+  } catch (error) {
+    console.log(error); //logs any error
+  }
 }
+
 
 exports.wallet =  (req, res) => {
     // wallet deduction logic

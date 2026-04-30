@@ -108,48 +108,88 @@
                             </div>
                         </div>
 
-                        <div class="row">
-                            <ul class="products-list">
-                                <% if(dataProducts.length > 0){ %>
-                                        <% dataProducts.forEach(function(product){ %>
-                                 <li class="product-item col-lg-2 col-md-3 col-sm-4 col-xs-6">
-                                    <div class="contain-product layout-default">
-                                        <div class="product-thumb">
-                                            <a href="#" class="link-to-product">
-                                                <img src="<%= product.images[0] %>" alt="dd" width="270" height="270" class="product-thumnail">
-                                            </a>
-                                        </div>
-                                        <div class="info">
-                                            <b class="categories">Fresh Fruit</b>
-                                            <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                            <div class="price">
-                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                           <!--Block 03: Product Tab-->
+            <div class="product-tab z-index-20 sm-margin-top-193px xs-margin-top-30px" id="shop">
+                <div class="container">
+                    <div class="biolife-title-box">
+                        
+                        <h3 class="main-title">NETWORK PRODUCTS</h3>
+                    </div>
+                    <div class="biolife-tab biolife-tab-contain sm-margin-top-34px">
+                        <div class="tab-head tab-head__icon-top-layout icon-top-layout">
+                            <ul class="tabs md-margin-bottom-35-im xs-margin-bottom-40-im">
+
+                                 <% let tabindex = 0; %>
+  <% for(let network in groupedProducts){ %>
+    <li class="tab-element <%= tabindex === 0 ? 'active' : '' %>">
+      <a href="#tab_<%= tabindex %>" class="tab-link">
+        <span class="biolife-icon icon-phone"></span>
+        <%= network %>
+      </a>
+    </li>
+    <% tabindex++; %>
+  <% } %>
+                            </ul> 
+
+                            
+                        </div>
+                        <div class="tab-content">
+
+
+
+
+
+ <% let index = 0; %>
+  <% for(let network in groupedProducts){ %>
+
+        <div id="tab_<%= index %>" class="tab-contain <%= index === 0 ? 'active' : '' %>">
+                                <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
+                                   <% groupedProducts[network].forEach(function(product){ %>
+                                    <li class="product-item">
+                                        <div class="contain-product layout-default">
+                                            <div class="product-thumb">
+                                                <a href="#" class="link-to-product">
+                                                    <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
+                                                </a>
+                                                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
                                             </div>
-                                            <div class="shipping-info">
-                                                <p class="shipping-day">3-Day Shipping</p>
-                                                <p class="for-today">Pree Pickup Today</p>
-                                            </div>
-                                            <div class="slide-down-box">
-                                                <p class="message">All products are carefully selected to ensure food safety.</p>
-                                                <div class="buttons">
-                                                    <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                    <a href="#" class="btn add-to-cart-btn" data-id="<%= dataProducts._id %>" id="buyNowBtn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                                    <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
+                                            <div class="info">
+                                                <b class="categories"><%= network %>  </b>
+                                                <h4 class="product-title"><a href="#" class="pr-name">  <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
+                                                <div class="price ">
+                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
+                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
+                                                </div>
+                                                <div class="slide-down-box">
+                                                    <p class="message">All products are carefully selected to ensure food safety.</p>
+                                                    <div class="buttons">
+                                                        <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
+                                                        <%if(!user){%>
+                                                        <a href="/user/login" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Buy Now</a>
+                                                        <%}else{%>
+                                                                 <a href="#" 
+                                                                    class="btn add-to-cart-btn buy-btn"
+                                                                    data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Buy Now</a>
+
+                                                            <%}%>
+
+                                                        <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
-                                <% }) %>
-                                        <% } else { %>
-                                        <p>No data products</p>
-                                        <% } %>
-                                
-
-                            </ul>
-                        </div>
-
+                                    </li>
+                                     <% }) %>
+                                   
+                                   
+                                </ul>
+                            </div>
+                              <% index++; %>
+                            <% } %>
+</div>
+                    </div>
+                </div>
+            </div>
                         <div class="biolife-panigations-block">
                             <ul class="panigation-contain">
                                 <li><span class="current-page">1</span></li>
@@ -169,19 +209,17 @@
         </div>
     </div>
 
-     <div id="paymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999;">
-    <div style="background:#fff; width:350px; margin:100px auto; padding:20px; border-radius:8px; text-align:center;">
+   <div id="buyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999;">
+    <div style="background:#fff; width:350px; margin:100px auto; padding:20px; border-radius:8px;">
         
-        <h4>Select Payment Method</h4>
+        <h4>Enter Phone Number</h4>
+
+        <input type="text" id="phoneInput" class="form-control" placeholder="e.g 23481533xxxxx" />
 
         <br>
 
-        <button id="paystackBtn" class="btn btn-success">Pay with Paystack</button>
-        <br><br>
-        <button id="walletBtn" class="btn btn-primary">Pay with Wallet(USDT)</button>
-        <br><br>
-        <button id="cancelPaymentBtn" class="btn btn-danger">Cancel</button>
-
+        <button id="cancelBtn" class="btn btn-danger">Cancel</button>
+        <button id="checkoutBtn" class="btn btn-success">Checkout</button>
     </div>
 </div>
 
@@ -257,50 +295,65 @@
     <!-- Scroll Top Button -->
     <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
 
-       <script>
-const modal = document.getElementById('paymentModal');
-let selectedProductId = null;
+   
+    <script id="checkout-js">
+let selectedPackageId = null;
 
 // Open modal
-document.getElementById('buyNowBtn').addEventListener('click', function(e){
-    e.preventDefault();
-    
-    selectedProductId = this.dataset.id; // ✅ store productId
-    modal.style.display = 'block';
+document.querySelectorAll('.buy-btn').forEach(btn => {
+    btn.addEventListener('click', function(e){
+        e.preventDefault();
+        selectedPackageId = this.dataset.id;
+        document.getElementById('buyModal').style.display = 'block';
+    });
 });
 
-// Cancel
-document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
-    modal.style.display = 'none';
+// ✅ Cancel button FIX
+document.getElementById('cancelBtn').addEventListener('click', () => {
+    document.getElementById('buyModal').style.display = 'none';
 });
 
-// Paystack
-document.getElementById('paystackBtn').addEventListener('click', () => {
-    window.location.href = '/payment/paystack';
-});
-
-// ✅ Wallet payment (NEW LOGIC)
-document.getElementById('walletBtn').addEventListener('click', async () => {
-    try {
-        const res = await fetch('/wallet/pay', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId: selectedProductId }) // ✅ send productId
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            alert('✅ Payment successful');
-            modal.style.display = 'none';
-            location.reload();
-        } else {
-            alert(data.message);
-        }
-
-    } catch (error) {
-        console.log(error);
-        alert('Payment error');
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('buyModal');
+    if (e.target === modal) {
+        modal.style.display = 'none';
     }
 });
+
+// Checkout
+document.getElementById('checkoutBtn').addEventListener('click', async () => {
+    const phone = document.getElementById('phoneInput').value;
+
+    if(!phone){
+       // alert('Enter phone number');
+       Swal.fire({
+    icon: 'warning',
+    text: 'Enter phone number'
+});
+        return;
+    }
+
+    const res = await fetch('/checkout/initiate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ packageId: selectedPackageId, phone })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        window.location.href = '/checkout';
+    } else {
+        alert(data.message);
+    }
+});
+
+
+
+
+
+
+
 </script>

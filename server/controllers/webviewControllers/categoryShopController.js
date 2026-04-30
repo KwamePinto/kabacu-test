@@ -8,18 +8,31 @@ const { authenticateUser } = require('../../config/authMiddleware');
 
 
 
-exports.dataCategory = [authenticateUser,async (req,res)=>{
-try{
-    const dataProducts = await Product.find({ category: 'DATA' }).limit(9);
-    res.render('webview/data-category',{
-        dataProducts
-    })
-}catch(erro){
-    console.log(error)
-}
+exports.dataCategory = [authenticateUser, async (req, res) => {
+  try {
+    const dataProducts = await Product.find({ category: 'DATA' });
 
+    // 🔥 Group by network
+    const groupedProducts = {};
 
-}]
+    dataProducts.forEach(product => {
+      const network = product.dataDetails.network || 'OTHERS';
+
+      if (!groupedProducts[network]) {
+        groupedProducts[network] = [];
+      }
+
+      groupedProducts[network].push(product);
+    });
+
+    res.render('webview/data-category', {
+      groupedProducts
+    });
+
+  } catch (error) {
+    console.log(error);
+  }
+}];
 
 exports.eletronicCategory = [authenticateUser,async (req,res)=>{
 try{

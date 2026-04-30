@@ -10,7 +10,9 @@ router.post('/checkout/initiate',authenticateUser,getPackages.initiateCheckout)
 
 router.get('/checkout',authenticateUser,getPackages.checkoutPage)
 
-router.get('/payment/paystack',authenticateUser,getPackages.paystack)
+router.get('/data-form',authenticateUser,getPackages.dataForm)
+
+// router.get('/payment/paystack',authenticateUser,getPackages.paystack)
 
 router.get('/payment/wallet',authenticateUser,getPackages.wallet)
 
