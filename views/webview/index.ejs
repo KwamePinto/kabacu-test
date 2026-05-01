@@ -826,7 +826,7 @@ document.querySelectorAll('.btn_call_quickview').forEach(btn => {
         const id = this.dataset.id;
         console.log('This is the id',id)
 
-        fetch(`/admin/product/details/${id}`)
+        fetch(`https://ctc-ecommerce.onrender.com/admin/product/details/${id}`)
             .then(res => res.json())
             .then(product => {
 
