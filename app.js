@@ -48,7 +48,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Global user loader
 app.use(optionalUser);
 app.use(loadUser);
-app.use(loadCart);
+//app.use(loadCart);
 app.use(loadWallt);
  // ✅ applies to all pages
 

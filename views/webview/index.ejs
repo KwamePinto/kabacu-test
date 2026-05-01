@@ -817,90 +817,8 @@
     <!-- Scroll Top Button -->
     <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
 
-    <script id="checkout-js">
-let selectedPackageId = null;
-
-// Open modal
-document.querySelectorAll('.buy-btn').forEach(btn => {
-    btn.addEventListener('click', function(e){
-        e.preventDefault();
-        selectedPackageId = this.dataset.id;
-        document.getElementById('buyModal').style.display = 'block';
-    });
-});
-
-// ✅ Cancel button FIX
-document.getElementById('cancelBtn').addEventListener('click', () => {
-    document.getElementById('buyModal').style.display = 'none';
-});
-
-window.addEventListener('click', (e) => {
-    const modal = document.getElementById('buyModal');
-    if (e.target === modal) {
-        modal.style.display = 'none';
-    }
-});
-
-// Checkout
-document.getElementById('checkoutBtn').addEventListener('click', async () => {
-    const phone = document.getElementById('phoneInput').value;
-
-    if(!phone){
-       // alert('Enter phone number');
-       Swal.fire({
-    icon: 'warning',
-    text: 'Enter phone number'
-});
-        return;
-    }
-
-    const res = await fetch('/checkout/initiate', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ packageId: selectedPackageId, phone })
-    });
-
-    const data = await res.json();
-
-    if(data.success){
-        window.location.href = '/checkout';
-    } else {
-        alert(data.message);
-    }
-});
-
-//modal
-const modal = document.getElementById('comingSoonModal');
-
-// Open modal
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.add-to-cart')) {
-        e.preventDefault();
-        modal.style.display = 'block';
-    }
-});
-
-// Close modal (X or button)
-document.querySelectorAll('.close-modal, .close-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-});
-
-// Close when clicking outside
-window.addEventListener('click', function(e) {
-    if (e.target === modal) {
-        modal.style.display = 'none';
-    }
-});
-
-
-
-
-
-
+    <script>
+        
 document.querySelectorAll('.btn_call_quickview').forEach(btn => {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -999,6 +917,92 @@ $(quickviewNav).slick({
             .catch(err => console.error(err));
     });
 });
+    </script>
+
+    <script id="checkout-js">
+let selectedPackageId = null;
+
+// Open modal
+document.querySelectorAll('.buy-btn').forEach(btn => {
+    btn.addEventListener('click', function(e){
+        e.preventDefault();
+        selectedPackageId = this.dataset.id;
+        document.getElementById('buyModal').style.display = 'block';
+    });
+});
+
+// ✅ Cancel button FIX
+document.getElementById('cancelBtn').addEventListener('click', () => {
+    document.getElementById('buyModal').style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('buyModal');
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+// Checkout
+document.getElementById('checkoutBtn').addEventListener('click', async () => {
+    const phone = document.getElementById('phoneInput').value;
+
+    if(!phone){
+       // alert('Enter phone number');
+       Swal.fire({
+    icon: 'warning',
+    text: 'Enter phone number'
+});
+        return;
+    }
+
+    const res = await fetch('/checkout/initiate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ packageId: selectedPackageId, phone })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        window.location.href = '/checkout';
+    } else {
+        alert(data.message);
+    }
+});
+
+//modal
+const modal = document.getElementById('comingSoonModal');
+
+// Open modal
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.add-to-cart')) {
+        e.preventDefault();
+        modal.style.display = 'block';
+    }
+});
+
+// Close modal (X or button)
+document.querySelectorAll('.close-modal, .close-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+});
+
+// Close when clicking outside
+window.addEventListener('click', function(e) {
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+
+
+
+
+
 
 
 

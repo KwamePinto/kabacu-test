@@ -150,113 +150,14 @@
                                 </div>
                             </div> -->
 
-                             <div class="minicart-block">
-                                <div class="minicart-contain">
-                                    <a href="javascript:void(0)" class="link-to">
-                                            <span class="icon-qty-combine">
-                                                <i class="icon-cart-mini biolife-icon"></i>
-                                                <span class="qty"><%= cart.length %></span>
-                                            </span>
-                                        <span class="title">My Cart -</span>
-                                        <span class="sub-total">₦<%= cartSubtotal.toLocaleString() %></span>
-                                    </a><br>
-                                     
-                                   
-                                    
-                                    
-                                    <div class="cart-content">
-                                        <div class="cart-inner">
-                                           <ul class="products">
- <% if(cart.length > 0){ %>
-  <% cart.forEach(item => { 
-      const product = item.product;
 
-      let title = '';
-      let subtitle = '';
-      let price = 0;
 
-      if(product.category === 'AUTOMOBILE'){
-        title = product.automobileDetails.brand;
-        subtitle = product.automobileDetails.model + ' (' + product.automobileDetails.year + ')';
-        price = product.automobileDetails.price;
+                            <!--
 
-      } else if(product.category === 'DATA'){
-        title = product.dataDetails.network;
-        subtitle = product.dataDetails.plan_name;
-        price = product.dataDetails.amount;
 
-      } else if(product.category === 'ELECTRONICS'){
-        title = product.electronicDetails.itemName;
-        subtitle = product.electronicDetails.brandItem;
-        price = product.electronicDetails.items_price;
+                                Cart functionality goes here
 
-      } else if(product.category === 'COURSES'){
-        title = product.coursesDetails.title;
-        subtitle = product.coursesDetails.instructor;
-        price = product.coursesDetails.course_price;
-      }
-  %>
-
-  <li>
-    <div class="minicart-item">
-      
-      <!-- Image -->
-      <div class="thumb">
-        <img src="<%= product.images[0] %>" width="90">
-      </div>
-
-      <!-- Info -->
-      <div class="left-info">
-        
-        <div class="product-title">
-          <a href="#" class="product-name"><%= title %></a>
-        </div>
-
-        <div class="product-title">
-          <a href="#" class="product-name"><%= subtitle %></a>
-        </div>
-
-        <!-- Price -->
-        <div class="price">
-          <ins>
-            <span class="price-amount">
-              <span class="currencySymbol">₦</span>
-              <%= price.toLocaleString() %>
-            </span>
-          </ins>
-        </div>
-
-        <!-- Quantity -->
-        <div class="qty">
-          <label>Qty: <%= item.quantity %></label>
-        </div>
-
-      </div>
-
-      <!-- Remove -->
-      <div class="action">
-        <a href="/cart/remove/<%= product._id %>">
-          <i class="fa fa-trash-o"></i>
-        </a>
-      </div>
-
-    </div>
-  </li>
-
-  <% }) %>
-
-<% } else { %>
-  <p>No items in cart</p>
-<% } %>
-</ul>
-                                            <p class="btn-control">
-                                                <a href="#" class="btn view-cart">view cart</a>
-                                                <a href="/item-checkout" class="btn">checkout</a>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        -->
                          <br>
                             
                           <!-- The Wallet -->
