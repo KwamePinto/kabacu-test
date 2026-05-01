@@ -818,7 +818,7 @@
     <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
 
     <script>
-        
+        document.addEventListener('DOMContentLoaded', function () {
 document.querySelectorAll('.btn_call_quickview').forEach(btn => {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -917,6 +917,7 @@ $(quickviewNav).slick({
             .catch(err => console.error(err));
     });
 });
+})
     </script>
 
     <script id="checkout-js">
