@@ -107,3 +107,18 @@ exports.addProduct = [authenticateAdminUser,async (req, res) => {
     res.send('Error adding product');
   }
 }];
+
+
+exports.productDetails = [authenticateAdminUser,async(req,res)=>{
+
+   try {
+        const product = await Product.findById(req.params.id);
+        res.json(product);
+    } catch (err) {
+        res.status(500).json({ error: 'Product not found' });
+    }
+
+
+
+
+}]

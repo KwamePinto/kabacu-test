@@ -1,4 +1,39 @@
+<style>
+.custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+}
 
+.custom-modal-content {
+    background: #fff;
+    width: 350px;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+.close-modal {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+</style>
 
     <!-- Preloader -->
     <div id="biof-loading">
@@ -213,7 +248,7 @@
                                                 <a href="#" class="link-to-product">
                                                     <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
                                                 </a>
-                                                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
+                                                <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
                                             </div>
                                             <div class="info">
                                                 <b class="categories"><%= product.dataDetails.network %>  </b>
@@ -260,7 +295,7 @@
                                                 <a href="#" class="link-to-product">
                                                     <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
                                                 </a>
-                                                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
+                                                <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
                                             </div>
                                             <div class="info">
                                                 <b class="categories"><%= product.automobileDetails.brand %></b>
@@ -274,7 +309,8 @@
                                                      <%= product.automobileDetails.transmission %></p>
                                                     <div class="buttons">
                                                         <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn add-to-cart-btn add-to-cart"  data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
+                                                        <!-- <a href="#" class="btn add-to-cart-btn add-to-cart"  data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a> -->
+                                                         <a href="#" class="btn add-to-cart-btn add-to-cart" ><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
                                                         <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
                                                     </div>
                                                 </div>
@@ -300,7 +336,7 @@
                                                 <a href="#" class="link-to-product">
                                                     <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
                                                 </a>
-                                                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
+                                                <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
                                             </div>
                                             <div class="info">
                                                 <b class="categories"><%= product.electronicDetails.itemName %></b>
@@ -342,14 +378,14 @@
                                                 <a href="#" class="link-to-product">
                                                     <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
                                                 </a>
-                                                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
+                                                <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
                                             </div>
                                             <div class="info">
                                                 <b class="categories"><%= product.coursesDetails.title %></b>
                                                 <h4 class="product-title"><a href="#" class="pr-name"><%= product.coursesDetails.instructor %></a></h4>
                                                 <div class="price ">
                                                     <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.coursesDetails.course_price %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
+                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00 <</span></del>
                                                 </div>
                                                 <div class="slide-down-box">
                                                     <p class="message"><%= product.coursesDetails.course_description %></p>
@@ -621,6 +657,16 @@
     </div>
 </div>
 
+
+<div id="comingSoonModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>🚀 Coming Soon!</h3>
+        <p>This feature is not available yet. Stay tuned!</p>
+        <button class="btn btn-primary close-btn">OK</button>
+    </div>
+</div>
+
     <!-- FOOTER -->
     <%- include('../partials/footer.ejs')%>
     <!--Footer For Mobile-->
@@ -695,36 +741,24 @@
             <a href="#" class="btn-close-quickview" data-object="open-quickview-block"><span class="biolife-icon icon-close-menu"></span></a>
             <div class="biolife-quickview-inner">
                 <div class="media">
-                    <ul class="biolife-carousel quickview-for" data-slick='{"arrows":false,"dots":false,"slidesMargin":30,"slidesToShow":1,"slidesToScroll":1,"fade":true,"asNavFor":".quickview-nav"}'>
-                        <li><img src="assets/images/details-product/detail_01.jpg" alt="" width="500" height="500"></li>
-                        <li><img src="assets/images/details-product/detail_02.jpg" alt="" width="500" height="500"></li>
-                        <li><img src="assets/images/details-product/detail_03.jpg" alt="" width="500" height="500"></li>
-                        <li><img src="assets/images/details-product/detail_04.jpg" alt="" width="500" height="500"></li>
-                        <li><img src="assets/images/details-product/detail_05.jpg" alt="" width="500" height="500"></li>
-                        <li><img src="assets/images/details-product/detail_06.jpg" alt="" width="500" height="500"></li>
-                        <li><img src="assets/images/details-product/detail_07.jpg" alt="" width="500" height="500"></li>
+                    <ul class="biolife-carousel quickview-for" id="quickview-images" data-slick='{"arrows":false,"dots":false,"slidesMargin":30,"slidesToShow":1,"slidesToScroll":1,"fade":true,"asNavFor":".quickview-nav"}'>
+                       
                     </ul>
-                    <ul class="biolife-carousel quickview-nav" data-slick='{"arrows":true,"dots":false,"centerMode":false,"focusOnSelect":true,"slidesMargin":10,"slidesToShow":3,"slidesToScroll":1,"asNavFor":".quickview-for"}'>
-                        <li><img src="assets/images/details-product/thumb_01.jpg" alt="" width="88" height="88"></li>
-                        <li><img src="assets/images/details-product/thumb_02.jpg" alt="" width="88" height="88"></li>
-                        <li><img src="assets/images/details-product/thumb_03.jpg" alt="" width="88" height="88"></li>
-                        <li><img src="assets/images/details-product/thumb_04.jpg" alt="" width="88" height="88"></li>
-                        <li><img src="assets/images/details-product/thumb_05.jpg" alt="" width="88" height="88"></li>
-                        <li><img src="assets/images/details-product/thumb_06.jpg" alt="" width="88" height="88"></li>
-                        <li><img src="assets/images/details-product/thumb_07.jpg" alt="" width="88" height="88"></li>
+                    <ul class="biolife-carousel quickview-nav" id="quickview-thumbs" data-slick='{"arrows":true,"dots":false,"centerMode":false,"focusOnSelect":true,"slidesMargin":10,"slidesToShow":3,"slidesToScroll":1,"asNavFor":".quickview-for"}'>
+                      
                     </ul>
                 </div>
                 <div class="product-attribute">
-                    <h4 class="title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
+                    <h4 class="title"><a href="#" id="quickview-name" class="pr-name"></a></h4>
                     <div class="rating">
                         <p class="star-rating"><span class="width-80percent"></span></p>
                     </div>
 
                     <div class="price price-contain">
-                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
+                        <ins><span class="price-amount" id="quickview-price"><span class="currencySymbol">£</span>85.00</span></ins>
                         <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
                     </div>
-                    <p class="excerpt">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vel maximus lacus. Duis ut mauris eget justo dictum tempus sed vel tellus.</p>
+                    <p class="excerpt" id="quickview-description"></p>
                     <div class="from-cart">
                         <div class="qty-input">
                             <input type="text" name="qty12554" value="1" data-max_value="20" data-min_value="1" data-step="1">
@@ -739,14 +773,13 @@
                     <div class="product-meta">
                         <div class="product-atts">
                             <div class="product-atts-item">
-                                <b class="meta-title">Categories:</b>
+                                <b class="meta-title">Description
                                 <ul class="meta-list">
-                                    <li><a href="#" class="meta-link">Milk & Cream</a></li>
-                                    <li><a href="#" class="meta-link">Fresh Meat</a></li>
-                                    <li><a href="#" class="meta-link">Fresh Fruit</a></li>
+                                    <li><a href="#"  id="quickview-description" class="meta-link"></a></li>
+                                    
                                 </ul>
                             </div>
-                            <div class="product-atts-item">
+                            <!-- <div class="product-atts-item">
                                 <b class="meta-title">Tags:</b>
                                 <ul class="meta-list">
                                     <li><a href="#" class="meta-link">food theme</a></li>
@@ -759,7 +792,7 @@
                                 <ul class="meta-list">
                                     <li><a href="#" class="meta-link">Fresh Fruit</a></li>
                                 </ul>
-                            </div>
+                            </div> -->
                         </div>
                         <span class="sku">SKU: N/A</span>
                         <div class="biolife-social inline add-title">
@@ -835,8 +868,134 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
     }
 });
 
+//modal
+const modal = document.getElementById('comingSoonModal');
+
+// Open modal
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.add-to-cart')) {
+        e.preventDefault();
+        modal.style.display = 'block';
+    }
+});
+
+// Close modal (X or button)
+document.querySelectorAll('.close-modal, .close-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+});
+
+// Close when clicking outside
+window.addEventListener('click', function(e) {
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
 
 
+
+
+
+
+document.querySelectorAll('.btn_call_quickview').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const id = this.dataset.id;
+        console.log('This is the id',id)
+
+        fetch(`/admin/product/details/${id}`)
+            .then(res => res.json())
+            .then(product => {
+
+                let name = '';
+                let price = '';
+                let description = '';
+
+                // ✅ HANDLE CATEGORY CLEANLY
+                switch (product.category) {
+                    case "DATA":
+                        name = `${product.dataDetails.plan_type} (${product.dataDetails.plan_name})`;
+                        price = product.dataDetails.amount;
+                        description = product.dataDetails.network;
+                        break;
+
+                    case "AUTOMOBILE":
+                        name = `${product.automobileDetails.brand} ${product.automobileDetails.model}`;
+                        price = product.automobileDetails.price;
+                        description = `${product.automobileDetails.fuel_type} | ${product.automobileDetails.transmission}`;
+                        break;
+
+                    case "ELECTRONIC":
+                        name = product.electronicDetails.itemName;
+                        price = product.electronicDetails.items_price;
+                        description = product.electronicDetails.itemtype;
+                        break;
+
+                    case "COURSE":
+                        name = product.coursesDetails.title;
+                        price = product.coursesDetails.course_price;
+                        description = product.coursesDetails.course_description;
+                        break;
+                }
+
+                // ✅ UPDATE TEXT
+                document.getElementById('quickview-name').innerText = name;
+                document.getElementById('quickview-price').innerHTML = 
+                    `<span class="currencySymbol">₦</span>${price}`;
+                document.getElementById('quickview-description').innerText = description;
+
+                // ✅ HANDLE MULTIPLE IMAGES (VERY IMPORTANT)
+                const imageContainer = document.getElementById('quickview-images');
+                const thumbContainer = document.getElementById('quickview-thumbs');
+
+                imageContainer.innerHTML = '';
+                thumbContainer.innerHTML = '';
+
+                if (product.images && product.images.length > 0) {
+                    product.images.forEach(img => {
+                        imageContainer.innerHTML += `
+                            <li><img src="${img}" width="500" height="500"></li>
+                        `;
+
+                        thumbContainer.innerHTML += `
+                            <li><img src="${img}" width="88" height="88"></li>
+                        `;
+                    });
+                }
+
+              const quickviewFor = document.querySelector('.quickview-for');
+const quickviewNav = document.querySelector('.quickview-nav');
+
+// Destroy only if already initialized
+if ($(quickviewFor).hasClass('slick-initialized')) {
+    $(quickviewFor).slick('unslick');
+}
+
+if ($(quickviewNav).hasClass('slick-initialized')) {
+    $(quickviewNav).slick('unslick');
+}
+
+// Reinitialize
+$(quickviewFor).slick({
+    arrows: false,
+    dots: false,
+    fade: true,
+    asNavFor: '.quickview-nav'
+});
+
+$(quickviewNav).slick({
+    slidesToShow: 3,
+    asNavFor: '.quickview-for',
+    focusOnSelect: true
+});
+                // ✅ OPEN POPUP
+                document.getElementById('biolife-quickview-block').classList.add('open');
+            })
+            .catch(err => console.error(err));
+    });
+});
 
 
 
