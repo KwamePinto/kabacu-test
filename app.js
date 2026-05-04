@@ -103,7 +103,7 @@ app.use((req, res, next) => {
     // console.log("user",req.user);
     // next();
 });
-
+    
 app.use(expressLayout);
 app.set('layout', './layouts/main')
 app.set('view engine', 'ejs');

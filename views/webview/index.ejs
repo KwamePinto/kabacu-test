@@ -33,6 +33,20 @@
     from {opacity: 0; transform: translateY(-20px);}
     to {opacity: 1; transform: translateY(0);}
 }
+
+.category-wrapper {
+    position: relative;
+    display: block;
+    text-align: center; /* centers the network */
+}
+
+.category-wrapper .rp {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+}
 </style>
 
     <!-- Preloader -->
@@ -251,7 +265,10 @@
                                                 <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
                                             </div>
                                             <div class="info">
-                                                <b class="categories"><%= product.dataDetails.network %>  </b>
+                                              <b class="categories category-wrapper">
+    <span class="network"><%= product.dataDetails.network %></span>
+    <span class="rp">RP(<%= product.reward_point %>)</span>
+</b>
                                                 <h4 class="product-title"><a href="#" class="pr-name">  <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
                                                 <div class="price ">
                                                     <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
