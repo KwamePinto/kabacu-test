@@ -55,6 +55,9 @@
     border-radius: 10px;
     white-space: nowrap; 
 }
+
+
+
 </style>
 
     <!-- Preloader -->
@@ -274,8 +277,8 @@
                                             </div>
                                             <div class="info">
                                               <b class="categories category-wrapper">
-    <span class="network"><%= product.dataDetails.network %></span>
-    <span class="rp">Reward Point(<%= product.reward_point %>)</span>
+                                    <span class="network"><%= product.dataDetails.network %></span>
+                                    <span class="rp">Reward Point(<%= product.reward_point %>)</span>
 </b>
                                                 <h4 class="product-title"><a href="#" class="pr-name">  <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
                                                 <div class="price ">
@@ -671,7 +674,7 @@
 
     </div>
     
-    <div id="buyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999;">
+    <div id="buyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999;">
     <div style="background:#fff; width:350px; margin:100px auto; padding:20px; border-radius:8px;">
         
         <h4>Enter Phone Number</h4>
@@ -686,14 +689,6 @@
 </div>
 
 
-<div id="comingSoonModal" class="custom-modal">
-    <div class="custom-modal-content">
-        <span class="close-modal">&times;</span>
-        <h3>🚀 Coming Soon!</h3>
-        <p>This feature is not available yet. Stay tuned!</p>
-        <button class="btn btn-primary close-btn">OK</button>
-    </div>
-</div>
 
     <!-- FOOTER -->
     <%- include('../partials/footer.ejs')%>
@@ -794,9 +789,11 @@
                             <a href="#" class="qty-btn btn-down"><i class="fa fa-caret-down" aria-hidden="true"></i></a>
                         </div>
                         <div class="buttons">
-                            <a href="#" class="btn add-to-cart-btn btn-bold">add to cart</a>
+                            <a href="#" id="quickview-buy-btn" class="btn add-to-cart-btn btn-bold">Buy Now</a>
                         </div>
                     </div>
+
+                   
 
                     <div class="product-meta">
                         <div class="product-atts">
@@ -971,7 +968,12 @@ document.addEventListener('click', async function(e) {
 
             product = await res.json();
             productCache[id] = product; // store in cache
+
+            // after fetching product
+const buyBtn = document.getElementById('quickview-buy-btn');
+buyBtn.setAttribute('data-id', product._id);
         }
+        
 
         // ✅ Extract data cleanly
         let name = '';
@@ -1050,6 +1052,21 @@ document.addEventListener('click', async function(e) {
         console.error('Error:', err);
     }
 });
+
+
+
+document.getElementById('quickview-buy-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const productId = this.dataset.id;
+
+    console.log('Buying product:', productId);
+
+    // store it globally if needed
+    window.selectedProductId = productId;
+
+    document.getElementById('buyModal').style.display = 'block';
+});
 </script>
 
     <script id="checkout-js">
@@ -1077,35 +1094,58 @@ window.addEventListener('click', (e) => {
 });
 
 // Checkout
+
+
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
     const phone = document.getElementById('phoneInput').value;
 
-    if(!phone){
-       // alert('Enter phone number');
-       Swal.fire({
-    icon: 'warning',
-    text: 'Enter phone number'
-});
+    // ✅ pick whichever exists
+    const productId = window.selectedProductId || selectedPackageId;
+
+    if (!phone) {
+        Swal.fire({
+            icon: 'warning',
+            text: 'Enter phone number'
+        });
         return;
     }
 
-    const res = await fetch('/checkout/initiate', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ packageId: selectedPackageId, phone })
-    });
+    if (!productId) {
+        Swal.fire({
+            icon: 'error',
+            text: 'No product selected'
+        });
+        return;
+    }
 
-    const data = await res.json();
+    try {
+        const res = await fetch('/checkout/initiate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ packageId: productId, phone }) // ✅ unified
+        });
 
-    if(data.success){
-        window.location.href = '/checkout';
-    } else {
-        alert(data.message);
+        const data = await res.json();
+
+        if (data.success) {
+            window.location.href = '/checkout';
+        } else {
+            Swal.fire({
+                icon: 'error',
+                text: data.message || 'Something went wrong'
+            });
+        }
+
+    } catch (err) {
+        console.error(err);
+        Swal.fire({
+            icon: 'error',
+            text: 'Network error'
+        });
     }
 });
-
 //modal
 const modal = document.getElementById('comingSoonModal');
 
