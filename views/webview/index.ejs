@@ -920,6 +920,113 @@ $(quickviewNav).slick({
 })
     </script> -->
 
+
+    <script>
+const productCache = {}; // 🔥 cache for speed
+
+document.addEventListener('click', async function(e) {
+    const btn = e.target.closest('.btn_call_quickview');
+    if (!btn) return;
+
+    e.preventDefault();
+
+    const id = btn.dataset.id;
+    if (!id) {
+        console.error('Missing ID');
+        return;
+    }
+
+    try {
+        // ✅ Use cache (VERY IMPORTANT FOR SPEED)
+        let product = productCache[id];
+
+        if (!product) {
+            const res = await fetch(`/admin/product/details/${id}`);
+            if (!res.ok) throw new Error('Fetch failed');
+
+            product = await res.json();
+            productCache[id] = product; // store in cache
+        }
+
+        // ✅ Extract data cleanly
+        let name = '';
+        let price = '';
+        let description = '';
+
+        switch (product.category) {
+            case "DATA":
+                name = `${product.dataDetails.plan_type} (${product.dataDetails.plan_name})`;
+                price = product.dataDetails.amount;
+                description = product.dataDetails.network;
+                break;
+
+            case "AUTOMOBILE":
+                name = `${product.automobileDetails.brand} ${product.automobileDetails.model}`;
+                price = product.automobileDetails.price;
+                description = `${product.automobileDetails.fuel_type} | ${product.automobileDetails.transmission}`;
+                break;
+
+            case "ELECTRONIC":
+                name = product.electronicDetails.itemName;
+                price = product.electronicDetails.items_price;
+                description = product.electronicDetails.itemtype;
+                break;
+
+            case "COURSE":
+                name = product.coursesDetails.title;
+                price = product.coursesDetails.course_price;
+                description = product.coursesDetails.course_description;
+                break;
+        }
+
+        // ✅ Update UI (FAST)
+        document.getElementById('quickview-name').innerText = name;
+        document.getElementById('quickview-price').innerHTML =
+            `<span class="currencySymbol">₦</span>${price}`;
+        document.getElementById('quickview-description').innerText = description;
+
+        // ✅ Images (FAST + CLEAN)
+        const imageContainer = document.getElementById('quickview-images');
+        const thumbContainer = document.getElementById('quickview-thumbs');
+
+        imageContainer.innerHTML = product.images.map(img =>
+            `<li><img src="${img}" width="500"></li>`
+        ).join('');
+
+        thumbContainer.innerHTML = product.images.map(img =>
+            `<li><img src="${img}" width="88"></li>`
+        ).join('');
+
+        // ✅ Initialize Slick ONLY ONCE
+        if (!window.quickviewInitialized) {
+            $('.quickview-for').slick({
+                arrows: false,
+                fade: true,
+                asNavFor: '.quickview-nav'
+            });
+
+            $('.quickview-nav').slick({
+                slidesToShow: 3,
+                asNavFor: '.quickview-for',
+                focusOnSelect: true
+            });
+
+            window.quickviewInitialized = true;
+        } else {
+            // 🔥 Just refresh instead of destroy/recreate
+            $('.quickview-for').slick('refresh');
+            $('.quickview-nav').slick('refresh');
+        }
+
+        // ✅ Open modal
+        document.getElementById('biolife-quickview-block').classList.add('open');
+
+    } catch (err) {
+        console.error('Error:', err);
+    }
+});
+</script>
+
     <script id="checkout-js">
 let selectedPackageId = null;
 

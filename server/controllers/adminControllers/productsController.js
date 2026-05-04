@@ -109,7 +109,7 @@ exports.addProduct = [authenticateAdminUser,async (req, res) => {
 }];
 
 
-exports.productDetails = [authenticateAdminUser,async(req,res)=>{
+exports.productDetails = async(req,res)=>{
 
    try {
         const product = await Product.findById(req.params.id);
@@ -121,4 +121,4 @@ exports.productDetails = [authenticateAdminUser,async(req,res)=>{
 
 
 
-}]
+}
