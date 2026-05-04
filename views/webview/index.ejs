@@ -41,11 +41,19 @@
 }
 
 .category-wrapper .rp {
-    position: absolute;
+   position: absolute;
     right: 0;
     top: 50%;
     transform: translateY(-50%);
-    font-weight: bold;
+    
+    font-size: 11px;        /* small text */
+    font-weight: 600;       /* still visible */
+    color: #fff;            /* strong contrast */
+    background: #ff9800;    /* bright color (visible) */
+    
+    padding: 2px 6px;
+    border-radius: 10px;
+    white-space: nowrap; 
 }
 </style>
 
@@ -267,7 +275,7 @@
                                             <div class="info">
                                               <b class="categories category-wrapper">
     <span class="network"><%= product.dataDetails.network %></span>
-    <span class="rp">RP(<%= product.reward_point %>)</span>
+    <span class="rp">Reward Point(<%= product.reward_point %>)</span>
 </b>
                                                 <h4 class="product-title"><a href="#" class="pr-name">  <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
                                                 <div class="price ">

@@ -37,8 +37,38 @@
 
        <div class="sumary-product single-layout">
 
+         <div class="product-attribute">
+                        <h3 class="title">My Wallet Balance</h3>
+                        <!-- <div class="rating">
+                            <p class="star-rating"><span class="width-80percent"></span></p>
+                            <span class="review-count">(04 Reviews)</span>
+                            <span class="qa-text">Q&amp;A</span>
+                            <b class="category">By: Natural food</b>
+                        </div>
+                        <span class="sku">Sku: #76584HH</span>
+                        <p class="excerpt">Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Cras ultricies ligula sed magna dictum porta. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Cras ultricies ligula sed magna dictum porta. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a.</p> -->
+                        <div class="price">
+                            <ins><span class="price-amount"><span class="currencySymbol" style="color: red;">BTT : </span><%= wallet && wallet.balances ? wallet.balances.BTT.toFixed(2) : '0.00' %></span></ins>
+                        </div>
+                        <div class="price">
+                            <ins><span class="price-amount"><span class="currencySymbol" style="color: red;">RP : </span><%= wallet && wallet.balances ? wallet.balances.RP.toFixed(2) : '0.00' %></span></ins>
+                        </div>
+                        <div class="price">
+                            <ins><span class="price-amount"><span class="currencySymbol" style="color: red;">USDT : </span><%= wallet && wallet.balances ? wallet.balances.USDT.toFixed(2) : '0.00' %></span></ins>
+                        </div>
+                         <div class="price">
+                            <ins><span class="price-amount"><span class="currencySymbol" style="color: red;">NAIRA : ₦</span><%= wallet && wallet.balances ? wallet.balances.USDT.toFixed(2) : '0.00' %></span></ins>
+                        </div>
+                        <div class="shipping-info">
+                            <p class="shipping-day">Top-up Wallet Allowed</p>
+                            <p class="for-today">Wallet up coming soon</p>
+                        </div>
+                    </div>
+
+      
+
     <!-- WALLET HEADER -->
-  <div class="summary-info">
+  <!-- <div class="summary-info">
 
     <h4 style="margin-top:10px;">
         BTT Balance:
@@ -61,7 +91,7 @@
         </span>
     </h4>
 
-</div>
+</div> -->
 
     <div class="action-form">
         
@@ -139,27 +169,14 @@
 
     </div>
 
-
-
-
-
-
+    
 
 </div>
                 
                 <!-- summary info -->
                
-              
-
-                
-            </div>
-
-
-
-            
-
-
-        </div>
+              </div>
+</div>
     </div>
 
       <%- include('../partials/footer.ejs')%>

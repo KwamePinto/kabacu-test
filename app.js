@@ -79,7 +79,7 @@ app.use(session({
     saveUninitialized: true,
     store: MongoStore.create({
        mongoUrl: process.env.MONGO_URI,
-    // mongoUrl: process.env.MONGODBMLAB,
+       //mongoUrl: process.env.MONGODBMLAB,
         collectionName: 'sessions',
         ttl: 14 * 24 * 60 * 60 // 14 days
     })
@@ -103,7 +103,7 @@ app.use((req, res, next) => {
     // console.log("user",req.user);
     // next();
 });
-    
+
 app.use(expressLayout);
 app.set('layout', './layouts/main')
 app.set('view engine', 'ejs');
