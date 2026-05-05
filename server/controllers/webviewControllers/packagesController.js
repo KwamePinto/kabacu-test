@@ -495,7 +495,7 @@ exports.payWithWallet = async (req, res) => {
     const wallet = await Wallet.findOne({ user: userId });
 
     if (!wallet) {
-      return res.json({ success: false, message: 'Wallet not found' });
+      return res.json({ success: false, message: 'Wallets Not Fundeded' });
     }
 
     let total = 0;
@@ -690,27 +690,7 @@ exports.payWithWallet = async (req, res) => {
 
   
 
-async function sendSimpleMessage() {
-  const mailgun = new Mailgun(FormData);
-  const mg = mailgun.client({
-    username: "api",
-    key: process.env.API_KEY || "7af6646bb47d1e6262a12c3591cefcb8-4293193c-51ba3f6a",
-    // When you have an EU-domain, you must specify the endpoint:
-    // url: "https://api.eu.mailgun.net"
-  });
-  try {
-    const data = await mg.messages.create("sandbox7ddc7b3132b44a939c0eda59f6d1827b.mailgun.org", {
-      from: "Mailgun Sandbox <postmaster@sandbox7ddc7b3132b44a939c0eda59f6d1827b.mailgun.org>",
-      to: ["john ecklu <ecklujohn@gmail.com>"],
-      subject: "Hello john ecklu",
-      text: "Congratulations john ecklu, you just sent an email with Mailgun! You are truly awesome!",
-    });
 
-    console.log(data); // logs response data
-  } catch (error) {
-    console.log(error); //logs any error
-  }
-}
 
 
 exports.wallet =  (req, res) => {

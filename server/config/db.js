@@ -15,3 +15,6 @@ const connectMongoDB = async () => {
 }
 
 module.exports = connectMongoDB;
+
+
+/**from the above no OTP is needed, and no external api, and also kindly add the controllers and routes for the convention logic */
