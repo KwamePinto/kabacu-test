@@ -23,12 +23,13 @@ exports.createProducts = [authenticateAdminUser,async(req,res)=>{
 exports.addProduct = [authenticateAdminUser,async (req, res) => {
   try {
 
-    const { category, reward_point } = req.body;
+    const { category, reward_point,description } = req.body;
     const imagePaths = req.files.map(file => '/uploads/' + file.filename);
 
     let productData = {
          category ,
          reward_point:reward_point,
+         description:description,
          images:imagePaths,
 
         };
