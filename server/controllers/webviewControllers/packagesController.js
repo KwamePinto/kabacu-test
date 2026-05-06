@@ -11,19 +11,30 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 
 
-
+  async function getUSDTtoNaira() {
+  try {
+    const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn');
+    const rate = response.data.tether.ngn;
+    console.log(`Current USDT/NGN Rate: ₦${rate}`);
+    return rate;
+  } catch (error) {
+    console.error("Error fetching rates:", error);
+  }
+}
 
 
 exports.packagesView = async (req, res) => {
    try {
+getUSDTtoNaira()
+  
 
     const products = await Product.find();
 
     // ✅ FILTER BY CATEGORY
-   const dataProducts = await Product.find({ category: 'DATA' });
-const automobileProducts = await Product.find({ category: 'AUTOMOBILE' });
-const electronicProducts = await Product.find({ category: 'ELECTRONICS' });
-const coursesProducts = await Product.find({ category: 'COURSES' });
+   const dataProducts = await Product.find({ category: 'DATA' }).sort({ createdAt: -1 });
+const automobileProducts = await Product.find({ category: 'AUTOMOBILE' }).sort({ createdAt: -1 });
+const electronicProducts = await Product.find({ category: 'ELECTRONICS' }).sort({ createdAt: -1 });
+const coursesProducts = await Product.find({ category: 'COURSES' }).sort({ createdAt: -1 });
 console.log("corses",coursesProducts)
     const otherProducts = products.filter(
       p => p.category !== 'DATA' && p.category !== 'AUTOMOBILE' && p.category !== 'ELECTRONICS' && p.category !== 'COURSES'

@@ -8,9 +8,9 @@ const { authenticateUser } = require('../../config/authMiddleware');
 
 
 
-exports.dataCategory = [authenticateUser, async (req, res) => {
+exports.dataCategory =async (req, res) => {
   try {
-    const dataProducts = await Product.find({ category: 'DATA' });
+    const dataProducts = await Product.find({ category: 'DATA' }).sort({ createdAt: -1 });
 
     // 🔥 Group by network
     const groupedProducts = {};
@@ -32,11 +32,11 @@ exports.dataCategory = [authenticateUser, async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-}];
+}
 
-exports.eletronicCategory = [authenticateUser,async (req,res)=>{
+exports.eletronicCategory = async (req,res)=>{
 try{
-    const electronicProducts = await Product.find({ category: 'ELECTRONICS' }).limit(9);
+    const electronicProducts = await Product.find({ category: 'ELECTRONICS' }).sort({ createdAt: -1 }).limit(9);
     res.render('webview/electronic-category',{
         electronicProducts
     })
@@ -45,11 +45,11 @@ try{
 }
 
 
-}]
+}
 
-exports.automobileCategory = [authenticateUser,async (req,res)=>{
+exports.automobileCategory = async (req,res)=>{
 try{
-    const automobileProducts = await Product.find({ category: 'AUTOMOBILE' }).limit(9);
+    const automobileProducts = await Product.find({ category: 'AUTOMOBILE' }).sort({ createdAt: -1 }).limit(9);
     res.render('webview/automobile-category',{
         automobileProducts
     })
@@ -58,12 +58,12 @@ try{
 }
 
 
-}]
+}
 
 
-exports.courseCategory = [authenticateUser,async (req,res)=>{
+exports.courseCategory =async (req,res)=>{
 try{
-    const coursesProducts = await Product.find({ category: 'COURSES' }).limit(9);
+    const coursesProducts = await Product.find({ category: 'COURSES' }).sort({ createdAt: -1 }).limit(9);
     res.render('webview/courses-category',{
         coursesProducts
     })
@@ -72,4 +72,4 @@ try{
 }
 
 
-}]
+}

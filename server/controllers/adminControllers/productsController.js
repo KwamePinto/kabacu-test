@@ -110,6 +110,65 @@ exports.addProduct = [authenticateAdminUser,async (req, res) => {
 }];
 
 
+exports.viewProducts = async(req,res)=>{
+  try{
+     
+        let products = await Product.find().sort({ createdAt: -1 });
+
+        // ✅ HANDLE ALL CATEGORIES
+        products = products.map(p => {
+            let name = 'Unknown Product';
+            let price = 0;
+            let extra = '';
+
+            switch (p.category) {
+
+                case "DATA":
+                    name = `${p.dataDetails?.plan_type || ''} (${p.dataDetails?.plan_name || ''})`;
+                    price = p.dataDetails?.amount || 0;
+                    extra = p.dataDetails?.network || '';
+                    break;
+
+                case "AUTOMOBILE":
+                    name = `${p.automobileDetails?.brand || ''} ${p.automobileDetails?.model || ''}`;
+                    price = p.automobileDetails?.price || 0;
+                    extra = `${p.automobileDetails?.fuel_type || ''} | ${p.automobileDetails?.condition || ''}`;
+                    break;
+
+                case "ELECTRONICS":
+                    name = `${p.electronicDetails?.itemName || ''}`;
+                    price = p.electronicDetails?.items_price || 0;
+                    extra = `${p.electronicDetails?.brandItem || ''} | ${p.electronicDetails?.itemtype || ''}`;
+                    break;
+
+                case "COURSES":
+                    name = `${p.coursesDetails?.title || ''}`;
+                    price = p.coursesDetails?.course_price || 0;
+                    extra = `Instructor: ${p.coursesDetails?.instructor || ''}`;
+                    break;
+
+                default:
+                    name = 'Unknown Category';
+            }
+
+            return {
+                ...p._doc,
+                productName: name,
+                productPrice: price,
+                productExtra: extra
+            };
+        });
+
+    res.render('adminview/tables/view-products',{
+      products,
+      layout:adminLayouts,
+    })
+  }catch(error){
+    console.log(error)
+  }
+}
+
+
 exports.productDetails = async(req,res)=>{
 
    try {
