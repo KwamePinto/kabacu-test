@@ -11,6 +11,8 @@ router.post('/add-product',upload.array('images', 3),getProducts.addProduct)
 
 router.get('/view-products',getProducts.viewProducts)
 
+router.get('/view-users',getProducts.userView)
+
 router.get('/details/:id',getProducts.productDetails)
 
 

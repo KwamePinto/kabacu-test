@@ -35,5 +35,7 @@ router.post('/wallet/confirm-topup', authenticateUser, getPackages.confirmTopUp)
 
 router.post('/wallet/pay', authenticateUser, getPackages.payWithWallet);
 
+router.get('/user-profile', authenticateUser, getPackages.userProfile);
+
 
 module.exports = router;

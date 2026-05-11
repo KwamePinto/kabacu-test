@@ -695,6 +695,16 @@ exports.payWithWallet = async (req, res) => {
 };
 
 
+exports.userProfile = (req,res)=>{
+  try{
+    res.render('webview/profile')
+
+  }catch(error){
+    console.log(error)
+  }
+
+}
+
 
  
 

@@ -3,6 +3,7 @@ const { authenticateAdminUser } = require('../../config/authMiddleware');
 
 const Category = require('../../models/CategoryModal');
 const Product =  require('../../models/ProductsModal');
+const User = require('../../models/UserModel')
 
 
 exports.createProducts = [authenticateAdminUser,async(req,res)=>{
@@ -110,12 +111,12 @@ exports.addProduct = [authenticateAdminUser,async (req, res) => {
 }];
 
 
-exports.viewProducts = async(req,res)=>{
+exports.viewProducts =[authenticateAdminUser, async(req,res)=>{
   try{
      
         let products = await Product.find().sort({ createdAt: -1 });
 
-        // ✅ HANDLE ALL CATEGORIES
+        
         products = products.map(p => {
             let name = 'Unknown Product';
             let price = 0;
@@ -166,7 +167,23 @@ exports.viewProducts = async(req,res)=>{
   }catch(error){
     console.log(error)
   }
-}
+}]
+
+exports.userView =[authenticateAdminUser, async(req,res)=>{
+try {
+        const users = await User.find().sort({ createdAt: -1 });
+
+        res.render('adminview/tables/view-users', { 
+          users ,
+        layout:adminLayouts,
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+
+}]
 
 
 exports.productDetails = async(req,res)=>{
