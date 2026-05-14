@@ -37,5 +37,7 @@ router.post('/wallet/pay', authenticateUser, getPackages.payWithWallet);
 
 router.get('/user-profile', authenticateUser, getPackages.userProfile);
 
+router.post('/wallet/convert-usdt', authenticateUser, getPackages.convertUSDTtoNaira);
+
 
 module.exports = router;

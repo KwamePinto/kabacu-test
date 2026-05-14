@@ -499,37 +499,71 @@ exports.confirmTopUp = async (req, res) => {
 
 
 exports.payWithWallet = async (req, res) => {
+
   try {
+
     const userId = req.user.id;
+
     const { productId } = req.body;
 
-    const wallet = await Wallet.findOne({ user: userId });
+    const wallet = await Wallet.findOne({
+      user: userId
+    });
 
     if (!wallet) {
-      return res.json({ success: false, message: 'Wallets Not Fundeded' });
+
+      return res.json({
+        success: false,
+        message: 'Wallet not funded'
+      });
     }
 
     let total = 0;
+
     let itemsToProcess = [];
+
     let cart = null;
 
-    // =========================
-    // ✅ CASE 1: DIRECT PURCHASE (DATA / COURSES)
-    // =========================
+    // =====================================
+    // ✅ DIRECT PURCHASE
+    // =====================================
     if (productId) {
+
       const product = await Product.findById(productId);
 
       if (!product) {
-        return res.json({ success: false, message: 'Product not found' });
+
+        return res.json({
+          success: false,
+          message: 'Product not found'
+        });
       }
 
       let price = 0;
 
+      // DATA
       if (product.category === 'DATA') {
+
         price = product.dataDetails?.amount || 0;
-      } else if (product.category === 'COURSES') {
+      }
+
+      // COURSES
+      else if (product.category === 'COURSES') {
+
         price = product.coursesDetails?.course_price || 0;
-      } else {
+      }
+
+      // DRINKS / WATER
+      else if (
+        product.category === 'DRINKS' ||
+        product.category === 'WATER'
+      ) {
+
+        price = product.item_price || 0;
+      }
+
+      else {
+
         return res.json({
           success: false,
           message: 'Invalid direct purchase item'
@@ -544,25 +578,71 @@ exports.payWithWallet = async (req, res) => {
       });
     }
 
-    // =========================
-    // ✅ CASE 2: CART PURCHASE (AUTOMOBILE / ELECTRONICS)
-    // =========================
+    // =====================================
+    // ✅ CART PURCHASE
+    // =====================================
     else {
-      cart = await Cart.findOne({ user: userId })
-        .populate('items.product');
+
+      cart = await Cart.findOne({
+        user: userId
+      }).populate('items.product');
 
       if (!cart || cart.items.length === 0) {
-        return res.json({ success: false, message: 'Cart is empty' });
+
+        return res.json({
+          success: false,
+          message: 'Cart is empty'
+        });
       }
 
       cart.items.forEach(item => {
-        let price = 0;
+
         const product = item.product;
 
+        let price = 0;
+
+        // AUTOMOBILE
         if (product.category === 'AUTOMOBILE') {
-          price = product.automobileDetails?.price || 0;
-        } else if (product.category === 'ELECTRONICS') {
-          price = product.electronicDetails?.items_price || 0;
+
+          price =
+            item.selectedPrice ||
+            product.automobileDetails?.price ||
+            0;
+        }
+
+        // ELECTRONICS
+        else if (product.category === 'ELECTRONICS') {
+
+          price =
+            item.selectedPrice ||
+            product.electronicDetails?.items_price ||
+            0;
+        }
+
+        // DRINKS / WATER
+        else if (
+          product.category === 'DRINKS' ||
+          product.category === 'WATER'
+        ) {
+
+          price =
+            item.selectedPrice ||
+            product.item_price ||
+            0;
+        }
+
+        // DATA
+        else if (product.category === 'DATA') {
+
+          price =
+            product.dataDetails?.amount || 0;
+        }
+
+        // COURSES
+        else if (product.category === 'COURSES') {
+
+          price =
+            product.coursesDetails?.course_price || 0;
         }
 
         total += price * item.quantity;
@@ -571,37 +651,45 @@ exports.payWithWallet = async (req, res) => {
       });
     }
 
-    // =========================
-    // ✅ CHECK WALLET BALANCE
-    // =========================
-    if (wallet.balances.USDT < total) {
+    // =====================================
+    // ✅ CHECK NAIRA WALLET BALANCE
+    // =====================================
+    if (wallet.balances.NAIRA < total) {
+
       return res.json({
         success: false,
-        message: 'Insufficient USDT balance'
+        message: 'Insufficient NAIRA wallet balance'
       });
     }
 
-    // =========================
-    // ✅ DEDUCT WALLET
-    // =========================
-    wallet.balances.USDT -= total;
+    // =====================================
+    // ✅ DEDUCT FROM NAIRA WALLET
+    // =====================================
+    wallet.balances.NAIRA -= total;
+
     await wallet.save();
 
-    // =========================
+    // =====================================
     // ✅ PROCESS ITEMS
-    // =========================
+    // =====================================
     for (let item of itemsToProcess) {
+
       const product = item.product;
 
-      // 🔥 HANDLE DATA PURCHASE
+      // =====================================
+      // DATA PURCHASE
+      // =====================================
       if (product.category === 'DATA') {
 
-        const checkout = await Checkout.findOne({ user: userId })
-          .sort({ createdAt: -1 });
+        const checkout = await Checkout.findOne({
+          user: userId
+        }).sort({ createdAt: -1 });
 
         if (!checkout) {
-          // refund
-          wallet.balances.USDT += total;
+
+          // REFUND
+          wallet.balances.NAIRA += total;
+
           await wallet.save();
 
           return res.json({
@@ -610,14 +698,19 @@ exports.payWithWallet = async (req, res) => {
           });
         }
 
-        let phone = checkout.phone.trim().replace(/\D/g, '');
+        let phone = checkout.phone
+          .trim()
+          .replace(/\D/g, '');
 
         if (phone.startsWith('234')) {
+
           phone = '0' + phone.slice(3);
         }
 
         if (phone.length !== 11) {
-          wallet.balances.USDT += total;
+
+          wallet.balances.NAIRA += total;
+
           await wallet.save();
 
           return res.json({
@@ -629,68 +722,284 @@ exports.payWithWallet = async (req, res) => {
         let apiResponse;
 
         try {
+
           apiResponse = await buyData({
-            network: product.dataDetails.network === 'MTN' ? 1 : 2,
+
+            network:
+              product.dataDetails.network === 'MTN'
+                ? 1
+                : 2,
+
             phone,
-            data_plan: product.dataDetails.plan_id
+
+            data_plan:
+              product.dataDetails.plan_id
           });
+
         } catch (err) {
-          console.log('API ERROR:', err.response?.data);
-          apiResponse = { status: 'fail' };
+
+          console.log(
+            'API ERROR:',
+            err.response?.data
+          );
+
+          apiResponse = {
+            status: 'fail'
+          };
         }
 
-        // ❌ FAIL → REFUND
+        // =====================================
+        // ❌ REFUND IF FAILED
+        // =====================================
         if (apiResponse.status !== 'success') {
-          wallet.balances.USDT += total;
+
+          wallet.balances.NAIRA += total;
+
           await wallet.save();
 
           await Transaction.create({
+
             user: userId,
+
             amount: total,
+
             status: 'failed',
-            reference: 'PAY-' + Date.now()
+
+            paymentMethod: 'wallet',
+
+            reference: 'PAY-' + Date.now(),
+
+            apiResponse
           });
 
           return res.json({
+
             success: false,
-            message: 'Data purchase failed, refunded'
+
+            message:
+              'Data purchase failed, refunded'
           });
         }
       }
-
-      // 👉 COURSES (you can expand later)
-      if (product.category === 'COURSES') {
-        // Example: grant access (future logic)
-      }
     }
 
-    // =========================
+    // =====================================
     // ✅ SAVE TRANSACTION
-    // =========================
+    // =====================================
     await Transaction.create({
+
       user: userId,
+
       amount: total,
+
       status: 'success',
-      reference: 'PAY-' + Date.now()
+
+      paymentMethod: 'wallet',
+
+      reference: 'PAY-' + Date.now(),
+
+      products: itemsToProcess.map(item => ({
+        product: item.product._id,
+        quantity: item.quantity
+      }))
     });
 
-    // =========================
-    // ✅ CLEAR CART (ONLY IF USED)
-    // =========================
+    // =====================================
+    // ✅ CLEAR CART
+    // =====================================
     if (cart) {
+
       cart.items = [];
+
       await cart.save();
     }
 
     res.json({
+
       success: true,
+
       message: 'Payment successful',
-      balance: wallet.balances.USDT
+
+      balance: wallet.balances.NAIRA
     });
 
   } catch (error) {
+
     console.log(error);
-    res.json({ success: false, message: 'Payment failed' });
+
+    res.json({
+      success: false,
+      message: 'Payment failed'
+    });
+  }
+};
+
+
+
+
+
+exports.convertUSDTtoNaira = async (req, res) => {
+
+  try {
+
+    const userId = req.user.id;
+
+    const { amount } = req.body;
+
+    // VALIDATION
+    if (!amount || amount <= 0) {
+
+      return res.json({
+        success: false,
+        message: 'Invalid amount'
+      });
+    }
+
+    // GET USER WALLET
+    const wallet = await Wallet.findOne({
+      user: userId
+    });
+
+    if (!wallet) {
+
+      return res.json({
+        success: false,
+        message: 'Wallet not found'
+      });
+    }
+
+    // CHECK BALANCE
+    if (wallet.balances.USDT < amount) {
+
+      return res.json({
+        success: false,
+        message: 'Insufficient USDT balance'
+      });
+    }
+
+    // =========================================
+    // FETCH RATES FROM MULTIPLE SOURCES
+    // =========================================
+
+    let coinGeckoRate = 0;
+    let coinbaseRate = 0;
+
+    // COINGECKO
+    try {
+
+      const cgResponse = await axios.get(
+        'https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn'
+      );
+
+      coinGeckoRate =
+        cgResponse.data.tether.ngn || 0;
+
+    } catch (err) {
+
+      console.log('CoinGecko Error:', err.message);
+    }
+
+    // COINBASE
+    try {
+
+      const cbResponse = await axios.get(
+        'https://api.coinbase.com/v2/exchange-rates?currency=USDT'
+      );
+
+      coinbaseRate =
+        parseFloat(
+          cbResponse.data.data.rates.NGN
+        ) || 0;
+
+    } catch (err) {
+
+      console.log('Coinbase Error:', err.message);
+    }
+
+    // =========================================
+    // DETERMINE BEST RATE
+    // =========================================
+
+    const bestRate = Math.max(
+      coinGeckoRate,
+      coinbaseRate
+    );
+
+    if (!bestRate || bestRate <= 0) {
+
+      return res.json({
+        success: false,
+        message: 'Unable to fetch exchange rate'
+      });
+    }
+
+    // =========================================
+    // APPLY 1% MARKUP
+    // =========================================
+
+    const markupPercent = 1;
+
+    const markupAmount =
+      (bestRate * markupPercent) / 100;
+
+    const finalRate =
+      bestRate - markupAmount;
+
+    // =========================================
+    // CONVERT
+    // =========================================
+
+    const nairaAmount =
+      amount * finalRate;
+
+    // =========================================
+    // UPDATE WALLET
+    // =========================================
+
+    wallet.balances.USDT -= amount;
+
+    wallet.balances.NAIRA += nairaAmount;
+
+    await wallet.save();
+
+    // =========================================
+    // RESPONSE
+    // =========================================
+
+    res.json({
+
+      success: true,
+
+      amountConverted: amount,
+
+      rates: {
+        coinGeckoRate,
+        coinbaseRate,
+        bestRate,
+        finalRate
+      },
+
+      markupPercent,
+
+      nairaAmount,
+
+      balances: {
+
+        USDT: wallet.balances.USDT,
+
+        NAIRA: wallet.balances.NAIRA
+      }
+
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: 'Conversion failed'
+    });
   }
 };
 

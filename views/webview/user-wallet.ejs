@@ -106,7 +106,7 @@
                             <ins><span class="price-amount"><span class="currencySymbol" style="color: red;">USDT : </span><%= wallet && wallet.balances ? wallet.balances.USDT.toFixed(2) : '0.00' %></span></ins>
                         </div>
                          <div class="price">
-                            <ins><span class="price-amount"><span class="currencySymbol" style="color: red;">NAIRA : ₦</span><%= wallet && wallet.balances ? wallet.balances.USDT.toFixed(2) : '0.00' %></span></ins>
+                            <ins><span class="price-amount"><span class="currencySymbol" style="color: red;">NAIRA : <%= wallet && wallet.balances ? wallet.balances.NAIRA.toFixed(2) : '0.00' %></span></ins>
                         </div>
                         <div class="shipping-info">
                             <p class="shipping-day">Top-up Wallet Allowed</p>
@@ -395,6 +395,70 @@ document.getElementById('confirmTopup').addEventListener('click', async () => {
         alert(data.message);
     }
 });
+
+
+
+
+
+
+document.getElementById('convertBtn')
+.addEventListener('click', async () => {
+
+    const amount =
+        document.getElementById('usdtAmount').value;
+
+    if (!amount || amount <= 0) {
+
+        alert('Enter valid amount');
+
+        return;
+    }
+
+    try {
+
+        const res = await fetch('/wallet/convert-usdt', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                amount
+            })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+
+            document.getElementById('nairaAmount')
+            .value =
+                '₦' + data.nairaAmount.toLocaleString();
+
+            alert('Conversion successful');
+
+            // OPTIONAL REFRESH
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+
+        } else {
+
+            alert(data.message);
+        }
+
+    } catch (err) {
+
+        console.log(err);
+
+        alert('Something went wrong');
+    }
+
+});
+
+
 
 // let topupId = null;
 

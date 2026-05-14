@@ -14,7 +14,11 @@ const walletSchema = new mongoose.Schema({
      USDT: {
       type: Number,
       default: 0
-    }
+    },
+     NAIRA: {
+      type: Number,
+      default: 0
+    },
   }
 }, { timestamps: true });
 
