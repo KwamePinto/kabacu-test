@@ -124,8 +124,8 @@
       <div class="quantity-box ">
     <span class="title">Wallet Type:</span>
     <div class="qty-input">
-        <select id="walletType" style="width:100%; border:none; color: black;">
-             <option >Please select wallet type</option>
+        <select id="walletType" >
+             <option style="color: black;" >Please select wallet type</option>
             <option value="BTT">BTT</option>
             <option value="RP">RP</option>
             <option value="USDT">USDT</option>
@@ -250,18 +250,7 @@
     </div>
 
     <!-- OTP -->
-    <div  style="display:none; margin-top:20px;">
-        <div class="quantity-box">
-            <span class="title">Enter OTP:</span>
-            <div class="qty-input">
-                <input type="text" id="otp" placeholder="Enter OTP" style="width:100%; border:none;">
-            </div>
-        </div>
-
-        <button id="confirmConvert" class="btn btn-success" style="margin-top:10px;">
-            Confirm Conversion
-        </button>
-    </div>
+    
 
 </div>
 </div>
@@ -396,6 +385,58 @@ document.getElementById('confirmTopup').addEventListener('click', async () => {
     }
 });
 
+
+const usdtInput =
+    document.getElementById('usdtAmount');
+
+usdtInput.addEventListener('input', async () => {
+
+    const amount = usdtInput.value;
+
+    // RESET
+    if (!amount || amount <= 0) {
+
+        document.getElementById('nairaAmount')
+        .value = '';
+
+        return;
+    }
+
+    try {
+
+        const res = await fetch(
+            '/wallet/preview-conversion',
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    amount
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        if (data.success) {
+
+            document.getElementById('nairaAmount')
+            .value =
+                '₦' +
+                Number(data.nairaAmount)
+                .toLocaleString();
+
+        }
+
+    } catch (err) {
+
+        console.log(err);
+    }
+
+});
 
 
 

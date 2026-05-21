@@ -39,5 +39,11 @@ router.get('/user-profile', authenticateUser, getPackages.userProfile);
 
 router.post('/wallet/convert-usdt', authenticateUser, getPackages.convertUSDTtoNaira);
 
+router.post('/update-checkout/:id', authenticateUser, getPackages.editItem);
+
+router.get('/delete-checkout/:id', authenticateUser, getPackages.deleteItem);
+
+router.post('/wallet/preview-conversion', authenticateUser, getPackages.previewUSDTConversion);
+
 
 module.exports = router;

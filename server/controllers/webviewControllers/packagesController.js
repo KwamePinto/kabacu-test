@@ -1004,6 +1004,99 @@ exports.convertUSDTtoNaira = async (req, res) => {
 };
 
 
+
+exports.previewUSDTConversion = async (req, res) => {
+
+    try {
+
+        const { amount } = req.body;
+
+        if (!amount || amount <= 0) {
+
+            return res.json({
+                success: false
+            });
+        }
+
+        let coinGeckoRate = 0;
+        let coinbaseRate = 0;
+
+        // COINGECKO
+        try {
+
+            const cgResponse = await axios.get(
+                'https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn'
+            );
+
+            coinGeckoRate =
+                cgResponse.data.tether.ngn || 0;
+
+        } catch (err) {
+
+            console.log(err.message);
+        }
+
+        // COINBASE
+        try {
+
+            const cbResponse = await axios.get(
+                'https://api.coinbase.com/v2/exchange-rates?currency=USDT'
+            );
+
+            coinbaseRate =
+                parseFloat(
+                    cbResponse.data.data.rates.NGN
+                ) || 0;
+
+        } catch (err) {
+
+            console.log(err.message);
+        }
+
+        const bestRate = Math.max(
+            coinGeckoRate,
+            coinbaseRate
+        );
+
+        if (!bestRate || bestRate <= 0) {
+
+            return res.json({
+                success: false,
+                message: 'Rate unavailable'
+            });
+        }
+
+        // 1% markup
+        const markupPercent = 1;
+
+        const finalRate =
+            bestRate -
+            ((bestRate * markupPercent) / 100);
+
+        const nairaAmount =
+            amount * finalRate;
+
+        res.json({
+
+            success: true,
+
+            nairaAmount,
+
+            finalRate
+
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        res.json({
+            success: false
+        });
+    }
+};
+
+
 exports.userProfile = (req,res)=>{
   try{
     res.render('webview/profile')
@@ -1013,6 +1106,31 @@ exports.userProfile = (req,res)=>{
   }
 
 }
+
+
+
+// UPDATE CHECKOUT
+exports.editItem = async (req, res) => {
+
+    const { phone, network } = req.body;
+
+    await Checkout.findByIdAndUpdate(req.params.id, {
+        phone
+    });
+
+    res.redirect('/checkout');
+};
+
+
+
+// DELETE CHECKOUT
+exports.deleteItem =  async (req, res) => {
+
+    await Checkout.findByIdAndDelete(req.params.id);
+
+    res.redirect('/');
+
+};
 
 
  

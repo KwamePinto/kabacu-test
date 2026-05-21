@@ -151,7 +151,7 @@ input[type="tel"]::placeholder,
 input[type="search"]::placeholder{
     color: #888888;
 }
-select{
+/* select{
     background: transparent;
     border: none;
     color: #ffffff;
@@ -232,7 +232,7 @@ select option{
 .nice-select .option.selected.focus{
     background-color: transparent;
     font-weight: 400;
-}
+} */
 /* BIOLIFE ICON */
 @font-face {
     font-family: 'biolife';

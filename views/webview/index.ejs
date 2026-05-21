@@ -130,7 +130,7 @@
                                 <div class="banner-contain">
                                     <div class="media">
                                         <a href="#" class="bn-link">
-                                            <figure><img src="assets/images/home-03/special1.png" width="616" height="483" alt=""></figure>
+                                            <figure><img src="assets/images/home-03/special3.png" width="616" height="483" alt=""></figure>
                                         </a>
                                     </div>
                                     <div class="text-content">
@@ -140,8 +140,8 @@
                                         <div class="product-detail">
                                             <h4 class="product-name">We Offer You The Best Prices</h4>
                                             <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                                                <ins><span class="price-amount"><span class="currencySymbol">₦</span>85.00</span></ins>
+                                                <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
                                             </div>
                                             <div class="buttons">
                                                 <a href="#" class="btn add-to-cart-btn">add to cart</a>
@@ -156,7 +156,7 @@
                                 <div class="banner-contain">
                                     <div class="media">
                                         <a href="#" class="bn-link">
-                                            <figure><img src="assets/images/home-03/special2.png" width="616" height="483" alt=""></figure>
+                                            <figure><img src="assets/images/home-03/special3.png" width="616" height="483" alt=""></figure>
                                         </a>
                                     </div>
                                     <div class="text-content">
@@ -166,8 +166,8 @@
                                         <div class="product-detail">
                                             <h4 class="product-name">We Offer You The Best Prices</h4>
                                             <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                                                <ins><span class="price-amount"><span class="currencySymbol">₦</span>85.00</span></ins>
+                                                <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
                                             </div>
                                             <div class="buttons">
                                                 <a href="#" class="btn add-to-cart-btn">add to cart</a>
@@ -192,8 +192,8 @@
                                         <div class="product-detail">
                                             <h4 class="product-name">We Offer You The Best Prices</h4>
                                             <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                                                <ins><span class="price-amount"><span class="currencySymbol">₦</span>85.00</span></ins>
+                                                <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
                                             </div>
                                             <div class="buttons">
                                                 <a href="#" class="btn add-to-cart-btn">add to cart</a>
@@ -213,7 +213,7 @@
                                 <div class="service-inner">
                                     <span class="number">1</span>
                                     <span class="biolife-icon icon-location2"></span>
-                                    <a class="srv-name" href="#">Right Location</a>
+                                    <a class="srv-name"  href="#">Right Location</a>
                                 </div>
                             </li>
                             <li>
@@ -278,7 +278,7 @@
                                             <div class="info">
                                               <b class="categories category-wrapper">
                                     <span class="network"><%= product.dataDetails.network %></span>
-                                    <span class="rp">Reward Point(<%= product.reward_point %>)</span>
+                                    <span class="rp">Reward Point(<%= product.reward_point %>)</span></b>
 </b>
                                                 <h4 class="product-title"><a href="#" class="pr-name">  <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
                                                 <div class="price ">
@@ -492,6 +492,7 @@
                                     <h3 class="title">Deals of the day</h3>
                                 </div>
                                 <ul class="products biolife-carousel nav-top-right nav-none-on-mobile" data-slick='{"arrows":true, "dots":false, "infinite":false, "speed":400, "slidesMargin":30, "slidesToShow":1}'>
+                                    
                                     <li class="product-item">
                                         <div class="contain-product deal-layout contain-product__deal-layout">
                                             <div class="product-thumb">
@@ -560,19 +561,21 @@
                                     <h3 class="title">Top Rated Products</h3>
                                 </div>
                                 <ul class="products biolife-carousel eq-height-contain nav-center-03 nav-none-on-mobile row-space-29px" data-slick='{"rows":2,"arrows":true,"dots":false,"infinite":false,"speed":400,"slidesMargin":30,"slidesToShow":2,"responsive":[{"breakpoint":1200,"settings":{ "rows":2, "slidesToShow": 2}},{"breakpoint":992, "settings":{ "rows":2, "slidesToShow": 1}},{"breakpoint":768, "settings":{ "rows":2, "slidesToShow": 2}},{"breakpoint":500, "settings":{ "rows":2, "slidesToShow": 1}}]}'>
+                                     <% if(dataProducts.length > 0){ %>
+                                        <% dataProducts.forEach(function(product){ %>
                                     <li class="product-item">
                                         <div class="contain-product right-info-layout contain-product__right-info-layout">
                                             <div class="product-thumb">
                                                 <a href="#" class="link-to-product">
-                                                    <img src="assets/images/products/special1.png" alt="dd" width="270" height="270" class="product-thumnail">
+                                                    <img src="<%= product.images[0] %>" alt="dd" width="270" height="270" class="product-thumnail">
                                                 </a>
                                             </div>
                                             <div class="info">
-                                                <b class="categories">Vegetables</b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">Pumpkins Fairytale</a></h4>
+                                                <b class="categories"><%= product.dataDetails.network %></b>
+                                                <h4 class="product-title"><a href="#" class="pr-name"><%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
                                                 <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
+                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
                                                 </div>
                                                 <div class="rating">
                                                     <p class="star-rating"><span class="width-80percent"></span></p>
@@ -581,72 +584,11 @@
                                             </div>
                                         </div>
                                     </li>
-                                     <li class="product-item">
-                                        <div class="contain-product right-info-layout contain-product__right-info-layout">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="assets/images/products/special1.png" alt="dd" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                            </div>
-                                            <div class="info">
-                                                <b class="categories">Vegetables</b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">Pumpkins Fairytale</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                                </div>
-                                                <div class="rating">
-                                                    <p class="star-rating"><span class="width-80percent"></span></p>
-                                                    <span class="review-count">(05 Reviews)</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    
-                                     <li class="product-item">
-                                        <div class="contain-product right-info-layout contain-product__right-info-layout">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="assets/images/products/special1.png" alt="dd" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                            </div>
-                                            <div class="info">
-                                                <b class="categories">Vegetables</b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">Pumpkins Fairytale</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                                </div>
-                                                <div class="rating">
-                                                    <p class="star-rating"><span class="width-80percent"></span></p>
-                                                    <span class="review-count">(05 Reviews)</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    
-                                     <li class="product-item">
-                                        <div class="contain-product right-info-layout contain-product__right-info-layout">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="assets/images/products/special1.png" alt="dd" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                            </div>
-                                            <div class="info">
-                                                <b class="categories">Vegetables</b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">Pumpkins Fairytale</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                                </div>
-                                                <div class="rating">
-                                                    <p class="star-rating"><span class="width-80percent"></span></p>
-                                                    <span class="review-count">(05 Reviews)</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    
+                                     <% }) %>
+                                        <% } else { %>
+                                        <p>No data products</p>
+                                        <% } %>
+                                     
                                     
                                    
                                 </ul>
@@ -778,8 +720,8 @@
                     </div>
 
                     <div class="price price-contain">
-                        <ins><span class="price-amount" id="quickview-price"><span class="currencySymbol">£</span>85.00</span></ins>
-                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                        <ins><span class="price-amount" id="quickview-price"><span class="currencySymbol">₦</span>85.00</span></ins>
+                        <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
                     </div>
                     <p class="excerpt" id="quickview-description"></p>
                     <div class="from-cart">
