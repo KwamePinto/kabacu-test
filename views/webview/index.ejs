@@ -505,14 +505,14 @@
                                             </div>
                                             <div class="info">
                                                 <div class="biolife-countdown" data-datetime="2026/04/24 02:00:00"></div>
-                                                <b class="categories">Fresh Fruit</b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
+                                                <b class="categories">MTN</b>
+                                                <h4 class="product-title"><a href="#" class="pr-name">Month Data Pack</a></h4>
                                                 <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span>85.00</span></ins>
+                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
                                                 </div>
                                                 <div class="slide-down-box">
-                                                    <p class="message">All products are carefully selected to ensure food safety.</p>
+                                                    <p class="message">Montly Data Pack.</p>
                                                     <div class="buttons">
                                                         <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
                                                         <a href="#" class="btn add-to-cart-btn">add to cart</a>
@@ -523,35 +523,7 @@
                                         </div>
                                     </li>
                                    
-                                    <li class="product-item">
-                                        <div class="contain-product deal-layout contain-product__deal-layout">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="assets/images/home-03/special1.jpg" alt="dd" width="330" height="330" class="product-thumnail">
-                                                </a>
-                                                <div class="labels">
-                                                    <span class="sale-label">-50%</span>
-                                                </div>
-                                            </div>
-                                            <div class="info">
-                                                <div class="biolife-countdown" data-datetime="2020/01/18 00:00:00"></div>
-                                                <b class="categories">Fresh Fruit</b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                                </div>
-                                                <div class="slide-down-box">
-                                                    <p class="message">All products are carefully selected to ensure food safety.</p>
-                                                    <div class="buttons">
-                                                        <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn add-to-cart-btn">add to cart</a>
-                                                        <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
+                                  
                                 </ul>
                             </div>
                         </div>
@@ -575,7 +547,7 @@
                                                 <h4 class="product-title"><a href="#" class="pr-name"><%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
                                                 <div class="price ">
                                                     <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
+                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.oldPrice %></span></del>
                                                 </div>
                                                 <div class="rating">
                                                     <p class="star-rating"><span class="width-80percent"></span></p>
