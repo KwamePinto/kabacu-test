@@ -17,6 +17,7 @@ const productSchema = new mongoose.Schema({
     default:null,
   },
 
+
   // NORMAL PRODUCT
   item_name: String,
   item_price: Number,
@@ -31,6 +32,7 @@ const productSchema = new mongoose.Schema({
     plan_type: String,
     plan_name: String,
     amount: Number,
+    oldPrice:Number,
     validate_period: String
   },
 

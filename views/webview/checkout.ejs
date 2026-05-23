@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
         <br>
 
-        <button id="paystackBtn" class="btn btn-success">Pay with Paystack</button>
+        <button id="palmpaytbtn" class="btn btn-success">Pay with MOMO</button>
         <br><br>
         <button id="walletBtn" class="btn btn-primary">Pay with Wallet(USDT)</button>
         <br><br>
@@ -419,9 +419,9 @@ document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
     modal.style.display = 'none';
 });
 
-// Paystack
-document.getElementById('paystackBtn').addEventListener('click', () => {
-    window.location.href = '/payment/paystack';
+// PalmPay
+document.getElementById('palmpaytbtn').addEventListener('click', () => {
+    window.location.href = '/payment/palmPay';
 });
 
 // ✅ Wallet payment (NEW LOGIC)

@@ -44,6 +44,7 @@ exports.addProduct = [authenticateAdminUser,async (req, res) => {
         plan_type: req.body.plan_type,
         plan_name: req.body.plan_name,
         amount: req.body.amount,
+        oldPrice: req.body.oldPrice,
         validate_period: req.body.validate_period
       };
 
