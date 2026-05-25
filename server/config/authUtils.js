@@ -27,6 +27,9 @@ function generateUserToken(user) {
        
       },
       userSecret,
+      {
+         expiresIn: '1d'
+      }
       
     );
   }

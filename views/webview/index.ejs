@@ -58,10 +58,193 @@
 
 
 
+/* OVERLAY */
+
+.custom-modal {
+
+    display: none;
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.65);
+
+    z-index: 9999;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 15px;
+}
+
+/* MODAL BOX */
+
+.custom-modal-content {
+
+    background: #fff;
+
+    width: 100%;
+
+    max-width: 400px;
+
+    border-radius: 12px;
+
+    padding: 25px;
+
+    animation: modalFade .3s ease;
+
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+/* HEADER */
+
+.modal-header-section h4 {
+
+    margin-bottom: 8px;
+
+    font-size: 22px;
+}
+
+.modal-header-section p {
+
+    color: #666;
+
+    font-size: 14px;
+
+    margin-bottom: 20px;
+}
+
+/* INPUT */
+
+.modal-input-group {
+
+    margin-bottom: 20px;
+}
+
+.modal-input-group label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: 600;
+}
+
+.modal-input {
+
+    width: 100%;
+
+    height: 45px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 8px;
+
+    padding: 0 12px;
+
+    outline: none;
+
+    transition: .2s;
+}
+
+.modal-input:focus {
+
+    border-color: #0d6efd;
+}
+
+/* BUTTONS */
+
+.modal-buttons {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.modal-btn {
+
+    flex: 1;
+
+    height: 45px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    transition: .2s;
+}
+
+.cancel-btn {
+
+    background: #dc3545;
+
+    color: #fff;
+}
+
+.success-btn {
+
+    background: #198754;
+
+    color: #fff;
+}
+
+.modal-btn:hover {
+
+    opacity: .9;
+}
+
+/* MOBILE */
+
+@media (max-width: 500px) {
+
+    .custom-modal-content {
+
+        padding: 20px;
+    }
+
+    .modal-buttons {
+
+        flex-direction: column;
+    }
+}
+
+/* ANIMATION */
+
+@keyframes modalFade {
+
+    from {
+
+        transform: translateY(-15px);
+
+        opacity: 0;
+    }
+
+    to {
+
+        transform: translateY(0);
+
+        opacity: 1;
+    }
+}
+
+
+
 </style>
 
     <!-- Preloader -->
-    <div id="biof-loading">
+     <div id="biof-loading">
         <div class="biof-loading-center">
             <div class="biof-loading-center-absolute">
                 <div class="dot dot-one"></div>
@@ -69,7 +252,32 @@
                 <div class="dot dot-three"></div>
             </div>
         </div>
-    </div>
+    </div> 
+
+     <script>
+        <!-- ✅ Your SweetAlert Logic -->
+
+    const successMsg = <%- JSON.stringify(success_msg) %>;
+    const errorMsg = <%- JSON.stringify(error_msg) %>;
+
+    if (successMsg.length > 0) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: successMsg[0]
+        });
+    }
+
+    if (errorMsg.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMsg[0]
+        });
+    }
+
+
+    </script>
 
     
 <%- include('../partials/header.ejs')%>
@@ -125,84 +333,48 @@
             <div class="special-slide">
                 <div class="container">
                     <ul class="biolife-carousel dots_ring_style" data-slick='{"arrows": false, "dots": true, "slidesMargin": 30, "slidesToShow": 1, "infinite": true, "speed": 800, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 1}},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":20, "dots": false}},{"breakpoint":480, "settings":{ "slidesToShow": 1}}]}' >
+                         <% if(specialProdtcs.length > 0){ %>
+                                        <% specialProdtcs.forEach(function(product){ %>
                         <li>
                             <div class="slide-contain biolife-banner__special">
                                 <div class="banner-contain">
                                     <div class="media">
                                         <a href="#" class="bn-link">
-                                            <figure><img src="assets/images/home-03/special3.png" width="616" height="483" alt=""></figure>
+                                            <figure><img src="<%= product.images[0] %>" width="616" height="483" alt=""></figure>
                                         </a>
                                     </div>
                                     <div class="text-content">
-                                        <b class="first-line">IPhone17</b>
-                                        <span class="second-line">Best Market Price</span>
+                                        <b class="first-line"><%= product.dataDetails.network %></b>
+                                        <span class="second-line"><%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</span>
                                         <!-- <span class="third-line">Easy <i>Healthy, Happy Life</i></span> -->
                                         <div class="product-detail">
-                                            <h4 class="product-name">We Offer You The Best Prices</h4>
+                                            <h4 class="product-name">We Offer You The Best Data Prices</h4>
                                             <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">₦</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
+                                                <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
+                                                <del><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.oldPrice %></span></del>
                                             </div>
                                             <div class="buttons">
-                                                <a href="#" class="btn add-to-cart-btn">add to cart</a>
+                                                 <%if(!user){%>
+                                                <a href="#" class="btn add-to-cart-btn">Buy Now</a>
+
+                                                      <%}else{%>
+                                                                  
+                                                                 <a href="#" 
+                                                                    class="btn add-to-cart-btn buy-btn"
+                                                                    data-id="<%= product._id %>">Buy Now</a>
+
+                                                            <%}%>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </li>
-                        <li>
-                            <div class="slide-contain biolife-banner__special">
-                                <div class="banner-contain">
-                                    <div class="media">
-                                        <a href="#" class="bn-link">
-                                            <figure><img src="assets/images/home-03/special3.png" width="616" height="483" alt=""></figure>
-                                        </a>
-                                    </div>
-                                    <div class="text-content">
-                                        <b class="first-line">Smart Keys</b>
-                                         <span class="second-line">Best Market Price</span>
-                                        <!-- <span class="third-line">Easy <i>Healthy, Happy Life</i></span> -->
-                                        <div class="product-detail">
-                                            <h4 class="product-name">We Offer You The Best Prices</h4>
-                                            <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">₦</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
-                                            </div>
-                                            <div class="buttons">
-                                                <a href="#" class="btn add-to-cart-btn">add to cart</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="slide-contain biolife-banner__special">
-                                <div class="banner-contain">
-                                    <div class="media">
-                                        <a href="#" class="bn-link">
-                                            <figure><img src="assets/images/home-03/special3.png" width="616" height="483" alt=""></figure>
-                                        </a>
-                                    </div>
-                                    <div class="text-content">
-                                        <b class="first-line">Data Bundle</b>
-                                       <span class="second-line">Best Market Price</span>
-                                        <!-- <span class="third-line">Easy <i>Healthy, Happy Life</i></span> -->
-                                        <div class="product-detail">
-                                            <h4 class="product-name">We Offer You The Best Prices</h4>
-                                            <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">₦</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
-                                            </div>
-                                            <div class="buttons">
-                                                <a href="#" class="btn add-to-cart-btn">add to cart</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
+                          <% }) %>
+                                        <% } else { %>
+                                        <p>No data products</p>
+                                        <% } %>
+                       
                        
                     </ul>
                     <div class="biolife-service type01 biolife-service__type01 sm-margin-top-0 xs-margin-top-45px">
@@ -292,6 +464,7 @@
                                                         <%if(!user){%>
                                                         <a href="/user/login" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Buy Now</a>
                                                         <%}else{%>
+                                                                  
                                                                  <a href="#" 
                                                                     class="btn add-to-cart-btn buy-btn"
                                                                     data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Buy Now</a>
@@ -492,37 +665,49 @@
                                     <h3 class="title">Deals of the day</h3>
                                 </div>
                                 <ul class="products biolife-carousel nav-top-right nav-none-on-mobile" data-slick='{"arrows":true, "dots":false, "infinite":false, "speed":400, "slidesMargin":30, "slidesToShow":1}'>
-                                    
+                                    <% if(specialProdtcs.length > 0){ %>
+                                        <% specialProdtcs.forEach(function(product){ %>
                                     <li class="product-item">
                                         <div class="contain-product deal-layout contain-product__deal-layout">
                                             <div class="product-thumb">
                                                 <a href="#" class="link-to-product">
-                                                    <img src="assets/images/home-03/special3.png" alt="dd" width="330" height="330" class="product-thumnail">
+                                                    <img src="<%= product.images[0] %>" alt="dd" width="330" height="330" class="product-thumnail">
                                                 </a>
-                                                <div class="labels">
+                                                <!-- <div class="labels">
                                                     <span class="sale-label">-50%</span>
-                                                </div>
+                                                </div> -->
                                             </div>
                                             <div class="info">
                                                 <div class="biolife-countdown" data-datetime="2026/04/24 02:00:00"></div>
-                                                <b class="categories">MTN</b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">Month Data Pack</a></h4>
+                                                <b class="categories"><%= product.dataDetails.network %></b>
+                                                <h4 class="product-title"><a href="#" class="pr-name"><%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
                                                 <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span>85.00</span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
+                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
+                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.oldPrice %></span></del>
                                                 </div>
                                                 <div class="slide-down-box">
-                                                    <p class="message">Montly Data Pack.</p>
+                                                    <p class="message">We Offer You The Best Data Prices</p>
                                                     <div class="buttons">
                                                         <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
+                                                         <%if(!user){%>
                                                         <a href="#" class="btn add-to-cart-btn">add to cart</a>
+                                                         <%}else{%>
+                                                                  
+                                                                 <a href="#" 
+                                                                    class="btn add-to-cart-btn buy-btn"
+                                                                    data-id="<%= product._id %>">Buy Now</a>
+
+                                                            <%}%>
                                                         <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </li>
-                                   
+                                   <% }) %>
+                                        <% } else { %>
+                                        <p>No data products</p>
+                                        <% } %>
                                   
                                 </ul>
                             </div>
@@ -588,17 +773,73 @@
 
     </div>
     
-    <div id="buyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999;">
-    <div style="background:#fff; width:350px; margin:100px auto; padding:20px; border-radius:8px;">
-        
-        <h4>Enter Phone Number</h4>
+  <!-- BUY MODAL -->
+<div id="buyModal" class="custom-modal">
 
-        <input type="text" id="phoneInput" class="form-control" placeholder="e.g 23481533xxxxx" />
+    <div class="custom-modal-content">
 
-        <br>
+        <!-- HEADER -->
+        <div class="modal-header-section">
 
-        <button id="cancelBtn" class="btn btn-danger">Cancel</button>
-        <button id="checkoutBtn" class="btn btn-success">Checkout</button>
+            <h4>Enter Phone Number</h4>
+
+            <p>
+                Please enter your active phone number
+                for payment processing.
+            </p>
+
+        </div>
+
+        <!-- INPUT -->
+        <div class="modal-input-group">
+
+            <label>
+                Phone Number
+            </label>
+
+            <input 
+                type="text"
+                id="phoneInput"
+                class="modal-input"
+                placeholder="e.g 23481533xxxxx"
+                maxlength="11"
+                inputmode="numeric"
+                pattern="[0-9]*"
+            >
+
+        </div>
+
+        <!-- ERROR -->
+        <small 
+            id="phoneError"
+            style="
+                color:red;
+                display:none;
+                margin-top:5px;
+            "
+        >
+            Enter valid phone number
+        </small>
+
+        <!-- BUTTONS -->
+        <div class="modal-buttons">
+
+            <button 
+                id="cancelBtn"
+                class="modal-btn cancel-btn"
+            >
+                Cancel
+            </button>
+
+            <button 
+                id="checkoutBtn"
+                class="modal-btn success-btn"
+            >
+                Checkout
+            </button>
+
+        </div>
+
     </div>
 </div>
 
@@ -1010,8 +1251,51 @@ window.addEventListener('click', (e) => {
 // Checkout
 
 
+
+
+const phoneInput =
+    document.getElementById('phoneInput');
+
+const phoneError =
+    document.getElementById('phoneError');
+
+/* ALLOW ONLY NUMBERS */
+
+phoneInput.addEventListener('input', function () {
+
+    // remove non-numbers
+    this.value =
+        this.value.replace(/\D/g, '');
+
+    // limit to 11 digits
+    if (this.value.length > 11) {
+
+        this.value =
+            this.value.slice(0, 11);
+    }
+});
+
+
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
-    const phone = document.getElementById('phoneInput').value;
+    const phone = phoneInput.value.trim();
+
+     // MUST BE EXACTLY 11 DIGITS
+
+    if (!/^\d{11}$/.test(phone)) {
+
+        phoneError.style.display =
+            'block';
+
+        phoneError.innerText =
+            'Phone number must be exactly 11 digits';
+
+        return;
+    }
+
+    phoneError.style.display =
+        'none';
+
+    console.log(phone);
 
     // ✅ pick whichever exists
     const productId = window.selectedProductId || selectedPackageId;

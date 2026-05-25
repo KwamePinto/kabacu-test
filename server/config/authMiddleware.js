@@ -24,7 +24,7 @@ function authenticateUser(req, res, next) {
 
   } catch (error) {
     console.log("Invalid token:", error.message);
-    res.clearCookie('token');
+    res.clearCookie('user_token');
     return res.redirect('/user/login'); // ✅ NOT "/"
   }
 }
@@ -52,7 +52,7 @@ function authenticateAdminUser(req, res, next) {
 
   } catch (error) {
     console.log("Invalid token:", error.message);
-    res.clearCookie('token');
+    res.clearCookie('user_token');
     return res.redirect('/admin/user/login'); // ✅ NOT "/"
   }
 }

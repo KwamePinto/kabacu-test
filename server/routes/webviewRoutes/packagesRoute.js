@@ -45,5 +45,9 @@ router.get('/delete-checkout/:id', authenticateUser, getPackages.deleteItem);
 
 router.post('/wallet/preview-conversion', authenticateUser, getPackages.previewUSDTConversion);
 
+router.post( '/palmpay/create', authenticateUser, getPackages.createPalmPayPayment);
+
+router.post( '/palmpay/webhook', getPackages.palmPayWebhook);
+
 
 module.exports = router;

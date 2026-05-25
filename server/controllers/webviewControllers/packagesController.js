@@ -8,7 +8,11 @@ const Wallet = require('../../models/WalletModal')
 const TopUp = require('../../models/TopUpModal')
 const Transaction = require('../../models/TransactionModel')
 const axios = require('axios');
+const crypto = require('crypto');
 const mongoose = require('mongoose');
+
+
+const {generateSignature} = require('../../utils/palmpay');
 
 
   async function getUSDTtoNaira() {
@@ -32,6 +36,7 @@ getUSDTtoNaira()
 
     // ✅ FILTER BY CATEGORY
    const dataProducts = await Product.find({ category: 'DATA' }).sort({ createdAt: -1 });
+      const specialProdtcs = await Product.find({ category: 'DATA' }).limit(3).sort({ createdAt: -1 });
 const automobileProducts = await Product.find({ category: 'AUTOMOBILE' }).sort({ createdAt: -1 });
 const electronicProducts = await Product.find({ category: 'ELECTRONICS' }).sort({ createdAt: -1 });
 const coursesProducts = await Product.find({ category: 'COURSES' }).sort({ createdAt: -1 });
@@ -45,7 +50,8 @@ console.log("corses",coursesProducts)
       automobileProducts,
       electronicProducts,
       coursesProducts,
-      otherProducts
+      otherProducts,
+      specialProdtcs
     });
 
   } catch (error) {
@@ -837,6 +843,368 @@ exports.payWithWallet = async (req, res) => {
 
 
 
+
+
+
+
+
+
+exports.createPalmPayPayment = async (req, res) => {
+
+    try {
+
+        const userId = req.user.id;
+        const { amount } = req.body;
+
+        // ==================================================
+        // BASIC ORDER DATA
+        // ==================================================
+
+        const requestTime = Date.now();
+        const nonceStr = crypto.randomBytes(16).toString("hex");
+        const orderId = "PALM-" + Date.now();
+        const version = "1.1";
+
+        // ==================================================
+        // PAYLOAD (FULL BODY)
+        // ==================================================
+
+        const payload = {
+
+            requestTime,
+            amount: Number(amount),
+            orderId,
+
+            payeeName: "Wallet Topup",
+            payeeBankCode: "MTN",
+            payeeBankAccNo: "0591990607",
+
+            notifyUrl: process.env.PALMPAY_WEBHOOK_URL,
+            currency: "NGN",
+            remark: "Wallet Topup " + orderId,
+
+            version,
+            nonceStr
+        };
+
+        // ==================================================
+        // SIGN REQUEST
+        // ==================================================
+
+        const privateKeyPEM = process.env.PALMPAY_PRIVATE_KEY
+
+        const signature =
+            generateSignature(payload, privateKeyPEM);
+
+        console.log("SIGNATURE:", signature);
+
+      
+
+        // ==================================================
+        // CALL PALMPAY API
+        // ==================================================
+
+        const response = await axios.post(
+
+            `${process.env.PALMPAY_BASE_URL}/api/v2/payment/merchant/createorder`,
+
+            payload,
+
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${process.env.PALMPAY_APP_ID}`,
+                    Signature: signature,
+                    CountryCode: "NG"
+                }
+            }
+        );
+
+          // ==================================================
+        // SAVE TRANSACTION (IMPORTANT)
+        // ==================================================
+
+        const transaction = await Transaction.create({
+
+    user: userId,
+
+    amount: Number(amount),
+
+    walletType: 'NAIRA',
+
+    paymentMethod: 'PalmPay',
+
+    reference: orderId,
+
+    status: 'pending',
+
+    palmPayOrderId:
+        response.data.data.orderNo,
+
+    sdkSessionId:
+        response.data.data.sdkSessionId,
+
+    payToken:
+        response.data.data.payToken,
+
+    checkoutUrl:
+        response.data.data.checkoutUrl,
+
+    apiResponse:
+        response.data
+});
+
+        console.log("PALMPAY RESPONSE:", response.data);
+
+        // ==================================================
+        // UPDATE TRANSACTION WITH RESPONSE
+        // ==================================================
+
+        transaction.apiResponse = response.data;
+
+        if (response.data.respCode === "00000000") {
+
+            transaction.paymentUrl =
+                response.data.data.checkoutUrl;
+
+            await transaction.save();
+
+            return res.json({
+
+                success: true,
+
+                paymentUrl:
+                    response.data.data.checkoutUrl,
+
+                transactionId:
+                    transaction._id
+            });
+        }
+
+        // ==================================================
+        // FAILED RESPONSE
+        // ==================================================
+
+        transaction.status = "failed";
+        await transaction.save();
+
+        return res.json({
+
+            success: false,
+            message: response.data.respMsg,
+            data: response.data
+        });
+
+    } catch (error) {
+
+        console.log(error.response?.data || error);
+
+        return res.json({
+
+            success: false,
+            message: "PalmPay error",
+            error: error.response?.data || error.message
+        });
+    }
+};
+
+
+
+
+////////////////////////////////////////////////////////
+exports.palmPayWebhook =
+async (req, res) => {
+
+    try {
+
+        console.log(
+            'PALMPAY WEBHOOK:',
+            req.body
+        );
+
+        // =========================================
+        // VERIFY PALMPAY SIGNATURE
+        // =========================================
+
+        const publicKeyPEM =
+            process.env.PALMPAY_PUBLIC_KEY;
+
+        const verified =
+            verifySignature(
+                req.body,
+                publicKeyPEM
+            );
+
+        if (!verified) {
+
+            return res.status(400)
+            .json({
+
+                success: false,
+
+                message:
+                    'Invalid PalmPay signature'
+            });
+        }
+
+        // =========================================
+        // FIND TRANSACTION
+        // =========================================
+
+        const transaction =
+            await Transaction.findOne({
+
+                reference:
+                    req.body.orderId
+            });
+
+        if (!transaction) {
+
+            return res.status(404)
+            .json({
+
+                success: false,
+
+                message:
+                    'Transaction not found'
+            });
+        }
+
+        // =========================================
+        // PREVENT DUPLICATE CREDITING
+        // =========================================
+
+        if (
+            transaction.walletCredited
+        ) {
+
+            return res.json({
+
+                success: true,
+
+                message:
+                    'Transaction already processed'
+            });
+        }
+
+        // =========================================
+        // SAVE WEBHOOK DATA
+        // =========================================
+
+        transaction.webhookData =
+            req.body;
+
+        transaction.webhookVerified =
+            true;
+
+        // =========================================
+        // CHECK PAYMENT SUCCESS
+        // =========================================
+        console.log(req.body);
+        if (
+
+            req.body.orderStatus == 1 ||
+
+            req.body.orderStatus == 4 ||
+
+            req.body.status == 1
+
+        ) {
+
+            // =====================================
+            // DYNAMIC WALLET FIELD
+            // =====================================
+
+            const walletField =
+                `balances.${transaction.walletType}`;
+
+            // =====================================
+            // CREDIT USER WALLET
+            // =====================================
+
+            await Wallet.findOneAndUpdate(
+
+                {
+                    user:
+                        transaction.user
+                },
+
+                {
+                    $inc: {
+
+                        [walletField]:
+
+                            Number(
+                                Number(
+                                    transaction.amount
+                                ).toFixed(2)
+                            )
+                    }
+                },
+
+                {
+                    new: true
+                }
+            );
+
+            // =====================================
+            // UPDATE TRANSACTION
+            // =====================================
+
+            transaction.status =
+                'success';
+
+            transaction.walletCredited =
+                true;
+
+            transaction.status =
+                'success';
+
+            await transaction.save();
+
+            return res.json({
+
+                success: true,
+
+                message:
+                    'Wallet funded successfully'
+            });
+        }
+
+        // =========================================
+        // PAYMENT FAILED
+        // =========================================
+
+        transaction.status =
+            'failed';
+
+        transaction.status =
+            'failed';
+
+        await transaction.save();
+
+        return res.json({
+
+            success: false,
+
+            message:
+                'Payment failed'
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return res.status(500)
+        .json({
+
+            success: false,
+
+            error:
+                error.message
+        });
+    }
+};
 
 exports.convertUSDTtoNaira = async (req, res) => {
 

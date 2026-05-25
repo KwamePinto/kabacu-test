@@ -14,6 +14,7 @@ const cors = require('cors');
 
 
 
+
  const connectDB = require('./server/config/db')
 // const emailQueue = require('./server/config/emailQueue');
 
@@ -43,7 +44,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 // Global user loader
 app.use(optionalUser);
