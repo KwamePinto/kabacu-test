@@ -528,7 +528,11 @@ document.getElementById('startTopup').addEventListener('click', async () => {
     if (data.success) {
         topupId = data.topupId;
         document.getElementById('otpBox').style.display = 'block';
-        alert('OTP sent');
+        //alert('OTP sent');
+         Swal.fire({
+            icon: 'warning',
+            text: 'OTP Sent'
+        });
     } else {
         alert(data.message);
     }
@@ -548,7 +552,11 @@ document.getElementById('confirmTopup').addEventListener('click', async () => {
     const data = await res.json();
 
     if (data.success) {
-        alert('Wallet funded successfully');
+        //alert('Wallet funded successfully');
+         Swal.fire({
+            icon: 'success',
+            text: 'Wallet funded successfully'
+        });
         location.reload();
     } else {
         alert(data.message);
@@ -620,7 +628,11 @@ document.getElementById('convertBtn')
 
     if (!amount || amount <= 0) {
 
-        alert('Enter valid amount');
+        //alert('Enter valid amount');
+         Swal.fire({
+            icon: 'warning',
+            text: 'Enter valid amount'
+        });
 
         return;
     }
@@ -648,7 +660,12 @@ document.getElementById('convertBtn')
             .value =
                 '₦' + data.nairaAmount.toLocaleString();
 
-            alert('Conversion successful');
+            //alert('Conversion successful');
+             Swal.fire({
+            icon: 'sucess',
+            text: 'Conversion successful'
+        });
+            
 
             // OPTIONAL REFRESH
             setTimeout(() => {
@@ -664,7 +681,11 @@ document.getElementById('convertBtn')
 
         console.log(err);
 
-        alert('Something went wrong');
+       // alert('Something went wrong');
+         Swal.fire({
+            icon: 'warning',
+            text: 'Something went wrong'
+        });
     }
 
 });
@@ -684,9 +705,14 @@ document.getElementById('palmpayBtn').addEventListener('click', async () => {
 
     if (!amount) {
 
-        alert(
-            'Enter amount'
-        );
+        // alert(
+        //     'Enter amount'
+        // );
+
+         Swal.fire({
+            icon: 'warning',
+            text: 'Enter amount'
+        });
 
         return;
     }
@@ -734,19 +760,28 @@ document.getElementById('palmpayBtn').addEventListener('click', async () => {
 
         } else {
 
-            alert(
-                data.message ||
-                'Payment failed'
-            );
+            // alert(
+            //     data.message ||
+            //     'Payment failed'
+            // );
+             Swal.fire({
+            icon: 'warning',
+            text: `${data.message} || Payment failed`
+        });
+            
         }
 
     } catch (error) {
 
         console.log(error);
 
-        alert(
-            'Something went wrong'
-        );
+        // alert(
+        //     'Something went wrong'
+        // );
+          Swal.fire({
+            icon: 'warning',
+            text: 'Something went wrong'
+        });
     }
 });
 
@@ -762,16 +797,29 @@ document.getElementById('walletBtn').addEventListener('click', async () => {
         const data = await res.json();
 
         if (data.success) {
-            alert('✅ Payment successful');
+           // alert('✅ Payment successful');
+             Swal.fire({
+            icon: 'success',
+            text: 'Payment successful'
+        });
+           
             modal.style.display = 'none';
             location.reload();
         } else {
-            alert(data.message);
+           // alert(data.message);
+                Swal.fire({
+            icon: 'warning',
+            text: `${data.message}`
+        });
         }
 
     } catch (error) {
         console.log(error);
-        alert('Payment error');
+        //alert('Payment error');
+             Swal.fire({
+            icon: 'warning',
+            text: 'Payment error'
+        });
     }
 });
 
