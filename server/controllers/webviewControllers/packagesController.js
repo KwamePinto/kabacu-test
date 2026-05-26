@@ -15,51 +15,88 @@ const mongoose = require('mongoose');
 const {generateSignature} = require('../../utils/palmpay');
 
 
-  async function getUSDTtoNaira() {
-  try {
-    const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn');
-    const rate = response.data.tether.ngn;
-    console.log(`Current USDT/NGN Rate: ₦${rate}`);
-    return rate;
-  } catch (error) {
-    console.error("Error fetching rates:", error);
-  }
-}
+  
 
 
 exports.packagesView = async (req, res) => {
-   try {
-getUSDTtoNaira()
-  
+
+  try {
 
     const products = await Product.find();
 
-    // ✅ FILTER BY CATEGORY
-   const dataProducts = await Product.find({ category: 'DATA' }).sort({ createdAt: -1 });
-      const specialProdtcs = await Product.find({ category: 'DATA' }).limit(3).sort({ createdAt: -1 });
-const automobileProducts = await Product.find({ category: 'AUTOMOBILE' }).sort({ createdAt: -1 });
-const electronicProducts = await Product.find({ category: 'ELECTRONICS' }).sort({ createdAt: -1 });
-const coursesProducts = await Product.find({ category: 'COURSES' }).sort({ createdAt: -1 });
-console.log("corses",coursesProducts)
+    // =====================================
+    // PRODUCTS
+    // =====================================
+
+    const dataProducts = await Product.find({
+      category: 'DATA'
+    }).sort({ createdAt: -1 });
+
+    const specialProdtcs = await Product.find({
+      category: 'DATA'
+    })
+    .limit(3)
+    .sort({ createdAt: -1 });
+
+    const automobileProducts = await Product.find({
+      category: 'AUTOMOBILE'
+    }).sort({ createdAt: -1 });
+
+    const electronicProducts = await Product.find({
+      category: 'ELECTRONICS'
+    }).sort({ createdAt: -1 });
+
+    const coursesProducts = await Product.find({
+      category: 'COURSES'
+    }).sort({ createdAt: -1 });
+
     const otherProducts = products.filter(
-      p => p.category !== 'DATA' && p.category !== 'AUTOMOBILE' && p.category !== 'ELECTRONICS' && p.category !== 'COURSES'
+      p =>
+        p.category !== 'DATA' &&
+        p.category !== 'AUTOMOBILE' &&
+        p.category !== 'ELECTRONICS' &&
+        p.category !== 'COURSES'
     );
 
+    // =====================================
+    // ✅ GET USER
+    // =====================================
+
+    let user = null;
+
+    if (req.user) {
+
+      user = await User.findById(req.user.id);
+    }
+
+    // =====================================
+    // RENDER
+    // =====================================
+
     res.render('webview/index', {
+
       dataProducts,
+
       automobileProducts,
+
       electronicProducts,
+
       coursesProducts,
+
       otherProducts,
-      specialProdtcs
+
+      specialProdtcs,
+
+      user
     });
 
   } catch (error) {
+
     console.log(error);
+
     res.send('Error loading products');
   }
 };
-
 // exports.checkout = (req,res)=>{
 
 // res.render('webview/checkout')
@@ -225,20 +262,31 @@ try {
   }
 };
 
-exports.history = async (req,res)=>{
+exports.history = async (req, res) => {
 
-    try {
-    const transactions = await Transaction.find({ user: req.user.id })
-      .populate('package')
-      .sort({ createdAt: -1 });
+  try {
 
-    res.render('webview/history', { transactions });
+    const transactions = await Transaction.find({
+      user: req.user.id
+    })
+
+    .populate('product')
+
+    .populate('products.product')
+
+    .sort({ createdAt: -1 });
+
+    res.render('webview/history', {
+      transactions
+    });
 
   } catch (error) {
+
     console.log(error);
+
     res.send('Error loading history');
   }
-}
+};
 
 exports.retryTransaction = async (req, res) => {
   try {
@@ -526,9 +574,14 @@ exports.payWithWallet = async (req, res) => {
 
     let total = 0;
 
+    // ✅ TOTAL RP
+    let totalRP = 0;
+
     let itemsToProcess = [];
 
     let cart = null;
+
+    let apiResponse = null;
 
     // =====================================
     // ✅ DIRECT PURCHASE
@@ -550,14 +603,17 @@ exports.payWithWallet = async (req, res) => {
       // DATA
       if (product.category === 'DATA') {
 
-        price = product.dataDetails?.amount || 0;
+        price =
+          product.dataDetails?.amount || 0;
       }
 
       // COURSES
       else if (product.category === 'COURSES') {
 
-        price = product.coursesDetails?.course_price || 0;
+        price =
+          product.coursesDetails?.course_price || 0;
       }
+
       else {
 
         return res.json({
@@ -567,6 +623,9 @@ exports.payWithWallet = async (req, res) => {
       }
 
       total = price;
+
+      // ✅ ADD RP
+      totalRP += product.reward_point || 0;
 
       itemsToProcess.push({
         product,
@@ -643,12 +702,17 @@ exports.payWithWallet = async (req, res) => {
 
         total += price * item.quantity;
 
+        // ✅ ADD RP
+        totalRP +=
+          (product.reward_point || 0)
+          * item.quantity;
+
         itemsToProcess.push(item);
       });
     }
 
     // =====================================
-    // ✅ CHECK NAIRA WALLET BALANCE
+    // ✅ CHECK WALLET BALANCE
     // =====================================
     if (wallet.balances.NAIRA < total) {
 
@@ -659,51 +723,50 @@ exports.payWithWallet = async (req, res) => {
     }
 
     // =====================================
-    // ✅ DEDUCT FROM NAIRA WALLET
+    // ✅ DEDUCT WALLET
     // =====================================
     wallet.balances.NAIRA -= total;
 
     await wallet.save();
 
-
-
+    // =====================================
+    // ✅ GET CHECKOUT FOR DATA
+    // =====================================
     let checkout = null;
 
-if (itemsToProcess.some(item => item.product.category === 'DATA')) {
+    if (
+      itemsToProcess.some(
+        item => item.product.category === 'DATA'
+      )
+    ) {
 
-    checkout = await Checkout.findOne({
+      checkout = await Checkout.findOne({
         user: userId
-    }).sort({ createdAt: -1 });
-
-}
+      }).sort({ createdAt: -1 });
+    }
 
     // =====================================
-    // ✅ PROCESS ITEMS
+    // ✅ PROCESS PRODUCTS
     // =====================================
     for (let item of itemsToProcess) {
 
       const product = item.product;
 
-
-
-
       // =====================================
-      // DATA PURCHASE
+      // ✅ DATA PURCHASE
       // =====================================
       if (product.category === 'DATA') {
 
-       
-
         if (!checkout) {
 
-          // REFUND
           wallet.balances.NAIRA += total;
 
           await wallet.save();
 
           return res.json({
             success: false,
-            message: 'Checkout data not found, refunded'
+            message:
+              'Checkout data not found, refunded'
           });
         }
 
@@ -724,45 +787,62 @@ if (itemsToProcess.some(item => item.product.category === 'DATA')) {
 
           return res.json({
             success: false,
-            message: 'Invalid phone number, refunded'
+            message:
+              'Invalid phone number, refunded'
           });
         }
 
-        let apiResponse;
-
         try {
+
           const networkMap = {
-    MTN: 1,
-    AIRTEL: 4,
-    GLO: 2,
-    '9MOBILE': 3
-};
+
+            MTN: 1,
+
+            GLO: 2,
+
+            '9MOBILE': 3,
+
+            AIRTEL: 4
+          };
 
           apiResponse = await Promise.race([
 
-    buyData({
-        network:networkMap[product.dataDetails.network],
+            buyData({
 
-        phone,
+              network:
+                networkMap[
+                  product.dataDetails.network
+                ],
 
-        data_plan:
-            product.dataDetails.plan_id
-    }),
+              phone,
 
-    new Promise((_, reject) =>
-        setTimeout(() =>
-            reject(new Error('Request timeout')),
-            25000
-        )
-    )
+              data_plan:
+                product.dataDetails.plan_id
+            }),
 
-]);
+            new Promise((_, reject) =>
+
+              setTimeout(() =>
+
+                reject(
+                  new Error('Request timeout')
+                ),
+
+                25000
+              )
+            )
+          ]);
+
+          console.log(
+            'BUY RESPONSE:',
+            apiResponse
+          );
 
         } catch (err) {
 
           console.log(
             'API ERROR:',
-            err.response?.data
+            err.response?.data || err.message
           );
 
           apiResponse = {
@@ -773,7 +853,9 @@ if (itemsToProcess.some(item => item.product.category === 'DATA')) {
         // =====================================
         // ❌ REFUND IF FAILED
         // =====================================
-        if (apiResponse.status !== 'success') {
+        if (
+          apiResponse.status !== 'success'
+        ) {
 
           wallet.balances.NAIRA += total;
 
@@ -783,13 +865,28 @@ if (itemsToProcess.some(item => item.product.category === 'DATA')) {
 
             user: userId,
 
+            product:
+              itemsToProcess[0]?.product?._id,
+
+            products: itemsToProcess.map(item => ({
+              product: item.product._id,
+              quantity: item.quantity
+            })),
+
+            phone,
+
             amount: total,
 
-            status: 'failed',
+            rpEarned: 0,
+
+            walletType: 'NAIRA',
 
             paymentMethod: 'wallet',
 
-            reference: 'PAY-' + Date.now(),
+            status: 'failed',
+
+            reference:
+              'PAY-' + Date.now(),
 
             apiResponse
           });
@@ -806,25 +903,53 @@ if (itemsToProcess.some(item => item.product.category === 'DATA')) {
     }
 
     // =====================================
-    // ✅ SAVE TRANSACTION
+    // ✅ SAVE SUCCESS TRANSACTION
     // =====================================
-    await Transaction.create({
+    const transaction =
+      await Transaction.create({
 
-      user: userId,
+        user: userId,
 
-      amount: total,
+        product:
+          itemsToProcess[0]?.product?._id,
 
-      status: 'success',
+        products: itemsToProcess.map(item => ({
+          product: item.product._id,
+          quantity: item.quantity
+        })),
 
-      paymentMethod: 'wallet',
+        phone:
+          checkout?.phone || '',
 
-      reference: 'PAY-' + Date.now(),
+        amount: total,
 
-      products: itemsToProcess.map(item => ({
-        product: item.product._id,
-        quantity: item.quantity
-      }))
-    });
+        rpEarned: totalRP,
+
+        walletType: 'NAIRA',
+
+        paymentMethod: 'wallet',
+
+        status: 'success',
+
+        reference:
+          'PAY-' + Date.now(),
+
+        apiResponse
+      });
+
+    // =====================================
+    // ✅ CREDIT USER RP
+    // =====================================
+    await User.findByIdAndUpdate(
+
+      userId,
+
+      {
+        $inc: {
+          rpBalance: totalRP
+        }
+      }
+    );
 
     // =====================================
     // ✅ CLEAR CART
@@ -836,13 +961,22 @@ if (itemsToProcess.some(item => item.product.category === 'DATA')) {
       await cart.save();
     }
 
+    // =====================================
+    // ✅ SUCCESS RESPONSE
+    // =====================================
     res.json({
 
       success: true,
 
-      message: 'Payment successful',
+      message:
+        'Payment successful',
 
-      balance: wallet.balances.NAIRA
+      balance:
+        wallet.balances.NAIRA,
+
+      rpEarned: totalRP,
+
+      transaction
     });
 
   } catch (error) {
@@ -850,13 +984,14 @@ if (itemsToProcess.some(item => item.product.category === 'DATA')) {
     console.log(error);
 
     res.json({
+
       success: false,
-      message: 'Payment failed'
+
+      message:
+        'Payment failed'
     });
   }
 };
-
-
 
 
 
@@ -1514,6 +1649,117 @@ exports.deleteItem =  async (req, res) => {
 
     res.redirect('/');
 
+};
+
+
+
+
+
+exports.claimRP = async (req, res) => {
+
+  try {
+
+    const userId = req.user.id;
+
+    // =====================================
+    // GET USER
+    // =====================================
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+
+      return res.json({
+
+        success: false,
+
+        message: 'User not found'
+      });
+    }
+
+    // =====================================
+    // CHECK RP
+    // =====================================
+
+    if (user.rpBalance <= 0) {
+
+      return res.json({
+
+        success: false,
+
+        message: 'No RP available'
+      });
+    }
+
+    // =====================================
+    // GET WALLET
+    // =====================================
+
+    let wallet = await Wallet.findOne({
+
+      user: userId
+    });
+
+    if (!wallet) {
+
+      wallet = await Wallet.create({
+
+        user: userId,
+
+        balances: {
+
+          BTT: 0,
+
+          RP: 0,
+
+          USDT: 0,
+
+          NAIRA: 0
+        }
+      });
+    }
+
+    // =====================================
+    // MOVE RP
+    // =====================================
+
+    wallet.balances.RP += user.rpBalance;
+
+    await wallet.save();
+
+    // =====================================
+    // RESET USER RP
+    // =====================================
+
+    const claimedRP = user.rpBalance;
+
+    user.rpBalance = 0;
+
+    await user.save();
+
+    // =====================================
+    // SUCCESS
+    // =====================================
+
+    res.json({
+
+      success: true,
+
+      message:
+        `${claimedRP} RP claimed successfully`
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.json({
+
+      success: false,
+
+      message: 'Failed to claim RP'
+    });
+  }
 };
 
 

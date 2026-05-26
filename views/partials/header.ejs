@@ -55,77 +55,24 @@
         <div class="header-middle biolife-sticky-object ">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-3 col-md-2 col-md-6 col-xs-6">
+                    <div class="col-lg-4 col-md-2 col-md-6 col-xs-6">
                         <a href="/" class="biolife-logo"><img src="/assets/images/favicon.png" alt="ctc logo" width="135" height="34"></a>
                     </div>
                     <div class="col-lg-6 col-md-7 hidden-sm hidden-xs">
                         <div class="primary-menu">
                         <ul class="menu biolife-menu clone-main-menu clone-primary-menu" id="primary-menu" data-menuname="main menu">
                              <% if (user) { %>
-                            <!-- <li class="menu-item"><a href="index-2.html">Home</a></li>
-                            <li class="menu-item menu-item-has-children has-megamenu">
-                                <a href="#" class="menu-name" data-title="Shop" >Shop</a>
-                                <div class="wrap-megamenu lg-width-900 md-width-750">
-                                    <div class="mega-content">
-                                        <div class="col-lg-3 col-md-3 col-xs-12 md-margin-bottom-0 xs-margin-bottom-25">
-                                            <div class="wrap-custom-menu vertical-menu">
-                                                <h4 class="menu-title">Fresh Berries</h4>
-                                                <ul class="menu">
-                                                    <li><a href="#">Fruit & Nut Gifts</a></li>
-                                                    <li><a href="#">Mixed Fruits</a></li>
-                                                    <li><a href="#">Oranges</a></li>
-                                                    <li><a href="#">Bananas & Plantains</a></li>
-                                                    <li><a href="#">Fresh Gala Apples</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-3 col-xs-12 md-margin-bottom-0 xs-margin-bottom-25">
-                                            <div class="wrap-custom-menu vertical-menu">
-                                                <h4 class="menu-title">Vegetables</h4>
-                                                <ul class="menu">
-                                                    <li><a href="#">Berries</a></li>
-                                                    <li><a href="#">Pears</a></li>
-                                                    <li><a href="#">Chili Peppers</a></li>
-                                                    <li><a href="#">Fresh Avocado</a></li>
-                                                    <li><a href="#">Grapes</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-3 col-xs-12 md-margin-bottom-0 xs-margin-bottom-25">
-                                            <div class="wrap-custom-menu vertical-menu ">
-                                                <h4 class="menu-title">Fresh Fruits</h4>
-                                                <ul class="menu">
-                                                    <li><a href="#">Basket of apples</a></li>
-                                                    <li><a href="#">Strawberry</a></li>
-                                                    <li><a href="#">Blueberry</a></li>
-                                                    <li><a href="#">Orange</a></li>
-                                                    <li><a href="#">Pineapple</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-3 col-xs-12 md-margin-bottom-0 xs-margin-bottom-25">
-                                            <div class="wrap-custom-menu vertical-menu">
-                                                <h4 class="menu-title">Featured Products</h4>
-                                                <ul class="menu">
-                                                    <li><a href="#">Coffee Creamers</a></li>
-                                                    <li><a href="#">Mayonnaise</a></li>
-                                                    <li><a href="#">Almond Milk</a></li>
-                                                    <li><a href="#">Fruit Jam</a></li>
-                                                    <li><a href="#">Beverages</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                      
-                       
-                            <li class="menu-item"><a href="contact.html">Contact</a></li> -->
+                            <li class="menu-item"><a href="/">Home</a></li>
+                            <li class="menu-item"><a href="/history">History</a></li>
+                            <!-- <li class="menu-item"><a href="/claimRP">Claim-RP</a></li> -->
+                             <li class="menu-item"><a href="/my-wallet">My Wallet</a></li>
+                           
+                            <!-- <li class="menu-item"><a href="contact.html">Contact</a></li>  -->
                             <%}%>
                         </ul>
                     </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-md-6 col-xs-6">
+                    <div class="col-lg-2 col-md-3 col-md-6 col-xs-6">
                         <div class="biolife-cart-info">
                             <!-- <div class="mobile-search">
                                 <a href="javascript:void(0)" class="open-searchbox"><i class="biolife-icon icon-search"></i></a>
@@ -163,7 +110,34 @@
                           <!-- The Wallet -->
                         
 
-                                <!-- The RP -->
+                               <!-- The RP -->
+<div class="minicart-block">
+    <div class="minicart-contain">
+
+        <a href="javascript:void(0)" class="link-to">
+
+            <span class="icon-qty-combine">
+                <i class="icon-cart-mini biolife-icon"></i>
+            </span>
+
+            <% if(user){ %>
+
+                <span class="title">
+                    My RP -
+                </span>
+
+                <span class="sub-total">
+                    <%= user?.rpBalance || 0 %>
+                </span>
+
+            <% } %>
+
+        </a>
+
+    </div>
+</div>
+                                 
+                                 
                              <div class="minicart-block">
                                 <div class="minicart-contain">
                                    
@@ -172,7 +146,12 @@
                                             
 
                                         <p class="buttons">
-                                    <a href="/my-wallet" class="btn btn-bold">My Wallet</a>
+                                    <a href="#"
+id="openClaimModal"
+class="btn btn-bold">
+
+Claim RP
+</a>
                                   
                                 </p>
                             </a>
@@ -182,6 +161,71 @@
                                 
                                 </div>
                             </div>
+
+
+                            <!-- ===================================== -->
+<!-- CLAIM RP MODAL -->
+<!-- ===================================== -->
+
+<div id="claimRpModal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+z-index:9999;
+">
+
+    <div style="
+        background:#fff;
+        width:350px;
+        margin:120px auto;
+        padding:25px;
+        border-radius:10px;
+        text-align:center;
+    ">
+
+        <h4>Claim Reward Points</h4>
+
+        <br>
+
+        <p>
+            You are about to claim
+        </p>
+
+        <h2 style="color:green;">
+            <%= user?.rpBalance || 0 %> RP
+        </h2>
+
+        <br>
+
+        <button
+            id="confirmClaimBtn"
+            class="btn btn-success">
+
+            Confirm Claim
+        </button>
+
+        <br><br>
+
+        <button
+            id="closeClaimModal"
+            class="btn btn-danger">
+
+            Cancel
+        </button>
+
+    </div>
+
+</div>
+
+                           
+                            
+                           
+                           
                            
                             
                             <div class="mobile-menu-toggle">
@@ -343,7 +387,7 @@
                             </form>
                         </div>
                         <div class="live-info">
-                            <p class="telephone"><i class="fa fa-phone" aria-hidden="true"></i><b class="phone-number">+9715 4249 6609</b></p>
+                            <!-- <p class="telephone"><i class="fa fa-phone" aria-hidden="true"></i><b class="phone-number">+9715 4249 6609</b></p> -->
                             <p class="working-time">24/7 W0rking Hours</p>
                         </div>
                     </div>
@@ -351,3 +395,115 @@
             </div>
         </div>
     </header>
+
+    <script>
+
+const claimModal =
+document.getElementById('claimRpModal');
+
+const openClaimModal =
+document.getElementById('openClaimModal');
+
+const closeClaimModal =
+document.getElementById('closeClaimModal');
+
+const confirmClaimBtn =
+document.getElementById('confirmClaimBtn');
+
+
+// =====================================
+// OPEN MODAL
+// =====================================
+
+openClaimModal.addEventListener('click', function(e){
+
+    e.preventDefault();
+
+    claimModal.style.display = 'block';
+});
+
+
+// =====================================
+// CLOSE MODAL
+// =====================================
+
+closeClaimModal.addEventListener('click', function(){
+
+    claimModal.style.display = 'none';
+});
+
+
+// =====================================
+// CONFIRM CLAIM
+// =====================================
+
+confirmClaimBtn.addEventListener('click', async function(){
+
+    try {
+
+        // ✅ LOADING
+        confirmClaimBtn.disabled = true;
+
+        confirmClaimBtn.innerHTML =
+        'Processing...';
+
+        const res = await fetch('/wallet/claim-rp', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+
+            Swal.fire({
+
+                icon: 'success',
+
+                text: data.message
+            });
+
+            setTimeout(() => {
+
+                location.reload();
+
+            }, 1500);
+
+        } else {
+
+            Swal.fire({
+
+                icon: 'error',
+
+                text: data.message
+            });
+
+            confirmClaimBtn.disabled = false;
+
+            confirmClaimBtn.innerHTML =
+            'Confirm Claim';
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+        Swal.fire({
+
+            icon: 'error',
+
+            text: 'Claim failed'
+        });
+
+        confirmClaimBtn.disabled = false;
+
+        confirmClaimBtn.innerHTML =
+        'Confirm Claim';
+    }
+});
+
+</script>

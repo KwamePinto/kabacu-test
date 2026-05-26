@@ -49,5 +49,7 @@ router.post( '/palmpay/create', authenticateUser, getPackages.createPalmPayPayme
 
 router.post( '/palmpay/webhook', getPackages.palmPayWebhook);
 
+router.post( '/wallet/claim-rp', getPackages.claimRP);
+
 
 module.exports = router;

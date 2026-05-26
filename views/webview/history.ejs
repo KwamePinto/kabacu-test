@@ -60,69 +60,134 @@
                                             </div>
                                         </td>
                                     </tr> -->
-                                    <% if(transactions && transactions.length > 0){ %>
+                                  <% if(transactions && transactions.length > 0){ %>
+
     <% transactions.forEach(function(tx){ %>
+
+        <% 
+            let product = null;
+
+            // DIRECT PRODUCT
+            if(tx.product){
+                product = tx.product;
+            }
+
+            // CART PRODUCT
+            else if(tx.products && tx.products.length > 0){
+                product = tx.products[0].product;
+            }
+        %>
 
 <tr>
 
-    <!-- Quantity (optional, can remove if not needed) -->
+    <!-- Quantity -->
     <td>
-        1
+        <%= tx.products?.[0]?.quantity || 1 %>
     </td>
 
-    <!-- Package Info -->
+    <!-- PRODUCT INFO -->
     <td>
-        <a class="hover-main-color">
-            <%= tx.package.network %> -
-            <%= tx.package.plan_type %> 
-            (<%= tx.package.plan_name %>)
-        </a>
-        <br>
-        <small>Phone: <%= tx.phone %></small>
+
+        <% if(product && product.category === 'DATA'){ %>
+
+            <a class="hover-main-color">
+
+                <%= product.dataDetails.network %> -
+
+                <%= product.dataDetails.plan_type %>
+
+                (<%= product.dataDetails.plan_name %>)
+
+            </a>
+
+            <br>
+
+            <small>
+                Phone: <%= tx.phone %>
+            </small>
+
+        <% } else if(product && product.category === 'COURSES'){ %>
+
+            <a class="hover-main-color">
+
+                <%= product.coursesDetails.course_title %>
+
+            </a>
+
+        <% } else { %>
+
+            <span>No product info</span>
+
+        <% } %>
+
     </td>
 
-    <!-- Price -->
+    <!-- PRICE -->
     <td>
         ₦<%= tx.amount %>
     </td>
 
-    <!-- Status -->
+    <!-- STATUS -->
     <td>
+
         <% if(tx.status === 'success'){ %>
+
             <span style="color: green; font-weight: bold;">
                 ✅ Success
             </span>
-        <% } else { %>
+
+        <% } else if(tx.status === 'failed'){ %>
+
             <span style="color: red; font-weight: bold;">
                 ❌ Failed
             </span>
+
+        <% } else { %>
+
+            <span style="color: orange; font-weight: bold;">
+                ⏳ <%= tx.status %>
+            </span>
+
         <% } %>
+
     </td>
 
-    <!-- Action -->
+    <!-- ACTION -->
     <td>
+
         <% if(tx.status === 'failed'){ %>
-            <button 
+
+            <button
                 class="btn btn-warning retry-btn"
                 data-id="<%= tx._id %>">
+
                 Retry
+
             </button>
+
         <% } else { %>
+
             <span style="color: gray;">—</span>
+
         <% } %>
+
     </td>
 
 </tr>
 
     <% }) %>
+
 <% } else { %>
 
 <tr>
-    <td colspan="5">No transactions found</td>
+
+    <td colspan="5">
+        No transactions found
+    </td>
+
 </tr>
 
-<% } %>
-                                   
+<% } %>                                   
                                 </tbody>
                             </table>
                         </div>
