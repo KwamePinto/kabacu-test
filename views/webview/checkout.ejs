@@ -576,11 +576,13 @@ document.getElementById('walletBtn').addEventListener('click', async () => {
            // alert('✅ Payment successful');
                Swal.fire({
             icon: 'success',
-            text: 'Payment successful'
+            text: 'Package Purchased Successfully'
         });
             
             modal.style.display = 'none';
-            location.reload();
+           // location.reload();
+            window.location.href = '/';
+            
         } else {
             //alert(data.message);
              Swal.fire({
