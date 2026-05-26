@@ -559,6 +559,45 @@ document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
         }
 
     }
+
+    // Wallet
+// ✅ Wallet payment (NEW LOGIC)
+document.getElementById('walletBtn').addEventListener('click', async () => {
+    try {
+        const res = await fetch('/wallet/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: selectedProductId }) // ✅ send productId
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+           // alert('✅ Payment successful');
+               Swal.fire({
+            icon: 'success',
+            text: 'Payment successful'
+        });
+            
+            modal.style.display = 'none';
+            location.reload();
+        } else {
+            //alert(data.message);
+             Swal.fire({
+            icon: 'error',
+            text: `${data.message}`
+        });
+        }
+
+    } catch (error) {
+        console.log(error);
+        //alert('Payment error');
+           Swal.fire({
+            icon: 'error',
+            text: `Payment error`
+        });
+    }
+});
 </script>
    
 <!-- <script id="payment-script">
@@ -581,8 +620,5 @@ document.getElementById('paystackBtn').addEventListener('click', () => {
     window.location.href = '/payment/paystack';
 });
 
-// Wallet
-document.getElementById('walletBtn').addEventListener('click', () => {
-    window.location.href = '/wallet/checkout';
-});
+
 </script> -->
