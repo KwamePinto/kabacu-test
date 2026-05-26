@@ -558,16 +558,6 @@ exports.payWithWallet = async (req, res) => {
 
         price = product.coursesDetails?.course_price || 0;
       }
-
-      // DRINKS / WATER
-      else if (
-        product.category === 'DRINKS' ||
-        product.category === 'WATER'
-      ) {
-
-        price = product.item_price || 0;
-      }
-
       else {
 
         return res.json({
@@ -675,6 +665,18 @@ exports.payWithWallet = async (req, res) => {
 
     await wallet.save();
 
+
+
+    let checkout = null;
+
+if (itemsToProcess.some(item => item.product.category === 'DATA')) {
+
+    checkout = await Checkout.findOne({
+        user: userId
+    }).sort({ createdAt: -1 });
+
+}
+
     // =====================================
     // ✅ PROCESS ITEMS
     // =====================================
@@ -682,14 +684,15 @@ exports.payWithWallet = async (req, res) => {
 
       const product = item.product;
 
+
+
+
       // =====================================
       // DATA PURCHASE
       // =====================================
       if (product.category === 'DATA') {
 
-        const checkout = await Checkout.findOne({
-          user: userId
-        }).sort({ createdAt: -1 });
+       
 
         if (!checkout) {
 
@@ -728,19 +731,32 @@ exports.payWithWallet = async (req, res) => {
         let apiResponse;
 
         try {
+          const networkMap = {
+    MTN: 1,
+    AIRTEL: 4,
+    GLO: 2,
+    '9MOBILE': 3
+};
 
-          apiResponse = await buyData({
+          apiResponse = await Promise.race([
 
-            network:
-              product.dataDetails.network === 'MTN'
-                ? 1
-                : 2,
+    buyData({
+        network:networkMap[product.dataDetails.network],
 
-            phone,
+        phone,
 
-            data_plan:
-              product.dataDetails.plan_id
-          });
+        data_plan:
+            product.dataDetails.plan_id
+    }),
+
+    new Promise((_, reject) =>
+        setTimeout(() =>
+            reject(new Error('Request timeout')),
+            25000
+        )
+    )
+
+]);
 
         } catch (err) {
 

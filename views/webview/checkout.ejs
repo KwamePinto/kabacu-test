@@ -562,44 +562,116 @@ document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
 
     // Wallet
 // ✅ Wallet payment (NEW LOGIC)
-document.getElementById('walletBtn').addEventListener('click', async () => {
+
+
+const walletBtn = document.getElementById('walletBtn');
+
+walletBtn.addEventListener('click', async () => {
+
     try {
+
+        // =========================
+        // ✅ DISABLE BUTTON
+        // =========================
+        walletBtn.disabled = true;
+
+        // Optional styling while disabled
+        walletBtn.style.opacity = '0.6';
+        walletBtn.innerHTML = 'Processing...';
+
+        // =========================
+        // ✅ SHOW LOADING ALERT
+        // =========================
+        Swal.fire({
+            title: 'Processing Payment',
+            text: 'Please wait while we process your order...',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // =========================
+        // ✅ SEND REQUEST
+        // =========================
         const res = await fetch('/wallet/pay', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId: selectedProductId }) // ✅ send productId
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                productId: selectedProductId
+            })
         });
 
         const data = await res.json();
 
+        // =========================
+        // ✅ CLOSE LOADER
+        // =========================
+        Swal.close();
+
+        // =========================
+        // ✅ SUCCESS
+        // =========================
         if (data.success) {
-           // alert('✅ Payment successful');
-               Swal.fire({
-            icon: 'success',
-            text: 'Package Purchased Successfully'
-        });
-            
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Successful',
+                text: 'Package Purchased Successfully'
+            });
+
             modal.style.display = 'none';
-           // location.reload();
-            window.location.href = '/';
-            
-        } else {
-            //alert(data.message);
-             Swal.fire({
-            icon: 'error',
-            text: `${data.message}`
-        });
+
+            // Redirect after short delay
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
+
+        }
+
+        // =========================
+        // ❌ FAILED
+        // =========================
+        else {
+
+            // Re-enable button
+            walletBtn.disabled = false;
+            walletBtn.style.opacity = '1';
+            walletBtn.innerHTML = 'Pay with My Wallet';
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Failed',
+                text: data.message
+            });
         }
 
     } catch (error) {
+
         console.log(error);
-        //alert('Payment error');
-           Swal.fire({
+
+        // =========================
+        // ❌ ERROR
+        // =========================
+        walletBtn.disabled = false;
+        walletBtn.style.opacity = '1';
+        walletBtn.innerHTML = 'Pay with My Wallet';
+
+        Swal.close();
+
+        Swal.fire({
             icon: 'error',
-            text: `Payment error`
+            title: 'Error',
+            text: 'Something went wrong'
         });
     }
+
 });
+
+
 </script>
    
 <!-- <script id="payment-script">
