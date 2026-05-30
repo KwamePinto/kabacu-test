@@ -58,6 +58,8 @@ exports.packagesView = async (req, res) => {
         p.category !== 'COURSES'
     );
 
+ 
+
     // =====================================
     // ✅ GET USER
     // =====================================
@@ -87,7 +89,8 @@ exports.packagesView = async (req, res) => {
 
       specialProdtcs,
 
-      user
+      user,
+    
     });
 
   } catch (error) {

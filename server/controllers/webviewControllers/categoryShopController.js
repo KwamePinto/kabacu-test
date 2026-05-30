@@ -10,7 +10,14 @@ const { authenticateUser } = require('../../config/authMiddleware');
 
 exports.dataCategory =async (req, res) => {
   try {
+
+       let perPage = 6;
+    let page = req.query.page || 1; 
+    let query = req.query.query || '';
+    //let searchCondition = { users_id: req.userId };
     const dataProducts = await Product.find({ category: 'DATA' }).sort({ createdAt: -1 });
+    const count = await Product.find({ category: 'DATA' }).countDocuments();
+    console.log("count doc", count)
 
     // 🔥 Group by network
     const groupedProducts = {};
@@ -25,8 +32,15 @@ exports.dataCategory =async (req, res) => {
       groupedProducts[network].push(product);
     });
 
+
     res.render('webview/data-category', {
-      groupedProducts
+      groupedProducts,
+        current: page,
+		pages: Math.ceil(count / perPage),
+		hasNextPage: (page * perPage) < count,
+		nextPage: parseInt(page) + 1,
+		 hasPrevPage: page > 1,
+		 prevPage: parseInt(page) - 1,
     });
 
   } catch (error) {
