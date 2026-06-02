@@ -28,7 +28,7 @@ function buildDigest(body) {
         md5(sorted)
         .toUpperCase();
 
-    console.log("MD5:", hash);
+    console.log("The MD5:", hash);
 
     return hash;
 }
