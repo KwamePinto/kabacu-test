@@ -1032,6 +1032,7 @@ exports.createPalmPayPayment = async (req, res) => {
             payeeName: "Wallet Topup",
             payeeBankCode: "MTN",
             payeeBankAccNo: "0591990607",
+            callBackUrl: process.env.PALMPAY_CALLBACK_URL,
 
             notifyUrl: process.env.PALMPAY_WEBHOOK_URL,
             currency: "NGN",

@@ -700,10 +700,12 @@ document.getElementById('palmpayBtn').addEventListener('click', async () => {
         document
         .getElementById('palmpayAmount')
         .value;
+        
+        const conversion = amount *100
 
 
 
-    if (!amount) {
+    if (!conversion) {
 
         // alert(
         //     'Enter amount'
@@ -739,7 +741,7 @@ document.getElementById('palmpayBtn').addEventListener('click', async () => {
 
                     body:
                         JSON.stringify({
-                            amount
+                              amount:conversion
                         })
                 }
             );
