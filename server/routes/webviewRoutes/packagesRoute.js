@@ -37,6 +37,8 @@ router.post('/wallet/pay', authenticateUser, getPackages.payWithWallet);
 
 router.get('/user-profile', authenticateUser, getPackages.userProfile);
 
+router.post('/edit-user-profile', authenticateUser, getPackages.editUserProfile);
+
 router.post('/wallet/convert-usdt', authenticateUser, getPackages.convertUSDTtoNaira);
 
 router.post('/update-checkout/:id', authenticateUser, getPackages.editItem);

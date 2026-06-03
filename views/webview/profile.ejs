@@ -10,6 +10,30 @@
             </div>
         </div>
     </div>
+     <script>
+        <!-- ✅ Your SweetAlert Logic -->
+
+    const successMsg = <%- JSON.stringify(success_msg) %>;
+    const errorMsg = <%- JSON.stringify(error_msg) %>;
+
+    if (successMsg.length > 0) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: successMsg[0]
+        });
+    }
+
+    if (errorMsg.length > 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMsg[0]
+        });
+    }
+
+
+    </script>
 
    <%- include('../partials/header.ejs')%>
     <!--Hero Section-->
@@ -83,21 +107,21 @@
                     <!--Contact form-->
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="contact-form-container sm-margin-top-112px">
-                            <form action="#" name="frm-contact" >
+                            <form action="/edit-user-profile" method="post" name="frm-contact" >
+                                <h3>Update Your User Profile</h3>
                                 <p class="form-row">
-                                    <input type="text" name="name" value="" placeholder="Your Name" class="txt-input">
+                                    <label for="fid-name">Username:<span class="requite">*</span></label>
+                                    <input type="text"  id="fid-name" name="username" value="<%=user.username%>"  class="txt-input">
                                 </p>
                                 <p class="form-row">
-                                    <input type="email" name="email" value="" placeholder="Email Address" class="txt-input">
+                                    <input type="email" name="email" value="<%=user.email%>"  class="txt-input">
                                 </p>
                                 <p class="form-row">
-                                    <input type="tel" name="phone" value="" placeholder="Phone Number" class="txt-input">
+                                    <input type="text" name="minerId" value="<%=user.minerId%>"  class="txt-input">
                                 </p>
+                               
                                 <p class="form-row">
-                                    <textarea name="mes" id="mes-1" cols="30" rows="9" placeholder="Leave Message"></textarea>
-                                </p>
-                                <p class="form-row">
-                                    <button class="btn btn-submit" type="submit">Up Date Profile</button>
+                                    <button class="btn btn-submit" type="submit">Update Profile</button>
                                 </p>
                             </form>
                         </div>

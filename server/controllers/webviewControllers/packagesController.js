@@ -1619,15 +1619,69 @@ exports.previewUSDTConversion = async (req, res) => {
 };
 
 
-exports.userProfile = (req,res)=>{
+exports.userProfile = async (req,res)=>{
   try{
-    res.render('webview/profile')
+    const userId = req.user.id
+   const user = await User.findById({_id:userId});
+    res.render('webview/profile',{user})
 
   }catch(error){
     console.log(error)
   }
 
 }
+
+exports.editUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const {
+      username,
+      email,
+      minerId
+    } = req.body;
+
+    // Check if email belongs to another user
+    const existingEmail = await User.findOne({
+      email,
+      _id: { $ne: userId }
+    });
+
+    if (existingEmail) {
+      req.flash('error_msg', 'Email already exists');
+      return res.redirect('/user-profile');
+    }
+
+    // Check if username belongs to another user
+    const existingUsername = await User.findOne({
+      username,
+      _id: { $ne: userId }
+    });
+
+    if (existingUsername) {
+      req.flash('error_msg', 'Username already exists');
+      return res.redirect('/user-profile');
+    }
+
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        username,
+        email,
+        minerId
+      },
+      { new: true }
+    );
+
+    req.flash('success_msg', 'Profile updated successfully');
+    res.redirect('/user-profile');
+
+  } catch (error) {
+    console.log(error);
+    req.flash('error_msg', 'Something went wrong');
+    res.redirect('/user-profile');
+  }
+};
 
 
 
