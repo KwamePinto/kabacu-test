@@ -75,6 +75,7 @@ function verifySignature(body, publicKeyPEM) {
     const signature = decodeURIComponent(body.sign);
 
     const verifier = crypto.createVerify("RSA-SHA1");
+    console.log("this is hash", hash)
 
     verifier.update(hash);   // ✅ NO MD5 ANYWHERE
     verifier.end();
