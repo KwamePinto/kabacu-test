@@ -1296,7 +1296,7 @@ await Wallet.findOneAndUpdate(
     },
 
     {
-        new: true
+        returnDocument: 'after'
     }
 );
 
@@ -1304,6 +1304,26 @@ console.log(
     "UPDATED WALLET:",
     wallet
 );
+
+
+await Topup.create({
+
+    user: transaction.user,
+
+    amount: transaction.amount,
+
+    balanceType: transaction.walletType,
+
+    status: 'COMPLETED',
+
+    reference: transaction.reference,
+
+    paymentMethod: 'PalmPay',
+
+    expiresAt: new Date(
+        Date.now() + 5 * 60 * 1000
+    )
+});
 
             // =====================================
             // UPDATE TRANSACTION

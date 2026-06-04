@@ -14,6 +14,12 @@ const topupSchema = new mongoose.Schema({
     enum: ['PENDING', 'COMPLETED'],
     default: 'PENDING'
   },
+  reference:{
+    type:String
+  },
+  paymentMethod:{
+    type: String
+  },
   expiresAt: {
     type: Date,
     default: () => Date.now() + 5 * 60 * 1000 // 5 mins
