@@ -68,12 +68,15 @@ function verifySignature(body, publicKeyPEM) {
         .join("&");
 
     console.log("VERIFY STRING:", sorted);
+    const hash =
+        md5(sorted)
+        .toUpperCase();
 
     const signature = decodeURIComponent(body.sign);
 
     const verifier = crypto.createVerify("RSA-SHA1");
 
-    verifier.update(sorted);   // ✅ NO MD5 ANYWHERE
+    verifier.update(hash);   // ✅ NO MD5 ANYWHERE
     verifier.end();
 
     return verifier.verify(publicKeyPEM, signature, "base64");
