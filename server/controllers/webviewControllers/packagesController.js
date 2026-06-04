@@ -12,7 +12,7 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 
 
-const {generateSignature} = require('../../utils/palmpay');
+const {generateSignature,verifySignature} = require('../../utils/palmpay');
 
 
   
@@ -1184,8 +1184,7 @@ async (req, res) => {
         const publicKeyPEM = process.env.PALMPAY_PUBLIC_KEY;
         //const verified = true;
 
-        const verified =
-            verifySignature(
+        const verified = verifySignature(
                 req.body,
                 publicKeyPEM
             );
