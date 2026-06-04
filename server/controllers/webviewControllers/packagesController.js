@@ -1184,11 +1184,12 @@ async (req, res) => {
         const publicKeyPEM = process.env.PALMPAY_PUBLIC_KEY;
         //const verified = true;
 
+
         const verified = verifySignature(
                 req.body,
                 publicKeyPEM
             );
-
+            console.log("SIGNATURE VERIFIED:", verified);
         if (!verified) {
 
             return res.status(400)

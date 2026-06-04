@@ -56,24 +56,27 @@ function generateSignature(body, privateKeyPEM) {
 
 function verifySignature(body, publicKeyPEM) {
 
-    const digest =
-        buildDigest(body);
+    const sorted = Object.keys(body)
+        .sort()
+        .filter(key =>
+            key !== "sign" &&
+            body[key] !== undefined &&
+            body[key] !== null &&
+            body[key] !== ""
+        )
+        .map(key => `${key}=${body[key]}`)
+        .join("&");
 
-    const signature =
-        decodeURIComponent(body.sign);
+    console.log("VERIFY STRING:", sorted);
 
-    const verifier =
-        crypto.createVerify("RSA-SHA1");
+    const signature = decodeURIComponent(body.sign);
 
-    verifier.update(digest);
+    const verifier = crypto.createVerify("RSA-SHA1");
 
+    verifier.update(sorted);   // 👈 IMPORTANT CHANGE (NO MD5)
     verifier.end();
 
-    return verifier.verify(
-        publicKeyPEM,
-        signature,
-        "base64"
-    );
+    return verifier.verify(publicKeyPEM, signature, "base64");
 }
 
 module.exports = {
