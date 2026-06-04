@@ -1212,6 +1212,10 @@ async (req, res) => {
                 reference:
                     req.body.orderId
             });
+            console.log(
+    "FOUND TRANSACTION:",
+    transaction
+);
 
         if (!transaction) {
 
@@ -1277,30 +1281,29 @@ async (req, res) => {
             // CREDIT USER WALLET
             // =====================================
 
-            await Wallet.findOneAndUpdate(
+            const wallet =
+await Wallet.findOneAndUpdate(
 
-                {
-                    user:
-                        transaction.user
-                },
+    {
+        user: transaction.user
+    },
 
-                {
-                    $inc: {
+    {
+        $inc: {
+            [walletField]:
+            Number(transaction.amount)
+        }
+    },
 
-                        [walletField]:
+    {
+        new: true
+    }
+);
 
-                            Number(
-                                Number(
-                                    transaction.amount
-                                ).toFixed(2)
-                            )
-                    }
-                },
-
-                {
-                    new: true
-                }
-            );
+console.log(
+    "UPDATED WALLET:",
+    wallet
+);
 
             // =====================================
             // UPDATE TRANSACTION
@@ -1322,7 +1325,7 @@ async (req, res) => {
                 success: true,
 
                 message:
-                    'Wallet funded successfully'
+                    'success'
             });
         }
 
