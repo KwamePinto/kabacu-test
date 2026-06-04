@@ -73,7 +73,7 @@ function verifySignature(body, publicKeyPEM) {
 
     const verifier = crypto.createVerify("RSA-SHA1");
 
-    verifier.update(sorted);   // 👈 IMPORTANT CHANGE (NO MD5)
+    verifier.update(sorted);   // ✅ NO MD5 ANYWHERE
     verifier.end();
 
     return verifier.verify(publicKeyPEM, signature, "base64");
