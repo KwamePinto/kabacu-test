@@ -1,32 +1,87 @@
 
 <style>
-   .table-wrapper{
-    width: 140%;
-    text-align: center;
-}
-
-.transaction-table{
-    width: 150%; /* or 90%, 70%, etc */
-    margin: 0 auto;
-}
-
-.transaction-table tbody,
-.transaction-table tr{
-    width: 100%;
-}
-
-.transaction-table td{
-    padding: 12px;
-}
-
-.contain-table{
-    width: 100%;
-    align-content:center;
-}
-
 .table-responsive{
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.transaction-table{
+    width: 100%;
+    min-width: 700px; /* allows scrolling on small screens */
+    border-collapse: collapse;
+}
+
+.transaction-table th,
+.transaction-table td{
+    padding: 12px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.table-wrapper,
+.contain-table{
+    width: 100%;
+}
+
+@media (max-width: 768px){
+
+    .transaction-table,
+    .transaction-table thead,
+    .transaction-table tbody,
+    .transaction-table th,
+    .transaction-table td,
+    .transaction-table tr{
+        display:block;
+    }
+
+    .transaction-table thead{
+        display:none;
+    }
+
+    .transaction-table tr{
+        margin-bottom:15px;
+        border:1px solid #ddd;
+        border-radius:8px;
+        padding:10px;
+        background:#fff;
+    }
+
+    .transaction-table td{
+        border:none;
+        position:relative;
+        padding-left:50%;
+        text-align:right;
+        white-space:normal;
+    }
+
+    .transaction-table td:before{
+        position:absolute;
+        left:10px;
+        width:45%;
+        font-weight:bold;
+        text-align:left;
+    }
+
+    .transaction-table td:nth-child(1):before{
+        content:"Qty";
+    }
+
+    .transaction-table td:nth-child(2):before{
+        content:"Package";
+    }
+
+    .transaction-table td:nth-child(3):before{
+        content:"Amount";
+    }
+
+    .transaction-table td:nth-child(4):before{
+        content:"Status";
+    }
+
+    .transaction-table td:nth-child(5):before{
+        content:"Action";
+    }
 }
 </style>
     <!-- Preloader -->
@@ -69,6 +124,7 @@
                        
                         <div class="grouped-product-list no-border-top">
                             <div class="table-wrapper">
+                                <div class="table-responsive">
                             <table cellspacing="0" class="group_table transaction-table">
                                 <thead>
             <tr>
@@ -211,6 +267,7 @@
 <% } %>                                   
                                 </tbody>
                             </table>
+                            </div>
                             </div>
                         </div>
                        
