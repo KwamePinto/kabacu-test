@@ -1281,8 +1281,7 @@ async (req, res) => {
             // CREDIT USER WALLET
             // =====================================
 
-            const wallet =
-await Wallet.findOneAndUpdate(
+            const wallet = await Wallet.findOneAndUpdate(
 
     {
         user: transaction.user
@@ -1306,7 +1305,7 @@ console.log(
 );
 
 
-await Topup.create({
+const topUp = await Topup.create({
 
     user: transaction.user,
 
@@ -1324,7 +1323,10 @@ await Topup.create({
         Date.now() + 5 * 60 * 1000
     )
 });
-
+console.log(
+    "TOPUP CREATED:",
+    topUp
+);
             // =====================================
             // UPDATE TRANSACTION
             // =====================================
@@ -1735,7 +1737,6 @@ exports.deleteItem =  async (req, res) => {
 
 
 
-
 exports.claimRP = async (req, res) => {
 
   try {
@@ -1845,13 +1846,6 @@ exports.claimRP = async (req, res) => {
 
 
  
-
-
-  
-
-
-
-
 exports.wallet =  (req, res) => {
     // wallet deduction logic
     res.send('Processing wallet payment...');

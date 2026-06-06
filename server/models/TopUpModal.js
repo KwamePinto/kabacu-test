@@ -26,4 +26,6 @@ const topupSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('TopUp', topupSchema);
+const TopUp = mongoose.model('TopUp', topupSchema);
+module.exports = TopUp;
+
