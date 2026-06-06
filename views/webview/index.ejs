@@ -1,1381 +1,562 @@
-<style>
-.custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-}
-
-.custom-modal-content {
-    background: #fff;
-    width: 350px;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    position: relative;
-    animation: fadeIn 0.3s ease;
-}
-
-.close-modal {
-    position: absolute;
-    right: 15px;
-    top: 10px;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(-20px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-
-.category-wrapper {
-    position: relative;
-    display: block;
-    text-align: center; /* centers the network */
-}
-
-.category-wrapper .rp {
-   position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    
-    font-size: 11px;        /* small text */
-    font-weight: 600;       /* still visible */
-    color: #fff;            /* strong contrast */
-    background: #ff9800;    /* bright color (visible) */
-    
-    padding: 2px 6px;
-    border-radius: 10px;
-    white-space: nowrap; 
-}
-
-
-
-/* OVERLAY */
-
-.custom-modal {
-
-    display: none;
-
-    position: fixed;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-
-    background: rgba(0,0,0,0.65);
-
-    z-index: 9999;
-
-    justify-content: center;
-
-    align-items: center;
-
-    padding: 15px;
-}
-
-/* MODAL BOX */
-
-.custom-modal-content {
-
-    background: #fff;
-
-    width: 100%;
-
-    max-width: 400px;
-
-    border-radius: 12px;
-
-    padding: 25px;
-
-    animation: modalFade .3s ease;
-
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
-/* HEADER */
-
-.modal-header-section h4 {
-
-    margin-bottom: 8px;
-
-    font-size: 22px;
-}
-
-.modal-header-section p {
-
-    color: #666;
-
-    font-size: 14px;
-
-    margin-bottom: 20px;
-}
-
-/* INPUT */
-
-.modal-input-group {
-
-    margin-bottom: 20px;
-}
-
-.modal-input-group label {
-
-    display: block;
-
-    margin-bottom: 8px;
-
-    font-weight: 600;
-}
-
-.modal-input {
-
-    width: 100%;
-
-    height: 45px;
-
-    border: 1px solid #ddd;
-
-    border-radius: 8px;
-
-    padding: 0 12px;
-
-    outline: none;
-
-    transition: .2s;
-}
-
-.modal-input:focus {
-
-    border-color: #0d6efd;
-}
-
-/* BUTTONS */
-
-.modal-buttons {
-
-    display: flex;
-
-    gap: 10px;
-
-    margin-top: 20px;
-}
-
-.modal-btn {
-
-    flex: 1;
-
-    height: 45px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    font-weight: 600;
-
-    transition: .2s;
-}
-
-.cancel-btn {
-
-    background: #dc3545;
-
-    color: #fff;
-}
-
-.success-btn {
-
-    background: #198754;
-
-    color: #fff;
-}
-
-.modal-btn:hover {
-
-    opacity: .9;
-}
-
-/* MOBILE */
-
-@media (max-width: 500px) {
-
-    .custom-modal-content {
-
-        padding: 20px;
-    }
-
-    .modal-buttons {
-
-        flex-direction: column;
-    }
-}
-
-/* ANIMATION */
-
-@keyframes modalFade {
-
-    from {
-
-        transform: translateY(-15px);
-
-        opacity: 0;
-    }
-
-    to {
-
-        transform: translateY(0);
-
-        opacity: 1;
-    }
-}
-
-
-
-</style>
-
-    <!-- Preloader -->
-     <div id="biof-loading">
-        <div class="biof-loading-center">
-            <div class="biof-loading-center-absolute">
-                <div class="dot dot-one"></div>
-                <div class="dot dot-two"></div>
-                <div class="dot dot-three"></div>
-            </div>
-        </div>
-    </div> 
-
-     <script>
-        <!-- ✅ Your SweetAlert Logic -->
-
-    const successMsg = <%- JSON.stringify(success_msg) %>;
-    const errorMsg = <%- JSON.stringify(error_msg) %>;
-
-    if (successMsg.length > 0) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: successMsg[0]
-        });
-    }
-
-    if (errorMsg.length > 0) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: errorMsg[0]
-        });
-    }
-
-
-    </script>
-
-    
-<%- include('../partials/header.ejs')%>
-    <!-- Page Contain -->
-    <div class="page-contain">
-
-        <!-- Main content -->
-        <div id="main-content" class="main-content">
-
-            <!--Block 01: Main slide-->
-            <div class="main-slide block-slider">
-                <ul class="biolife-carousel nav-none-on-mobile" data-slick='{"arrows": true, "dots": false, "slidesMargin": 0, "slidesToShow": 1, "infinite": true, "speed": 800}' >
-                    <li>
-                        <div class="slide-contain slider-opt03__layout01">
-                            <div class="media">
-                                <div class="child-elememt">
-                                    <a href="#" class="link-to">
-                                        <!-- <img src="assets/images/home-03/slide-01-child-01.png" width="604" height="580" alt=""> -->
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="text-content">
-                                <i class="first-line"> Connectivity</i>
-                                <h3 class="second-line"> Unlimited Data.</h3>
-                                <p class="third-line">Experience seamless coverage and ultra-fast speeds</p>
-                                <p class="buttons">
-                                    <a href="#shop" class="btn btn-bold">Shop now</a>
-                                    <!-- <a href="#" class="btn btn-thin">View lookbook</a> -->
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="slide-contain slider-opt03__layout01">
-                            <div class="media">
-                                <!-- <div class="child-elememt"><a href="#" class="link-to"><img src="assets/images/home-03/slide-01-child-01.png" width="604" height="580" alt=""></a></div> -->
-                            </div>
-                            <div class="text-content">
-                                <i class="first-line">Data Solutions</i>
-                                <h3 class="second-line"> MAX CAPACITY.</h3>
-                                <p class="third-line"> Dedicated performance and robust encryption .</p>
-                                <p class="buttons">
-                                    <a href="#shop" class="btn btn-bold">Shop now</a>
-                                    <!-- <a href="#" class="btn btn-thin">View lookbook</a> -->
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-            <!--Block 02: Banner-->
-            <div class="special-slide">
-                <div class="container">
-                    <ul class="biolife-carousel dots_ring_style" data-slick='{"arrows": false, "dots": true, "slidesMargin": 30, "slidesToShow": 1, "infinite": true, "speed": 800, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 1}},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":20, "dots": false}},{"breakpoint":480, "settings":{ "slidesToShow": 1}}]}' >
-                         <% if(specialProdtcs.length > 0){ %>
-                                        <% specialProdtcs.forEach(function(product){ %>
-                        <li>
-                            <div class="slide-contain biolife-banner__special">
-                                <div class="banner-contain">
-                                    <div class="media">
-                                        <a href="#" class="bn-link">
-                                            <figure><img src="<%= product.images[0] %>" width="616" height="483" alt=""></figure>
-                                        </a>
-                                    </div>
-                                    <div class="text-content">
-                                        <b class="first-line"><%= product.dataDetails.network %></b>
-                                        <span class="second-line"><%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</span>
-                                        <!-- <span class="third-line">Easy <i>Healthy, Happy Life</i></span> -->
-                                        <div class="product-detail">
-                                            <h4 class="product-name">We Offer You The Best Data Prices</h4>
-                                            <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.oldPrice %></span></del>
-                                            </div>
-                                            <div class="buttons">
-                                                 <%if(!user){%>
-                                                <a href="#" class="btn add-to-cart-btn">Buy Now</a>
-
-                                                      <%}else{%>
-                                                                  
-                                                                 <a href="#" 
-                                                                    class="btn add-to-cart-btn buy-btn"
-                                                                    data-id="<%= product._id %>">Buy Now</a>
-
-                                                            <%}%>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                          <% }) %>
-                                        <% } else { %>
-                                        <p>No data products</p>
-                                        <% } %>
-                       
-                       
-                    </ul>
-                    <div class="biolife-service type01 biolife-service__type01 sm-margin-top-0 xs-margin-top-45px">
-                        <b class="txt-show-01">Low Prices</b>
-                        <i class="txt-show-02">Best Products</i>
-                        <ul class="services-list">
-                            <li>
-                                <div class="service-inner">
-                                    <span class="number">1</span>
-                                    <span class="biolife-icon icon-location2"></span>
-                                    <a class="srv-name"  href="#">Right Location</a>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="service-inner">
-                                    <span class="number">2</span>
-                                    <span class="biolife-icon icon-schedule"></span>
-                                    <a class="srv-name" href="#">place your order</a>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="service-inner">
-                                    <span class="number">3</span>
-                                    <span class="biolife-icon icon-phone"></span>
-                                    <a class="srv-name" href="#">Best products on sale</a>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!--Block 03: Product Tab-->
-            <div class="product-tab z-index-20 sm-margin-top-193px xs-margin-top-30px" id="shop">
-                <div class="container">
-                    <div class="biolife-title-box">
-                        <span class="subtitle">All the best item for You</span>
-                        <h3 class="main-title">Related Products</h3>
-                    </div>
-                    <div class="biolife-tab biolife-tab-contain sm-margin-top-34px">
-                        <div class="tab-head tab-head__icon-top-layout icon-top-layout">
-                            <ul class="tabs md-margin-bottom-35-im xs-margin-bottom-40-im">
-                                 <li class="tab-element active">
-                                    <a href="#tab01_1st" class="tab-link"><span class="biolife-icon icon-phone"></span>Data</a>
-                                </li> 
-                                <li class="tab-element " >
-                                    <a href="#tab01_2nd" class="tab-link"><span class="biolife-icon icon-car"></span>Automobile</a>
-                                </li>
-                                <li class="tab-element" >
-                                    <a href="#tab01_3rd" class="tab-link"><span class="biolife-icon icon-head-phone"></span>Electronics</a>
-                                </li>
-                                 <li class="tab-element" >
-                                    <a href="#tab01_4th" class="tab-link"><span class="biolife-icon icon-schedule"></span>Courses</a>
-                                </li>
-                               <!-- <li class="tab-element" >
-                                    <a href="#tab01_5th" class="tab-link"><span class="biolife-icon icon-broccoli"></span>Vegetables</a>
-                                </li> -->
-                            </ul>
-                        </div>
-                        <div class="tab-content">
-                            <div id="tab01_1st" class="tab-contain active">
-                                <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
-                                    <% if(dataProducts.length > 0){ %>
-                                        <% dataProducts.forEach(function(product){ %>
-                                    <li class="product-item">
-                                        <div class="contain-product layout-default">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                                <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
-                                            </div>
-                                            <div class="info">
-                                              <b class="categories category-wrapper">
-                                    <span class="network"><%= product.dataDetails.network %></span>
-                                    <span class="rp">Reward Point(<%= product.reward_point %>)</span></b>
-</b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">  <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.oldPrice %></span></del>
-                                                </div>
-                                                <div class="slide-down-box">
-                                                    <p class="message">All products are carefully selected suit your data package.</p>
-                                                    <div class="buttons">
-                                                        <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                        <%if(!user){%>
-                                                        <a href="/user/login" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Buy Now</a>
-                                                        <%}else{%>
-                                                                  
-                                                                 <a href="#" 
-                                                                    class="btn add-to-cart-btn buy-btn"
-                                                                    data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Buy Now</a>
-
-                                                            <%}%>
-
-                                                        <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                      <% }) %>
-                                        <% } else { %>
-                                        <p>No data products</p>
-                                        <% } %>
-                                   
-                                   
-                                   
-                                </ul>
-                            </div> 
-                            <div id="tab01_2nd"  class="tab-contain ">
-                                <h4 style="text-align: center; font-size:200px " >Coming Soon!</h4>
-                                <!-- <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
-                                    <% if(automobileProducts.length > 0){ %>
-                                    <% automobileProducts.forEach(function(product){ %>
-                                    <li class="product-item">
-                                        <div class="contain-product layout-default">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                                <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
-                                            </div>
-                                            <div class="info">
-                                                <b class="categories"><%= product.automobileDetails.brand %></b>
-                                                <h4 class="product-title"><a href="#" class="pr-name"> <%= product.automobileDetails.model %> (<%= product.automobileDetails.year %>)</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.automobileDetails.price %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
-                                                </div>
-                                                <div class="slide-down-box">
-                                                    <p class="message"> <%= product.automobileDetails.fuel_type %> |
-                                                     <%= product.automobileDetails.transmission %></p>
-                                                    <div class="buttons">
-                                                        <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn add-to-cart-btn add-to-cart"  data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a> 
-                                                         <a href="#" class="btn add-to-cart-btn add-to-cart" ><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                                        <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                     <% }) %>
-                                        <% } else { %>
-                                        <p>No automobile products</p>
-                                        <% } %>
-                                    
-                                    
-                                   
-                                </ul> -->
-                            </div>
-                            <div id="tab01_3rd" class="tab-contain ">
-                                 <h4 style="text-align: center; font-size:200px " >Coming Soon!</h4>
-                                <!-- <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
-                                    <% if(electronicProducts.length > 0){ %>
-                                    <% electronicProducts.forEach(function(product){ %>
-                                    <li class="product-item">
-                                        <div class="contain-product layout-default">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                                <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
-                                            </div>
-                                            <div class="info">
-                                                <b class="categories"><%= product.electronicDetails.itemName %></b>
-                                                <h4 class="product-title"><a href="#" class="pr-name"><%= product.electronicDetails.brandItem %></a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.electronicDetails.items_price %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
-                                                </div>
-                                                <div class="slide-down-box">
-                                                    <p class="message"><%= product.electronicDetails.itemtype %></p>
-                                                    <div class="buttons">
-                                                        <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn add-to-cart-btn add-to-cart"   data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                                        <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-
-                                     <% }) %>
-                                        <% } else { %>
-                                        <p>No electronic products</p>
-                                        <% } %>
-                                   
-                                   
-
-                                </ul> -->
-                            </div>
-
-
-                                <div id="tab01_4th" class="tab-contain ">
-                                     <h4 style="text-align: center; font-size:200px " >Coming Soon!</h4>
-                                <!-- <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
-                                    <% if(coursesProducts.length > 0){ %>
-                                    <% coursesProducts.forEach(function(product){ %>
-                                    <li class="product-item">
-                                        <div class="contain-product layout-default">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                                <a class="lookup btn_call_quickview" href="#" data-id="<%= product._id %>"><i class="biolife-icon icon-search"></i></a>
-                                            </div>
-                                            <div class="info">
-                                                <b class="categories"><%= product.coursesDetails.title %></b>
-                                                <h4 class="product-title"><a href="#" class="pr-name"><%= product.coursesDetails.instructor %></a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.coursesDetails.course_price %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00 <</span></del>
-                                                </div>
-                                                <div class="slide-down-box">
-                                                    <p class="message"><%= product.coursesDetails.course_description %></p>
-                                                    <div class="buttons">
-                                                        <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                        <a href="#" class="btn add-to-cart-btn add-to-cart" data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                                        <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-
-                                     <% }) %>
-                                        <% } else { %>
-                                        <p>No course products</p>
-                                        <% } %>
-                                   
-                                   
-
-                                </ul> -->
-                            </div>
-                           
-                           
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!--Block 04: Banner Promotion 01 -->
-            <div class="banner-promotion-01 xs-margin-top-50px sm-margin-top-11px">
-                <div class="biolife-banner promotion biolife-banner__promotion">
-                    <div class="banner-contain">
-                        <div class="media background-biolife-banner__promotion">
-                            <div class="img-moving position-1">
-                                <img src="assets/images/home-03/pt2.png" width="149" height="139" alt="img msv">
-                            </div>
-                            <div class="img-moving position-2">
-                                <img src="assets/images/home-03/tp1.png" width="185" height="265" alt="img msv">
-                            </div>
-                            <div class="img-moving position-3">
-                                <img src="assets/images/home-03/tp1.png" width="250" height="151" alt="img msv">
-                            </div>
-                            <div class="img-moving position-4">
-                                <img src="assets/images/home-03/tp1.png" width="198" height="269" alt="img msv">
-                            </div>
-                        </div>
-                        <!-- <div class="text-content">
-                            <div class="container text-wrap">
-                                <i class="first-line">Healthy Fruit juice</i>
-                                <span class="second-line">Vegetable Always fresh</span>
-                                <p class="third-line">Food Heaven Made Easy sounds like the name of an amazingly delicious food delivery service, but don't be fooled...</p>
-                                <div class="product-detail">
-                                    <p class="txt-price"><span>Only:</span>$8.00</p>
-                                    <a href="#" class="btn add-to-cart-btn">add to cart</a>
-                                </div>
-                            </div>
-                        </div> -->
-                    </div>
-                </div>
-            </div>
-
-            <!--Block 05: Banner Promotion 02-->
-          
-
-            <!--Block 06: Products-->
-            <div class="Product-box sm-margin-top-96px xs-margin-top-0">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-4 col-md-5 col-sm-6">
-                            <div class="advance-product-box">
-                                <div class="biolife-title-box bold-style biolife-title-box__bold-style">
-                                    <h3 class="title">Deals of the day</h3>
-                                </div>
-                                <ul class="products biolife-carousel nav-top-right nav-none-on-mobile" data-slick='{"arrows":true, "dots":false, "infinite":false, "speed":400, "slidesMargin":30, "slidesToShow":1}'>
-                                    <% if(specialProdtcs.length > 0){ %>
-                                        <% specialProdtcs.forEach(function(product){ %>
-                                    <li class="product-item">
-                                        <div class="contain-product deal-layout contain-product__deal-layout">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="<%= product.images[0] %>" alt="dd" width="330" height="330" class="product-thumnail">
-                                                </a>
-                                                <!-- <div class="labels">
-                                                    <span class="sale-label">-50%</span>
-                                                </div> -->
-                                            </div>
-                                            <div class="info">
-                                                <div class="biolife-countdown" data-datetime="2026/04/24 02:00:00"></div>
-                                                <b class="categories"><%= product.dataDetails.network %></b>
-                                                <h4 class="product-title"><a href="#" class="pr-name"><%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.oldPrice %></span></del>
-                                                </div>
-                                                <div class="slide-down-box">
-                                                    <p class="message">We Offer You The Best Data Prices</p>
-                                                    <div class="buttons">
-                                                        <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                         <%if(!user){%>
-                                                        <a href="#" class="btn add-to-cart-btn">Buy Now</a>
-                                                         <%}else{%>
-                                                                  
-                                                                 <a href="#" 
-                                                                    class="btn add-to-cart-btn buy-btn"
-                                                                    data-id="<%= product._id %>">Buy Now</a>
-
-                                                            <%}%>
-                                                        <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                   <% }) %>
-                                        <% } else { %>
-                                        <p>No data products</p>
-                                        <% } %>
-                                  
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-md-7 col-sm-6">
-                            <div class="advance-product-box">
-                                <div class="biolife-title-box bold-style biolife-title-box__bold-style">
-                                    <h3 class="title">Top Rated Products</h3>
-                                </div>
-                                <ul class="products biolife-carousel eq-height-contain nav-center-03 nav-none-on-mobile row-space-29px" data-slick='{"rows":2,"arrows":true,"dots":false,"infinite":false,"speed":400,"slidesMargin":30,"slidesToShow":2,"responsive":[{"breakpoint":1200,"settings":{ "rows":2, "slidesToShow": 2}},{"breakpoint":992, "settings":{ "rows":2, "slidesToShow": 1}},{"breakpoint":768, "settings":{ "rows":2, "slidesToShow": 2}},{"breakpoint":500, "settings":{ "rows":2, "slidesToShow": 1}}]}'>
-                                     <% if(dataProducts.length > 0){ %>
-                                        <% dataProducts.forEach(function(product){ %>
-                                    <li class="product-item">
-                                        <div class="contain-product right-info-layout contain-product__right-info-layout">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="<%= product.images[0] %>" alt="dd" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                            </div>
-                                            <div class="info">
-                                                <b class="categories"><%= product.dataDetails.network %></b>
-                                                <h4 class="product-title"><a href="#" class="pr-name"><%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.oldPrice %></span></del>
-                                                </div>
-                                                <div class="rating">
-                                                    <p class="star-rating"><span class="width-80percent"></span></p>
-                                                    <span class="review-count">(05 Reviews)</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                     <% }) %>
-                                        <% } else { %>
-                                        <p>No data products</p>
-                                        <% } %>
-                                     
-                                    
-                                   
-                                </ul>
-                                <div class="biolife-banner style-01 biolife-banner__style-01 xs-margin-top-80px-im sm-margin-top-30px-im">
-                                    <div class="banner-contain">
-                                        <a href="#" class="bn-link"></a>
-                                        <!-- <div class="text-content">
-                                            <span class="first-line">Daily Fresh</span>
-                                            <b class="second-line">Natural</b>
-                                            <i class="third-line">Fresh Food</i>
-                                            <span class="fourth-line">Premium Quality</span>
-                                        </div> -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-           
-
-
-        </div>
-
-    </div>
-    
-  <!-- BUY MODAL -->
-<div id="buyModal" class="custom-modal">
-
-    <div class="custom-modal-content">
-
-        <!-- HEADER -->
-        <div class="modal-header-section">
-
-            <h4>Enter Phone Number</h4>
-
-            <p>
-                Please enter your active phone number
-                for payment processing.
-            </p>
-
-        </div>
-
-        <!-- INPUT -->
-        <div class="modal-input-group">
-
-            <label>
-                Phone Number
-            </label>
-
-            <input 
-                type="text"
-                id="phoneInput"
-                class="modal-input"
-                placeholder="e.g 23481533xxxxx"
-                maxlength="11"
-                inputmode="numeric"
-                pattern="[0-9]*"
-            >
-
-        </div>
-
-        <!-- ERROR -->
-        <small 
-            id="phoneError"
-            style="
-                color:red;
-                display:none;
-                margin-top:5px;
-            "
-        >
-            Enter valid phone number
-        </small>
-
-        <!-- BUTTONS -->
-        <div class="modal-buttons">
-
-            <button 
-                id="cancelBtn"
-                class="modal-btn cancel-btn"
-            >
-                Cancel
-            </button>
-
-            <button 
-                id="checkoutBtn"
-                class="modal-btn success-btn"
-            >
-                Checkout
-            </button>
-
-        </div>
-
-    </div>
+<!-- Centered page tabs -->
+<div class="container">
+  <div class="page-tabs">
+    <button class="page-tab active" id="tabHome" onclick="switchTab('home')">Home</button>
+    <button class="page-tab" id="tabCategory" onclick="switchTab('category')">Category</button>
+    <span class="tab-indicator" id="tabIndicator"></span>
+  </div>
 </div>
 
+<!-- ══ HOME TAB ════════════════════════════════════════════ -->
+<div id="homeContent" class="tab-content">
 
+  <!-- Full-width hero carousel (outside container so it can bleed to screen edges on desktop) -->
+  <div class="promo-carousel" id="promoCarousel">
 
-    <!-- FOOTER -->
-    <%- include('../partials/footer.ejs')%>
-    <!--Footer For Mobile-->
-    <div class="mobile-footer">
-        <div class="mobile-footer-inner">
-            <div class="mobile-block block-menu-main">
-                <a class="menu-bar menu-toggle btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
-                    <span class="fa fa-bars"></span>
-                    <span class="text">Menu</span>
-                </a>
-            </div>
-            <div class="mobile-block block-sidebar">
-                <a class="menu-bar filter-toggle btn-toggle" data-object="open-mobile-filter" href="javascript:void(0)">
-                    <i class="fa fa-sliders" aria-hidden="true"></i>
-                    <span class="text">Sidebar</span>
-                </a>
-            </div>
-            <div class="mobile-block block-minicart">
-                <a class="link-to-cart" href="#">
-                    <span class="fa fa-shopping-bag" aria-hidden="true"></span>
-                    <span class="text">Cart</span>
-                </a>
-            </div>
-            <div class="mobile-block block-global">
-                <a class="menu-bar myaccount-toggle btn-toggle" data-object="global-panel-opened" href="javascript:void(0)">
-                    <span class="fa fa-globe"></span>
-                    <span class="text">Global</span>
-                </a>
-            </div>
-        </div>
+    <div class="promo-slide promo-slide--1 active">
+      <img class="promo-slide__bg-img"
+           src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1920&q=90"
+           alt="">
+      <div class="promo-slide__overlay"></div>
+      <div class="promo-slide__content">
+        <span class="promo-slide__tag">Fast &amp; Easy</span>
+        <h2 class="promo-slide__title">Buy Data Bundles in Seconds</h2>
+        <p class="promo-slide__sub">Instant delivery to any Nigerian number</p>
+        <a href="/category/data-category" class="promo-slide__btn">Shop Now</a>
+      </div>
     </div>
 
-    <!--Mobile Global Menu-->
-    <div class="mobile-block-global">
-        <div class="biolife-mobile-panels">
-            <span class="biolife-current-panel-title">Global</span>
-            <a class="biolife-close-btn" data-object="global-panel-opened" href="#">&times;</a>
-        </div>
-        <div class="block-global-contain">
-            <div class="glb-item my-account">
-                <b class="title">My Account</b>
-                <ul class="list">
-                    <li class="list-item"><a href="#">Login/register</a></li>
-                    <li class="list-item"><a href="#">Wishlist <span class="index">(8)</span></a></li>
-                    <li class="list-item"><a href="#">Checkout</a></li>
-                </ul>
-            </div>
-            <div class="glb-item currency">
-                <b class="title">Currency</b>
-                <ul class="list">
-                    <li class="list-item"><a href="#">€ EUR (Euro)</a></li>
-                    <li class="list-item"><a href="#">$ USD (Dollar)</a></li>
-                    <li class="list-item"><a href="#">£ GBP (Pound)</a></li>
-                    <li class="list-item"><a href="#">¥ JPY (Yen)</a></li>
-                </ul>
-            </div>
-            <div class="glb-item languages">
-                <b class="title">Language</b>
-                <ul class="list inline">
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/us.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/fr.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/ger.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/jap.jpg" alt="flag" width="24" height="18"></a></li>
-                </ul>
-            </div>
-        </div>
+    <div class="promo-slide promo-slide--2">
+      <img class="promo-slide__bg-img"
+           src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=90"
+           alt="">
+      <div class="promo-slide__overlay"></div>
+      <div class="promo-slide__content">
+        <span class="promo-slide__tag">Always Available</span>
+        <h2 class="promo-slide__title">24/7 Data, Never Run Out</h2>
+        <p class="promo-slide__sub">MTN · Airtel · Glo · 9Mobile</p>
+        <a href="/category/data-category" class="promo-slide__btn">Browse Plans</a>
+      </div>
     </div>
 
-    <!--Quickview Popup-->
-    <div id="biolife-quickview-block" class="biolife-quickview-block">
-        <div class="quickview-container">
-            <a href="#" class="btn-close-quickview" data-object="open-quickview-block"><span class="biolife-icon icon-close-menu"></span></a>
-            <div class="biolife-quickview-inner">
-                <div class="media">
-                    <ul class="biolife-carousel quickview-for" id="quickview-images" data-slick='{"arrows":false,"dots":false,"slidesMargin":30,"slidesToShow":1,"slidesToScroll":1,"fade":true,"asNavFor":".quickview-nav"}'>
-                       
-                    </ul>
-                    <ul class="biolife-carousel quickview-nav" id="quickview-thumbs" data-slick='{"arrows":true,"dots":false,"centerMode":false,"focusOnSelect":true,"slidesMargin":10,"slidesToShow":3,"slidesToScroll":1,"asNavFor":".quickview-for"}'>
-                      
-                    </ul>
-                </div>
-                <div class="product-attribute">
-                    <h4 class="title"><a href="#" id="quickview-name" class="pr-name"></a></h4>
-                    <div class="rating">
-                        <p class="star-rating"><span class="width-80percent"></span></p>
-                    </div>
-
-                    <div class="price price-contain">
-                        <ins><span class="price-amount" id="quickview-price"><span class="currencySymbol">₦</span>85.00</span></ins>
-                        <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
-                    </div>
-                    <p class="excerpt" id="quickview-description"></p>
-                    <div class="from-cart">
-                        <div class="qty-input">
-                            <input type="text" name="qty12554" value="1" data-max_value="20" data-min_value="1" data-step="1">
-                            <a href="#" class="qty-btn btn-up"><i class="fa fa-caret-up" aria-hidden="true"></i></a>
-                            <a href="#" class="qty-btn btn-down"><i class="fa fa-caret-down" aria-hidden="true"></i></a>
-                        </div>
-                        <div class="buttons">
-                            <a href="#" id="quickview-buy-btn" class="btn add-to-cart-btn btn-bold">Buy Now</a>
-                        </div>
-                    </div>
-
-                   
-
-                    <div class="product-meta">
-                        <div class="product-atts">
-                            <div class="product-atts-item">
-                                <b class="meta-title">Description
-                                <ul class="meta-list">
-                                    <li><a href="#"  id="quickview-description" class="meta-link"></a></li>
-                                    
-                                </ul>
-                            </div>
-                            <!-- <div class="product-atts-item">
-                                <b class="meta-title">Tags:</b>
-                                <ul class="meta-list">
-                                    <li><a href="#" class="meta-link">food theme</a></li>
-                                    <li><a href="#" class="meta-link">organic food</a></li>
-                                    <li><a href="#" class="meta-link">organic theme</a></li>
-                                </ul>
-                            </div>
-                            <div class="product-atts-item">
-                                <b class="meta-title">Brand:</b>
-                                <ul class="meta-list">
-                                    <li><a href="#" class="meta-link">Fresh Fruit</a></li>
-                                </ul>
-                            </div> -->
-                        </div>
-                        <span class="sku">SKU: N/A</span>
-                        <div class="biolife-social inline add-title">
-                            <span class="fr-title">Share:</span>
-                            <ul class="socials">
-                                <li><a href="#" title="twitter" class="socail-btn"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
-                                <li><a href="#" title="facebook" class="socail-btn"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
-                                <li><a href="#" title="pinterest" class="socail-btn"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
-                                <li><a href="#" title="youtube" class="socail-btn"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
-                                <li><a href="#" title="instagram" class="socail-btn"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="promo-slide promo-slide--3">
+      <img class="promo-slide__bg-img"
+           src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=1920&q=90"
+           alt="">
+      <div class="promo-slide__overlay"></div>
+      <div class="promo-slide__content">
+        <span class="promo-slide__tag">Earn Rewards</span>
+        <h2 class="promo-slide__title">Get Reward Points on Every Purchase</h2>
+        <p class="promo-slide__sub">Redeem RP for free data bundles</p>
+        <a href="/category/data-category" class="promo-slide__btn">Start Earning</a>
+      </div>
     </div>
 
-    <!-- Scroll Top Button -->
-    <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
-<!-- 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-document.querySelectorAll('.btn_call_quickview').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
+  </div>
 
-        const id = this.dataset.id;
-        console.log('This is the id',id)
+  <!-- Slide counter badge (desktop only) — sits at bottom-left corner of inset image -->
+  <div class="promo-slide__badge" id="slideBadge">
+    <span class="promo-slide__badge-num" id="slideBadgeNum">01</span>
+    <span class="promo-slide__badge-sep">/ 03</span>
+  </div>
 
-        fetch(`/admin/product/details/${id}`)
-            .then(res => res.json())
-            .then(product => {
+  <!-- Dot indicators — in container so they're centred / aligned -->
+  <div class="container">
+    <div class="promo-dots" id="promoDots">
+      <span class="promo-dot promo-dot--active"></span>
+      <span class="promo-dot"></span>
+      <span class="promo-dot"></span>
+    </div>
+  </div>
 
-                let name = '';
-                let price = '';
-                let description = '';
+  <!-- ── Desktop: Browse Categories (hidden on mobile) ───── -->
+  <div class="desktop-section cat-browse">
+    <div class="container">
+      <div class="cat-browse__heading">
+        <h2 class="cat-browse__title">Browse Categories</h2>
+        <p class="cat-browse__subtitle">Everything you need, all in one place</p>
+      </div>
+      <div class="cat-browse__grid">
 
-                // ✅ HANDLE CATEGORY CLEANLY
-                switch (product.category) {
-                    case "DATA":
-                        name = `${product.dataDetails.plan_type} (${product.dataDetails.plan_name})`;
-                        price = product.dataDetails.amount;
-                        description = product.dataDetails.network;
-                        break;
+        <a href="/category/data-category" class="cat-browse__card">
+          <div class="cat-browse__img-wrap">
+            <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&q=85" alt="Data Bundles">
+            <div class="cat-browse__hover-overlay">
+              <div class="cat-browse__hover-label">Data Bundles</div>
+              <div class="cat-browse__hover-desc">MTN · Airtel · Glo · 9Mobile</div>
+            </div>
+          </div>
+        </a>
 
-                    case "AUTOMOBILE":
-                        name = `${product.automobileDetails.brand} ${product.automobileDetails.model}`;
-                        price = product.automobileDetails.price;
-                        description = `${product.automobileDetails.fuel_type} | ${product.automobileDetails.transmission}`;
-                        break;
+        <a href="/category/electronic-category" class="cat-browse__card">
+          <div class="cat-browse__img-wrap">
+            <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&q=85" alt="Electronics">
+            <div class="cat-browse__hover-overlay">
+              <div class="cat-browse__hover-label">Electronics</div>
+              <div class="cat-browse__hover-desc">Phones, Laptops &amp; Gadgets</div>
+            </div>
+          </div>
+        </a>
 
-                    case "ELECTRONIC":
-                        name = product.electronicDetails.itemName;
-                        price = product.electronicDetails.items_price;
-                        description = product.electronicDetails.itemtype;
-                        break;
+        <a href="/category/automobile-category" class="cat-browse__card">
+          <div class="cat-browse__img-wrap">
+            <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=85" alt="Automobiles">
+            <div class="cat-browse__hover-overlay">
+              <div class="cat-browse__hover-label">Automobiles</div>
+              <div class="cat-browse__hover-desc">Cars, Parts &amp; Accessories</div>
+            </div>
+          </div>
+        </a>
 
-                    case "COURSE":
-                        name = product.coursesDetails.title;
-                        price = product.coursesDetails.course_price;
-                        description = product.coursesDetails.course_description;
-                        break;
-                }
+        <a href="/category/course-category" class="cat-browse__card">
+          <div class="cat-browse__img-wrap">
+            <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=85" alt="Courses">
+            <div class="cat-browse__hover-overlay">
+              <div class="cat-browse__hover-label">Courses</div>
+              <div class="cat-browse__hover-desc">Online Skills &amp; Training</div>
+            </div>
+          </div>
+        </a>
 
-                // ✅ UPDATE TEXT
-                document.getElementById('quickview-name').innerText = name;
-                document.getElementById('quickview-price').innerHTML = 
-                    `<span class="currencySymbol">₦</span>${price}`;
-                document.getElementById('quickview-description').innerText = description;
+      </div>
+    </div>
+  </div>
 
-                // ✅ HANDLE MULTIPLE IMAGES (VERY IMPORTANT)
-                const imageContainer = document.getElementById('quickview-images');
-                const thumbContainer = document.getElementById('quickview-thumbs');
+  <!-- ── Products, strips, trust bar ─────────────────────── -->
+  <div class="container">
 
-                imageContainer.innerHTML = '';
-                thumbContainer.innerHTML = '';
+    <!-- New Arrivals -->
+    <div class="sec-header" style="margin-top:28px;">
+      <span class="sec-title">New Arrivals <span style="font-size:16px;">🔥</span></span>
+      <a href="/category/data-category" class="sec-link">See All</a>
+    </div>
 
-                if (product.images && product.images.length > 0) {
-                    product.images.forEach(img => {
-                        imageContainer.innerHTML += `
-                            <li><img src="${img}" width="500" height="500"></li>
-                        `;
+    <% if (dataProducts && dataProducts.length > 0) { %>
+    <div class="product-grid" id="homeProductGrid">
+      <% dataProducts.slice(0, 8).forEach(function(product) { %>
+      <div class="product-card"
+           data-name="<%= (product.dataDetails.plan_type + ' ' + product.dataDetails.plan_name).toLowerCase() %>"
+           data-brand="<%= product.dataDetails.network.toLowerCase() %>">
+        <div class="product-card__img">
+          <img src="<%= product.images[0] %>" alt="<%= product.dataDetails.plan_type %>">
+          <button class="product-card__fav" aria-label="Favourite">
+            <i data-lucide="heart"></i>
+          </button>
+        </div>
+        <div class="product-card__body">
+          <h4 class="product-card__name"><%= product.dataDetails.plan_type %> · <%= product.dataDetails.plan_name %></h4>
+          <p class="product-card__brand"><%= product.dataDetails.network %></p>
+          <div class="product-card__footer">
+            <span class="product-card__price">₦<%= product.dataDetails.amount %></span>
+            <% if (user) { %>
+            <button class="product-card__buy buy-btn" data-id="<%= product._id %>" aria-label="Buy">
+              <i data-lucide="plus"></i>
+            </button>
+            <% } else { %>
+            <a href="/user/login" class="product-card__buy" aria-label="Login to buy">
+              <i data-lucide="plus"></i>
+            </a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } else { %>
+    <div class="empty-state">
+      <i data-lucide="package"></i>
+      <p>No products available yet</p>
+    </div>
+    <% } %>
 
-                        thumbContainer.innerHTML += `
-                            <li><img src="${img}" width="88" height="88"></li>
-                        `;
-                    });
-                }
+    <!-- ── Electronics strip ──────────────────────────────── -->
+    <% if (electronicProducts && electronicProducts.length > 0) { %>
+    <div class="cat-strip">
+      <div class="cat-strip__head">
+        <h3 class="cat-strip__title">
+          <i data-lucide="monitor-smartphone"></i>
+          Electronics
+        </h3>
+        <a href="/category/electronic-category" class="cat-strip__link">
+          See All <i data-lucide="chevron-right"></i>
+        </a>
+      </div>
+      <div class="cat-strip__scroll">
+        <% electronicProducts.slice(0, 4).forEach(function(p) { %>
+        <a href="/category/electronic-category" class="cat-strip__card">
+          <% if (p.images && p.images[0]) { %>
+          <img src="<%= p.images[0] %>" alt="<%= p.electronicDetails && p.electronicDetails.itemName || 'Electronic' %>" class="cat-strip__img">
+          <% } else { %>
+          <div class="cat-strip__img--placeholder"><i data-lucide="monitor"></i></div>
+          <% } %>
+          <div class="cat-strip__body">
+            <div class="cat-strip__name"><%= p.electronicDetails && p.electronicDetails.itemName || p.description %></div>
+            <div class="cat-strip__sub"><%= p.electronicDetails && p.electronicDetails.brandItem || '' %></div>
+            <% if (p.electronicDetails && p.electronicDetails.items_price) { %>
+            <div class="cat-strip__price">₦<%= p.electronicDetails.items_price.toLocaleString() %></div>
+            <% } %>
+          </div>
+        </a>
+        <% }) %>
+        <% if (electronicProducts.length > 4) { %>
+        <a href="/category/electronic-category" class="cat-strip__more">
+          <i data-lucide="arrow-right"></i>
+          More
+        </a>
+        <% } %>
+      </div>
+    </div>
+    <% } %>
 
-              const quickviewFor = document.querySelector('.quickview-for');
-const quickviewNav = document.querySelector('.quickview-nav');
+    <!-- ── Automobiles strip ───────────────────────────────── -->
+    <% if (automobileProducts && automobileProducts.length > 0) { %>
+    <div class="cat-strip">
+      <div class="cat-strip__head">
+        <h3 class="cat-strip__title">
+          <i data-lucide="car"></i>
+          Automobiles
+        </h3>
+        <a href="/category/automobile-category" class="cat-strip__link">
+          See All <i data-lucide="chevron-right"></i>
+        </a>
+      </div>
+      <div class="cat-strip__scroll">
+        <% automobileProducts.slice(0, 4).forEach(function(p) { %>
+        <a href="/category/automobile-category" class="cat-strip__card">
+          <% if (p.images && p.images[0]) { %>
+          <img src="<%= p.images[0] %>" alt="<%= p.automobileDetails && p.automobileDetails.brand || 'Auto' %>" class="cat-strip__img">
+          <% } else { %>
+          <div class="cat-strip__img--placeholder"><i data-lucide="car"></i></div>
+          <% } %>
+          <div class="cat-strip__body">
+            <div class="cat-strip__name"><%= p.automobileDetails && (p.automobileDetails.brand + ' ' + p.automobileDetails.model) || p.description %></div>
+            <div class="cat-strip__sub"><%= p.automobileDetails && (p.automobileDetails.year + ' · ' + (p.automobileDetails.condition || '')) || '' %></div>
+            <% if (p.automobileDetails && p.automobileDetails.price) { %>
+            <div class="cat-strip__price">₦<%= p.automobileDetails.price.toLocaleString() %></div>
+            <% } %>
+          </div>
+        </a>
+        <% }) %>
+        <% if (automobileProducts.length > 4) { %>
+        <a href="/category/automobile-category" class="cat-strip__more">
+          <i data-lucide="arrow-right"></i>
+          More
+        </a>
+        <% } %>
+      </div>
+    </div>
+    <% } %>
 
-// Destroy only if already initialized
-if ($(quickviewFor).hasClass('slick-initialized')) {
-    $(quickviewFor).slick('unslick');
+    <!-- ── Courses strip ───────────────────────────────────── -->
+    <% if (coursesProducts && coursesProducts.length > 0) { %>
+    <div class="cat-strip">
+      <div class="cat-strip__head">
+        <h3 class="cat-strip__title">
+          <i data-lucide="graduation-cap"></i>
+          Courses
+        </h3>
+        <a href="/category/course-category" class="cat-strip__link">
+          See All <i data-lucide="chevron-right"></i>
+        </a>
+      </div>
+      <div class="cat-strip__scroll">
+        <% coursesProducts.slice(0, 4).forEach(function(p) { %>
+        <a href="/category/course-category" class="cat-strip__card">
+          <% if (p.images && p.images[0]) { %>
+          <img src="<%= p.images[0] %>" alt="<%= p.coursesDetails && p.coursesDetails.title || 'Course' %>" class="cat-strip__img">
+          <% } else { %>
+          <div class="cat-strip__img--placeholder"><i data-lucide="book-open"></i></div>
+          <% } %>
+          <div class="cat-strip__body">
+            <div class="cat-strip__name"><%= p.coursesDetails && p.coursesDetails.title || p.description %></div>
+            <div class="cat-strip__sub"><%= p.coursesDetails && p.coursesDetails.instructor ? 'by ' + p.coursesDetails.instructor : '' %></div>
+            <% if (p.coursesDetails && p.coursesDetails.course_price) { %>
+            <div class="cat-strip__price">₦<%= p.coursesDetails.course_price.toLocaleString() %></div>
+            <% } %>
+          </div>
+        </a>
+        <% }) %>
+        <% if (coursesProducts.length > 4) { %>
+        <a href="/category/course-category" class="cat-strip__more">
+          <i data-lucide="arrow-right"></i>
+          More
+        </a>
+        <% } %>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- ── Trust bar (desktop only) ───────────────────────── -->
+    <div class="desktop-section">
+      <div class="trust-bar">
+
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <i data-lucide="zap"></i>
+          </div>
+          <div>
+            <div class="trust-item__title">Instant Delivery</div>
+            <div class="trust-item__sub">Data bundles delivered in seconds to any Nigerian network</div>
+          </div>
+        </div>
+
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <i data-lucide="shield-check"></i>
+          </div>
+          <div>
+            <div class="trust-item__title">Secure Payments</div>
+            <div class="trust-item__sub">All transactions are encrypted and fully protected</div>
+          </div>
+        </div>
+
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <i data-lucide="headphones"></i>
+          </div>
+          <div>
+            <div class="trust-item__title">24/7 Support</div>
+            <div class="trust-item__sub">Our team is always available to help you out</div>
+          </div>
+        </div>
+
+        <div class="trust-item">
+          <div class="trust-item__icon">
+            <i data-lucide="gift"></i>
+          </div>
+          <div>
+            <div class="trust-item__title">Reward Points</div>
+            <div class="trust-item__sub">Earn RP on every purchase and redeem for free data</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ CATEGORY TAB ════════════════════════════════════════ -->
+<div id="categoryContent" class="tab-content" style="display:none;">
+  <div class="container">
+    <div class="cat-banner-list">
+
+      <a href="/category/data-category" class="cat-banner-card">
+        <div class="cat-banner-card__info">
+          <h3 class="cat-banner-card__name">Data Bundles</h3>
+          <p class="cat-banner-card__count">MTN · Airtel · Glo · 9Mobile</p>
+        </div>
+        <div class="cat-banner-card__img">
+          <img src="https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?w=250&q=80" alt="Data">
+        </div>
+      </a>
+
+      <a href="/category/electronic-category" class="cat-banner-card">
+        <div class="cat-banner-card__info">
+          <h3 class="cat-banner-card__name">Electronics</h3>
+          <p class="cat-banner-card__count">Phones, Laptops, Gadgets</p>
+        </div>
+        <div class="cat-banner-card__img">
+          <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?w=250&q=80" alt="Electronics">
+        </div>
+      </a>
+
+      <a href="/category/automobile-category" class="cat-banner-card">
+        <div class="cat-banner-card__info">
+          <h3 class="cat-banner-card__name">Automobiles</h3>
+          <p class="cat-banner-card__count">Cars, Parts, Accessories</p>
+        </div>
+        <div class="cat-banner-card__img">
+          <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=250&q=80" alt="Automobiles">
+        </div>
+      </a>
+
+      <a href="/category/course-category" class="cat-banner-card">
+        <div class="cat-banner-card__info">
+          <h3 class="cat-banner-card__name">Courses</h3>
+          <p class="cat-banner-card__count">Online Skills &amp; Training</p>
+        </div>
+        <div class="cat-banner-card__img">
+          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=250&q=80" alt="Courses">
+        </div>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<!-- Buy Modal -->
+<div id="buyModal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <div class="modal-box__header">
+      <h3 class="modal-title">Enter Phone Number</h3>
+      <button class="modal-close" id="cancelBtn" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <p class="modal-subtitle">Enter the active number to receive the data bundle</p>
+    <div class="form-group">
+      <label class="form-label">Phone Number</label>
+      <div class="input-wrapper">
+        <i data-lucide="phone"></i>
+        <input type="text" id="phoneInput" class="form-input"
+               placeholder="e.g 08012345678" maxlength="11" inputmode="numeric">
+      </div>
+      <small id="phoneError" style="color:var(--error);display:none;margin-top:4px;">
+        Phone number must be exactly 11 digits
+      </small>
+    </div>
+    <div class="modal-actions">
+      <button id="checkoutBtn" class="btn btn--primary btn--full">
+        <i data-lucide="arrow-right"></i>
+        Proceed to Checkout
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Tab indicator ─────────────────────────────────────── */
+function moveTabIndicator(tab) {
+  var indicator = document.getElementById('tabIndicator');
+  var btn = document.getElementById(tab === 'home' ? 'tabHome' : 'tabCategory');
+  if (!indicator || !btn) return;
+  indicator.style.left  = btn.offsetLeft + 'px';
+  indicator.style.width = btn.offsetWidth + 'px';
 }
 
-if ($(quickviewNav).hasClass('slick-initialized')) {
-    $(quickviewNav).slick('unslick');
+/* ── Tab switching ─────────────────────────────────────── */
+function switchTab(tab) {
+  var isHome  = tab === 'home';
+  var showEl  = document.getElementById(isHome ? 'homeContent' : 'categoryContent');
+  var hideEl  = document.getElementById(isHome ? 'categoryContent' : 'homeContent');
+
+  hideEl.style.display = 'none';
+  hideEl.classList.remove('tab-entering');
+
+  showEl.style.display = '';
+  showEl.classList.remove('tab-entering');
+  void showEl.offsetWidth;
+  showEl.classList.add('tab-entering');
+
+  document.getElementById('tabHome').classList.toggle('active', isHome);
+  document.getElementById('tabCategory').classList.toggle('active', !isHome);
+
+  moveTabIndicator(tab);
+  lucide.createIcons();
 }
 
-// Reinitialize
-$(quickviewFor).slick({
-    arrows: false,
-    dots: false,
-    fade: true,
-    asNavFor: '.quickview-nav'
-});
+// Initialise indicator on page load (no transition on first paint)
+(function() {
+  var indicator = document.getElementById('tabIndicator');
+  if (indicator) indicator.style.transition = 'none';
+  moveTabIndicator('home');
+  setTimeout(function() {
+    if (indicator) indicator.style.transition = '';
+  }, 50);
+})();
 
-$(quickviewNav).slick({
-    slidesToShow: 3,
-    asNavFor: '.quickview-for',
-    focusOnSelect: true
-});
-                // ✅ OPEN POPUP
-                document.getElementById('biolife-quickview-block').classList.add('open');
-            })
-            .catch(err => console.error(err));
+/* ── Carousel ─────────────────────────────────────────── */
+(function() {
+  var slides  = document.querySelectorAll('.promo-slide');
+  var dots    = document.querySelectorAll('#promoDots .promo-dot');
+  var current = 0;
+  var timer;
+
+  function go(n) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('promo-dot--active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('promo-dot--active');
+    var badgeNum = document.getElementById('slideBadgeNum');
+    if (badgeNum) badgeNum.textContent = String(current + 1).padStart(2, '0');
+  }
+
+  function restart() {
+    clearInterval(timer);
+    timer = setInterval(function() { go(current + 1); }, 4500);
+  }
+
+  dots.forEach(function(dot, i) {
+    dot.addEventListener('click', function() { go(i); restart(); });
+  });
+
+  restart();
+})();
+
+/* ── Cat-browse scroll-reveal ─────────────────────────── */
+(function() {
+  var heading = document.querySelector('.cat-browse__heading');
+  var grid    = document.querySelector('.cat-browse__grid');
+  if (!grid || !window.IntersectionObserver) return;
+
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      if (entry.target === heading && heading) {
+        heading.classList.add('revealed');
+      } else {
+        entry.target.querySelectorAll('.cat-browse__card').forEach(function(card) {
+          card.classList.add('revealed');
+        });
+        io.unobserve(entry.target);
+      }
     });
-});
-})
-    </script> -->
+  }, { threshold: 0.15 });
 
+  if (heading) io.observe(heading);
+  io.observe(grid);
 
-    <script>
-const productCache = {}; // 🔥 cache for speed
+  lucide.createIcons();
+})();
 
-document.addEventListener('click', async function(e) {
-    const btn = e.target.closest('.btn_call_quickview');
-    if (!btn) return;
+/* ── Buy modal ────────────────────────────────────────── */
+var selectedPackageId = null;
 
+document.querySelectorAll('.buy-btn').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
     e.preventDefault();
-
-    const id = btn.dataset.id;
-    if (!id) {
-        console.error('Missing ID');
-        return;
-    }
-
-    try {
-        // ✅ Use cache (VERY IMPORTANT FOR SPEED)
-        let product = productCache[id];
-
-        if (!product) {
-            const res = await fetch(`/admin/product/details/${id}`);
-            if (!res.ok) throw new Error('Fetch failed');
-
-            product = await res.json();
-            productCache[id] = product; // store in cache
-
-            // after fetching product
-const buyBtn = document.getElementById('quickview-buy-btn');
-buyBtn.setAttribute('data-id', product._id);
-        }
-        
-
-        // ✅ Extract data cleanly
-        let name = '';
-        let price = '';
-        let description = '';
-
-        switch (product.category) {
-            case "DATA":
-                name = `${product.dataDetails.plan_type} (${product.dataDetails.plan_name})`;
-                price = product.dataDetails.amount;
-                description = product.dataDetails.network;
-                break;
-
-            case "AUTOMOBILE":
-                name = `${product.automobileDetails.brand} ${product.automobileDetails.model}`;
-                price = product.automobileDetails.price;
-                description = `${product.automobileDetails.fuel_type} | ${product.automobileDetails.transmission}`;
-                break;
-
-            case "ELECTRONIC":
-                name = product.electronicDetails.itemName;
-                price = product.electronicDetails.items_price;
-                description = product.electronicDetails.itemtype;
-                break;
-
-            case "COURSE":
-                name = product.coursesDetails.title;
-                price = product.coursesDetails.course_price;
-                description = product.coursesDetails.course_description;
-                break;
-        }
-
-        // ✅ Update UI (FAST)
-        document.getElementById('quickview-name').innerText = name;
-        document.getElementById('quickview-price').innerHTML =
-            `<span class="currencySymbol">₦</span>${price}`;
-        document.getElementById('quickview-description').innerText = description;
-
-        // ✅ Images (FAST + CLEAN)
-        const imageContainer = document.getElementById('quickview-images');
-        const thumbContainer = document.getElementById('quickview-thumbs');
-
-        imageContainer.innerHTML = product.images.map(img =>
-            `<li><img src="${img}" width="500"></li>`
-        ).join('');
-
-        thumbContainer.innerHTML = product.images.map(img =>
-            `<li><img src="${img}" width="88"></li>`
-        ).join('');
-
-        // ✅ Initialize Slick ONLY ONCE
-        if (!window.quickviewInitialized) {
-            $('.quickview-for').slick({
-                arrows: false,
-                fade: true,
-                asNavFor: '.quickview-nav'
-            });
-
-            $('.quickview-nav').slick({
-                slidesToShow: 3,
-                asNavFor: '.quickview-for',
-                focusOnSelect: true
-            });
-
-            window.quickviewInitialized = true;
-        } else {
-            // 🔥 Just refresh instead of destroy/recreate
-            $('.quickview-for').slick('refresh');
-            $('.quickview-nav').slick('refresh');
-        }
-
-        // ✅ Open modal
-        document.getElementById('biolife-quickview-block').classList.add('open');
-
-    } catch (err) {
-        console.error('Error:', err);
-    }
+    e.stopPropagation();
+    selectedPackageId = this.dataset.id;
+    document.getElementById('buyModal').classList.add('open');
+  });
 });
 
-
-
-document.getElementById('quickview-buy-btn').addEventListener('click', function(e) {
-    e.preventDefault();
-
-    const productId = this.dataset.id;
-
-    console.log('Buying product:', productId);
-
-    // store it globally if needed
-    window.selectedProductId = productId;
-
-    document.getElementById('buyModal').style.display = 'block';
+document.getElementById('cancelBtn').addEventListener('click', function() {
+  document.getElementById('buyModal').classList.remove('open');
 });
-</script>
 
-    <script id="checkout-js">
-let selectedPackageId = null;
+document.getElementById('buyModal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
 
-// Open modal
-document.querySelectorAll('.buy-btn').forEach(btn => {
-    btn.addEventListener('click', function(e){
-        e.preventDefault();
-        selectedPackageId = this.dataset.id;
-        document.getElementById('buyModal').style.display = 'block';
+var phoneInput = document.getElementById('phoneInput');
+var phoneError = document.getElementById('phoneError');
+
+phoneInput.addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g, '').slice(0, 11);
+});
+
+document.getElementById('checkoutBtn').addEventListener('click', async function() {
+  var phone = phoneInput.value.trim();
+  if (!/^\d{11}$/.test(phone)) { phoneError.style.display = 'block'; return; }
+  phoneError.style.display = 'none';
+  if (!selectedPackageId) { Swal.fire({ icon: 'error', text: 'No product selected' }); return; }
+  try {
+    var res  = await fetch('/checkout/initiate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ packageId: selectedPackageId, phone: phone })
     });
-});
-
-// ✅ Cancel button FIX
-document.getElementById('cancelBtn').addEventListener('click', () => {
-    document.getElementById('buyModal').style.display = 'none';
-});
-
-window.addEventListener('click', (e) => {
-    const modal = document.getElementById('buyModal');
-    if (e.target === modal) {
-        modal.style.display = 'none';
+    var data = await res.json();
+    if (data.success) {
+      window.location.href = '/checkout';
+    } else {
+      Swal.fire({ icon: 'error', text: data.message || 'Something went wrong' });
     }
+  } catch (err) {
+    Swal.fire({ icon: 'error', text: 'Network error' });
+  }
 });
-
-// Checkout
-
-
-
-
-const phoneInput =
-    document.getElementById('phoneInput');
-
-const phoneError =
-    document.getElementById('phoneError');
-
-/* ALLOW ONLY NUMBERS */
-
-phoneInput.addEventListener('input', function () {
-
-    // remove non-numbers
-    this.value =
-        this.value.replace(/\D/g, '');
-
-    // limit to 11 digits
-    if (this.value.length > 11) {
-
-        this.value =
-            this.value.slice(0, 11);
-    }
-});
-
-
-document.getElementById('checkoutBtn').addEventListener('click', async () => {
-    const phone = phoneInput.value.trim();
-
-     // MUST BE EXACTLY 11 DIGITS
-
-    if (!/^\d{11}$/.test(phone)) {
-
-        phoneError.style.display =
-            'block';
-
-        phoneError.innerText =
-            'Phone number must be exactly 11 digits';
-
-        return;
-    }
-
-    phoneError.style.display =
-        'none';
-
-    console.log(phone);
-
-    // ✅ pick whichever exists
-    const productId = window.selectedProductId || selectedPackageId;
-
-    if (!phone) {
-        Swal.fire({
-            icon: 'warning',
-            text: 'Enter phone number'
-        });
-        return;
-    }
-
-    if (!productId) {
-        Swal.fire({
-            icon: 'error',
-            text: 'No product selected'
-        });
-        return;
-    }
-
-    try {
-        const res = await fetch('/checkout/initiate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ packageId: productId, phone }) // ✅ unified
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            window.location.href = '/checkout';
-        } else {
-            Swal.fire({
-                icon: 'error',
-                text: data.message || 'Something went wrong'
-            });
-        }
-
-    } catch (err) {
-        console.error(err);
-        Swal.fire({
-            icon: 'error',
-            text: 'Network error'
-        });
-    }
-});
-//modal
-const modal = document.getElementById('comingSoonModal');
-
-// Open modal
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.add-to-cart')) {
-        e.preventDefault();
-        modal.style.display = 'block';
-    }
-});
-
-// Close modal (X or button)
-document.querySelectorAll('.close-modal, .close-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-});
-
-// Close when clicking outside
-window.addEventListener('click', function(e) {
-    if (e.target === modal) {
-        modal.style.display = 'none';
-    }
-});
-
-
-
-
-
-
-
-
-
-
 </script>

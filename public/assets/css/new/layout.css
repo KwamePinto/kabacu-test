@@ -1,0 +1,501 @@
+/* =========================================================
+   LAYOUT — app header, bottom nav, footer
+   ========================================================= */
+
+/* ── App Header — Dynamic Island ────────────────────────── */
+.app-header {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  z-index: 500;
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+          backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px  rgba(0, 0, 0, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  padding: 4px 16px;
+  overflow: hidden;
+  /* visible by default */
+  transform: translateY(0);
+  transition: transform .35s cubic-bezier(.4, 0, .2, 1), box-shadow .3s;
+}
+
+/* JS adds this when user scrolls down */
+.app-header.island-hidden {
+  transform: translateY(calc(-100% - 28px));
+}
+
+@media (min-width: 768px) {
+  .app-header { left: 24px; right: 24px; }
+}
+
+.app-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+}
+
+/* Logo */
+.app-header__logo {
+  display: flex;
+  align-items: center;
+}
+
+.app-header__logo img {
+  height: 42px;
+  max-height: 42px;
+  width: auto;
+  object-fit: contain;
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Icon buttons — dark-tinted so they're clearly visible on the glassy surface */
+.app-header__icon-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.09);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  color: var(--text);
+  transition: background .15s;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.app-header__icon-btn:hover { background: rgba(0, 0, 0, 0.15); }
+
+/* Force SVG icons to be visible regardless of inherited colour */
+.app-header__icon-btn svg {
+  width: 16px; height: 16px;
+  color: var(--text);
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Log in pill button — shown when no user is logged in */
+.app-header__login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity .15s;
+}
+
+.app-header__login-btn:hover { opacity: .9; color: var(--white); }
+.app-header__login-btn svg   { width: 15px; height: 15px; color: var(--white); }
+
+.app-header__notif-dot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid rgba(255,255,255,.8);
+  pointer-events: none;
+}
+
+/* ── Search overlay — slides in from the right ──────────── */
+.app-header__search-row {
+  position: absolute;
+  inset: 0;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.97);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* starts off to the right — hidden by overflow:hidden on .app-header */
+  transform: translateX(calc(100% + 10px));
+  transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+  pointer-events: none;
+}
+
+.app-header__search-row.open {
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.app-header__search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+/* Lucide search icon injected inside wrapper */
+.app-header__search-wrap > svg {
+  position: absolute;
+  left: 14px;
+  width: 17px; height: 17px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.app-header__search-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 44px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--input-bg);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  font-family: var(--font);
+}
+
+.app-header__search-input::placeholder { color: var(--muted); }
+
+.app-header__search-clear {
+  position: absolute;
+  right: 12px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--muted);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+}
+
+.app-header__search-clear.visible { display: flex; }
+.app-header__search-clear svg { width: 13px; height: 13px; }
+
+/* ── Page Tabs ──────────────────────────────────────────── */
+.page-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.page-tab {
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color .2s;
+}
+
+.page-tab.active { color: var(--text); }
+
+/* Animated sliding underline — position set by JS */
+.tab-indicator {
+  position: absolute;
+  bottom: -1px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+  transition: left .28s cubic-bezier(.4, 0, .2, 1), width .28s cubic-bezier(.4, 0, .2, 1);
+  pointer-events: none;
+}
+
+/* ── Bottom Navigation ──────────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--bottom-nav-h);
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 400;
+  padding: 0 8px 6px;
+}
+
+@media (min-width: 768px) { .bottom-nav { display: none; } }
+
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  padding: 6px 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .15s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.bottom-nav__item svg    { width: 22px; height: 22px; }
+.bottom-nav__item.active { color: var(--primary); }
+.bottom-nav__item:hover  { color: var(--primary); }
+
+/* ── Page main ──────────────────────────────────────────── */
+/* island top(14) + header(50) + gap(16) ≈ 80px */
+.page-main {
+  min-height: calc(100vh - 76px);
+  padding-top: 82px;
+}
+
+/* ── Page hero (inner pages) ────────────────────────────── */
+.page-hero { padding: 20px 0 16px; }
+
+.page-hero__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.page-hero__title svg { width: 22px; height: 22px; color: var(--primary); }
+.page-hero__sub       { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+/* ── Claim RP Modal ─────────────────────────────────────── */
+.claim-rp-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 800;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.claim-rp-modal.open { display: flex; }
+
+.claim-rp-modal__box {
+  background: var(--white);
+  border-radius: var(--r-xl);
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.claim-rp-modal__amount {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 16px 0 24px;
+  line-height: 1;
+}
+
+.claim-rp-modal__unit { font-size: 20px; font-weight: 600; }
+
+/* ── Footer ─────────────────────────────────────────────── */
+.site-footer {
+  background: var(--text);
+  color: rgba(255,255,255,.7);
+  margin-top: 40px;       /* breathing room between content and footer */
+  padding: 20px 0 0;
+}
+
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 14px;
+  padding-bottom: 16px;
+}
+
+/* Mobile: brand full-width, contact hidden, clear fixed bottom nav */
+@media (max-width: 767px) {
+  .site-footer { padding-bottom: 72px; }
+
+  .site-footer__grid > div:first-child { grid-column: 1 / -1; }
+  .site-footer__grid > div:last-child  { display: none; }
+
+  .footer-brand__desc { display: none; }
+  .footer-brand__logo { margin-bottom: 8px; }
+}
+
+@media (min-width: 768px) {
+  .site-footer { padding: 28px 0 0; margin-top: 48px; }
+  .site-footer__grid {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 36px;
+    padding-bottom: 24px;
+  }
+}
+
+.footer-brand__logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.footer-brand__logo img {
+  height: 28px;
+  filter: brightness(0) invert(1);
+  object-fit: contain;
+}
+
+.footer-brand__desc { font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
+.footer-socials     { display: flex; gap: 6px; }
+
+.footer-social-link {
+  width: 28px; height: 28px;
+  border-radius: var(--r-xs);
+  background: rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+
+.footer-social-link:hover { background: var(--primary); }
+.footer-social-link svg   { width: 13px; height: 13px; color: var(--white); }
+
+.footer-col__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.footer-col__links { display: flex; flex-direction: column; gap: 7px; }
+
+.footer-col__link {
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  transition: color .15s;
+}
+
+.footer-col__link:hover { color: var(--white); }
+
+.footer-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.footer-contact-item svg {
+  width: 13px; height: 13px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--primary);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.1);
+  padding: 10px 0;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* ================================================================
+   DESKTOP NAV + HEADER OVERRIDES  (≥ 768 px)
+   ================================================================ */
+
+/* Desktop-nav and desktop-only elements — invisible on mobile */
+.desktop-nav  { display: none; }
+.desktop-only { display: none !important; }
+
+@media (min-width: 768px) {
+
+  /* ── Header becomes a full-width flat bar ─────────────── */
+  .app-header {
+    top: 0;
+    left: 0;
+    right: 0;
+    border-radius: 0;
+    background: rgba(255, 255, 255, .98);
+    -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
+    padding: 0;
+  }
+
+  .app-header.island-hidden {
+    transform: translateY(-100%);  /* no floating gap on desktop */
+  }
+
+  .app-header__inner {
+    height: 68px;
+    padding: 0;
+  }
+
+  .app-header__logo img {
+    height: 36px;
+    max-height: 36px;
+  }
+
+  /* Icon buttons: transparent bg on the white bar */
+  .app-header__icon-btn {
+    width: 36px; height: 36px;
+    background: transparent;
+  }
+  .app-header__icon-btn:hover { background: var(--input-bg); }
+  .app-header__icon-btn svg   { width: 19px; height: 19px; }
+
+  .app-header__actions { gap: 8px; }
+
+  /* ── Desktop nav ──────────────────────────────────────── */
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .desktop-nav__link {
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    border-radius: var(--r-sm);
+    transition: color .15s, background .15s;
+    white-space: nowrap;
+  }
+
+  .desktop-nav__link:hover { color: var(--text); background: var(--input-bg); }
+  .desktop-nav__link.active { color: var(--primary); font-weight: 600; }
+
+  /* ── Desktop-only elements ─────────────────────────────── */
+  .desktop-only { display: flex !important; }
+
+  /* ── Page main ─────────────────────────────────────────── */
+  .page-main { padding-top: 68px; }
+
+  /* ── Page tabs hidden on desktop (single-scroll layout) ─ */
+  .page-tabs { display: none; }
+
+  /* ── Larger container padding on desktop ─────────────────── */
+  .container { padding: 0 32px; }
+
+  /* ── Always show home content on desktop (tabs are hidden) ── */
+  #homeContent { display: block !important; }
+}

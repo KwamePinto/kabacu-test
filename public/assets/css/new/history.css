@@ -1,0 +1,106 @@
+/* =========================================================
+   HISTORY — transaction list / table
+   ========================================================= */
+
+.history-page { padding: 32px 0 64px; }
+
+/* Desktop table */
+.tx-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.tx-table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+
+.tx-table thead th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--input-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.tx-table tbody td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.tx-table tbody tr:last-child td { border-bottom: none; }
+.tx-table tbody tr:hover          { background: #fafafa; }
+
+/* Mobile: card layout */
+@media (max-width: 600px) {
+  .tx-table-wrap {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .tx-table         { min-width: 0; }
+  .tx-table thead   { display: none; }
+  .tx-table tbody   { display: flex; flex-direction: column; gap: 10px; }
+
+  .tx-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    background: var(--white);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+  }
+
+  .tx-table tbody td {
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .tx-table tbody td::before {
+    content: attr(data-label);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .tx-table tbody td:nth-child(1) { width: 100%; }
+  .tx-table tbody td:nth-child(2) { width: 50%; }
+  .tx-table tbody td:nth-child(3) { width: calc(50% - 16px); }
+  .tx-table tbody td:nth-child(4) { width: 50%; }
+  .tx-table tbody td:nth-child(5) { width: calc(50% - 16px); }
+}
+
+.tx-phone { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.tx-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.tx-empty svg {
+  width: 48px; height: 48px;
+  color: var(--border);
+  margin: 0 auto 16px;
+}
+
+.tx-empty__title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }

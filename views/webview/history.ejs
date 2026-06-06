@@ -1,397 +1,122 @@
+<section class="history-page">
+  <div class="container">
 
-<style>
-.table-responsive{
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.transaction-table{
-    width: 100%;
-    min-width: 700px; /* allows scrolling on small screens */
-    border-collapse: collapse;
-}
-
-.transaction-table th,
-.transaction-table td{
-    padding: 12px;
-    text-align: left;
-    white-space: nowrap;
-}
-
-.table-wrapper,
-.contain-table{
-    width: 100%;
-}
-
-@media (max-width: 768px){
-
-    .transaction-table,
-    .transaction-table thead,
-    .transaction-table tbody,
-    .transaction-table th,
-    .transaction-table td,
-    .transaction-table tr{
-        display:block;
-    }
-
-    .transaction-table thead{
-        display:none;
-    }
-
-    .transaction-table tr{
-        margin-bottom:15px;
-        border:1px solid #ddd;
-        border-radius:8px;
-        padding:10px;
-        background:#fff;
-    }
-
-    .transaction-table td{
-        border:none;
-        position:relative;
-        padding-left:50%;
-        text-align:right;
-        white-space:normal;
-    }
-
-    .transaction-table td:before{
-        position:absolute;
-        left:10px;
-        width:45%;
-        font-weight:bold;
-        text-align:left;
-    }
-
-    .transaction-table td:nth-child(1):before{
-        content:"Qty";
-    }
-
-    .transaction-table td:nth-child(2):before{
-        content:"Package";
-    }
-
-    .transaction-table td:nth-child(3):before{
-        content:"Amount";
-    }
-
-    .transaction-table td:nth-child(4):before{
-        content:"Status";
-    }
-
-    .transaction-table td:nth-child(5):before{
-        content:"Action";
-    }
-}
-</style>
-    <!-- Preloader -->
-    <div id="biof-loading">
-        <div class="biof-loading-center">
-            <div class="biof-loading-center-absolute">
-                <div class="dot dot-one"></div>
-                <div class="dot dot-two"></div>
-                <div class="dot dot-three"></div>
-            </div>
-        </div>
-    </div>
-<%- include('../partials/header.ejs')%>
-
-    <!--Hero Section-->
-    <div class="hero-section hero-background">
-        <h1 class="page-title">My History</h1>
+    <div class="page-hero">
+      <h1 class="page-hero__title">
+        <i data-lucide="clock"></i>
+        Order History
+      </h1>
+      <p class="page-hero__sub">All your transactions in one place</p>
     </div>
 
-    <!--Navigation section-->
-    <div class="container ">
-        <nav class="biolife-nav">
-            <ul>
-                <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
-                <li class="nav-item"><span class="current-page">My History Packages</span></li>
-            </ul>
-        </nav>
-    </div>
-
-    <div class="page-contain single-product">
-        <div class="container contain-table">
-            
-            <!-- Main content -->
-            <div id="main-content" class="main-content">
-                
-                <!-- summary info -->
-                <div class="sumary-product single-layout">
-                   
-                    <div class="product-attribute">
-                       
-                        <div class="grouped-product-list no-border-top">
-                            <div class="table-wrapper">
-                                <div class="table-responsive">
-                            <table cellspacing="0" class="group_table transaction-table">
-                                <thead>
-            <tr>
-                <th>Qty</th>
-                <th>Package</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
+    <div class="tx-table-wrap">
+      <table class="tx-table">
+        <thead>
+          <tr>
+            <th>Qty</th>
+            <th>Package</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
         </thead>
-                                <tbody>
-                                   
-                                  <% if(transactions && transactions.length > 0){ %>
-
-    <% transactions.forEach(function(tx){ %>
-
-        <% 
-            let product = null;
-
-            // DIRECT PRODUCT
-            if(tx.product){
-                product = tx.product;
-            }
-
-            // CART PRODUCT
-            else if(tx.products && tx.products.length > 0){
-                product = tx.products[0].product;
-            }
-        %>
-
-<tr>
-
-    <!-- Quantity -->
-    <td>
-        <%= tx.products?.[0]?.quantity || 1 %>
-    </td>
-
-    <!-- PRODUCT INFO -->
-    <td>
-
-        <% if(product && product.category === 'DATA'){ %>
-
-            <a class="hover-main-color">
-
-                <%= product.dataDetails.network %> -
-
-                <%= product.dataDetails.plan_type %>
-
-                (<%= product.dataDetails.plan_name %>)
-
-            </a>
-
-            <br>
-
-            <small>
-                Phone: <%= tx.phone %>
-            </small>
-
-        <% } else if(product && product.category === 'COURSES'){ %>
-
-            <a class="hover-main-color">
-
-                <%= product.coursesDetails.course_title %>
-
-            </a>
-
-        <% } else { %>
-
-            <span>No product info</span>
-
-        <% } %>
-
-    </td>
-
-    <!-- PRICE -->
-    <td>
-        ₦<%= tx.amount %>
-    </td>
-
-    <!-- STATUS -->
-    <td>
-
-        <% if(tx.status === 'success'){ %>
-
-            <span style="color: green; font-weight: bold;">
-                ✅ Success
-            </span>
-
-        <% } else if(tx.status === 'failed'){ %>
-
-            <span style="color: red; font-weight: bold;">
-                ❌ Failed
-            </span>
-
-        <% } else { %>
-
-            <span style="color: orange; font-weight: bold;">
-                ⏳ <%= tx.status %>
-            </span>
-
-        <% } %>
-
-    </td>
-
-    <!-- ACTION -->
-    <td>
-
-        <% if(tx.status === 'failed'){ %>
-
-            <button
-                class="btn btn-warning retry-btn"
-                data-id="<%= tx._id %>">
-
-                Retry
-
-            </button>
-
-        <% } else { %>
-
-            <span style="color: gray;">—</span>
-
-        <% } %>
-
-    </td>
-
-</tr>
-
-    <% }) %>
-
-<% } else { %>
-
-<tr>
-
-    <td colspan="5">
-        No transactions found
-    </td>
-
-</tr>
-
-<% } %>                                   
-                                </tbody>
-                            </table>
-                            </div>
-                            </div>
-                        </div>
-                       
-
-                        <div class="shipping-info">
-                            <p class="shipping-day">Instant Delivery</p>
-                            <p class="for-today">Creative Time Center</p>
-                        </div>
-                    </div>
-                   
+        <tbody>
+          <% if (transactions && transactions.length > 0) { %>
+            <% transactions.forEach(function(tx) { %>
+              <%
+                let product = null;
+                if (tx.product) {
+                  product = tx.product;
+                } else if (tx.products && tx.products.length > 0) {
+                  product = tx.products[0].product;
+                }
+              %>
+              <tr>
+                <td data-label="Qty"><%= tx.products?.[0]?.quantity || 1 %></td>
+                <td data-label="Package">
+                  <% if (product && product.category === 'DATA') { %>
+                    <strong><%= product.dataDetails.network %> — <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</strong>
+                    <br>
+                    <small style="color:var(--color-muted);">Phone: <%= tx.phone %></small>
+                  <% } else if (product && product.category === 'COURSES') { %>
+                    <%= product.coursesDetails.course_title %>
+                  <% } else { %>
+                    <span style="color:var(--color-muted);">—</span>
+                  <% } %>
+                </td>
+                <td data-label="Amount">₦<%= tx.amount %></td>
+                <td data-label="Status">
+                  <% if (tx.status === 'success') { %>
+                    <span class="badge badge--success">
+                      <i data-lucide="check-circle"></i>
+                      Success
+                    </span>
+                  <% } else if (tx.status === 'failed') { %>
+                    <span class="badge badge--error">
+                      <i data-lucide="x-circle"></i>
+                      Failed
+                    </span>
+                  <% } else { %>
+                    <span class="badge badge--warning">
+                      <i data-lucide="clock"></i>
+                      <%= tx.status %>
+                    </span>
+                  <% } %>
+                </td>
+                <td data-label="Action">
+                  <% if (tx.status === 'failed') { %>
+                    <button class="btn btn--outline btn--sm retry-btn" data-id="<%= tx._id %>">
+                      <i data-lucide="refresh-cw"></i>
+                      Retry
+                    </button>
+                  <% } else { %>
+                    <span style="color:var(--color-muted);">—</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="5">
+                <div class="empty-state">
+                  <i data-lucide="inbox"></i>
+                  <p>No transactions found</p>
+                  <a href="/category/data-category" class="btn btn--primary btn--sm">Shop Now</a>
                 </div>
-
-                
-            </div>
-        </div>
-
-
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
     </div>
 
-    <!-- FOOTER -->
-   
-   <%- include('../partials/footer.ejs')%>
+  </div>
+</section>
 
-    <!--Footer For Mobile-->
-    <div class="mobile-footer">
-        <div class="mobile-footer-inner">
-            <div class="mobile-block block-menu-main">
-                <a class="menu-bar menu-toggle btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
-                    <span class="fa fa-bars"></span>
-                    <span class="text">Menu</span>
-                </a>
-            </div>
-            <div class="mobile-block block-sidebar">
-                <a class="menu-bar filter-toggle btn-toggle" data-object="open-mobile-filter" href="javascript:void(0)">
-                    <i class="fa fa-sliders" aria-hidden="true"></i>
-                    <span class="text">Sidebar</span>
-                </a>
-            </div>
-            <div class="mobile-block block-minicart">
-                <a class="link-to-cart" href="#">
-                    <span class="fa fa-shopping-bag" aria-hidden="true"></span>
-                    <span class="text">Cart</span>
-                </a>
-            </div>
-            <div class="mobile-block block-global">
-                <a class="menu-bar myaccount-toggle btn-toggle" data-object="global-panel-opened" href="javascript:void(0)">
-                    <span class="fa fa-globe"></span>
-                    <span class="text">Global</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="mobile-block-global">
-        <div class="biolife-mobile-panels">
-            <span class="biolife-current-panel-title">Global</span>
-            <a class="biolife-close-btn" data-object="global-panel-opened" href="#">&times;</a>
-        </div>
-        <div class="block-global-contain">
-            <div class="glb-item my-account">
-                <b class="title">My Account</b>
-                <ul class="list">
-                    <li class="list-item"><a href="#">Login/register</a></li>
-                    <li class="list-item"><a href="#">Wishlist <span class="index">(8)</span></a></li>
-                    <li class="list-item"><a href="#">Checkout</a></li>
-                </ul>
-            </div>
-            <div class="glb-item currency">
-                <b class="title">Currency</b>
-                <ul class="list">
-                    <li class="list-item"><a href="#">€ EUR (Euro)</a></li>
-                    <li class="list-item"><a href="#">$ USD (Dollar)</a></li>
-                    <li class="list-item"><a href="#">£ GBP (Pound)</a></li>
-                    <li class="list-item"><a href="#">¥ JPY (Yen)</a></li>
-                </ul>
-            </div>
-            <div class="glb-item languages">
-                <b class="title">Language</b>
-                <ul class="list inline">
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/us.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/fr.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/ger.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/jap.jpg" alt="flag" width="24" height="18"></a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-  <script>
+<script>
 document.addEventListener('click', async function(e) {
-
-    if (e.target.classList.contains('retry-btn')) {
-
-        const txId = e.target.dataset.id;
-
-        // SweetAlert confirmation
-        const confirm = await Swal.fire({
-            title: 'Retry Purchase?',
-            text: 'This will attempt to buy the data again',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Retry'
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        // Call backend
-        const res = await fetch('/retry-transaction', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ transactionId: txId })
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            Swal.fire('Success', 'Transaction completed!', 'success')
-                .then(() => location.reload());
-        } else {
-            Swal.fire('Error', data.message, 'error');
-        }
+  if (e.target.closest('.retry-btn')) {
+    const btn  = e.target.closest('.retry-btn');
+    const txId = btn.dataset.id;
+    const confirm = await Swal.fire({
+      title: 'Retry Purchase?',
+      text: 'This will attempt to buy the data again',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Retry'
+    });
+    if (!confirm.isConfirmed) return;
+    const res  = await fetch('/retry-transaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transactionId: txId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      Swal.fire('Success', 'Transaction completed!', 'success').then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
     }
-
+  }
 });
 </script>
