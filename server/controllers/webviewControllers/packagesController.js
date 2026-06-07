@@ -306,48 +306,66 @@ exports.retryTransaction = async (req, res) => {
       return res.json({ success: false, message: 'Already successful' });
     }
 
-    const wallet = await Wallet.findById(tx.user);
+    const wallet = await Wallet.findOne({ user: tx.user });
 
-    if (wallet.balances.NAIRA < tx.amount) {
-      return res.json({ success: false, message: 'Insufficient balance' });
+    if (!wallet) {
+      return res.json({ success: false, message: 'Wallet not found' });
     }
 
-    // Deduct again
-   wallet.balances.NAIRA -= tx.amount;
-    await wallet.save();
+    const product =
+      tx.product || tx.products?.[0]?.product;
+
+    if (!product || !product.dataDetails) {
+      return res.json({ success: false, message: 'Invalid product data' });
+    }
 
     let apiResponse;
 
     try {
       apiResponse = await buyData({
-        network: tx.package.network === 'MTN' ? 1 : 2,
+        network: product.dataDetails.network === 'MTN' ? 1 : 2,
         phone: tx.phone,
-        data_plan: tx.package.plan_id
+        data_plan: product.dataDetails.plan_id
       });
-
     } catch (err) {
       apiResponse = { status: 'fail', message: 'API error' };
     }
 
-    // Update transaction
-    tx.status = apiResponse.status === 'success' ? 'success' : 'failed';
+    // SUCCESS CASE
+    if (apiResponse.status === 'success') {
+
+      if (wallet.balances.NAIRA < tx.amount) {
+        return res.json({
+          success: false,
+          message: 'Insufficient balance'
+        });
+      }
+
+      wallet.balances.NAIRA -= tx.amount;
+      await wallet.save();
+
+      tx.status = 'success';
+
+    } else {
+      tx.status = 'failed';
+    }
+
     tx.apiResponse = apiResponse;
     await tx.save();
 
-    // Refund if failed again
-    if (tx.status !== 'success') {
-      wallet.balances.NAIRA += tx.amount;
-      await user.save();
-    }
-
-    return res.json({ success: tx.status === 'success', message: apiResponse.message });
+    return res.json({
+      success: tx.status === 'success',
+      message: apiResponse.message
+    });
 
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: 'Retry failed' });
+    return res.json({
+      success: false,
+      message: 'Retry failed'
+    });
   }
 };
-
 
 
 exports.addToCart = async (req, res) => {

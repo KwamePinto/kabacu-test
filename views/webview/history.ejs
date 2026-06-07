@@ -11,112 +11,152 @@
 
     <div class="tx-table-wrap">
       <table class="tx-table">
-        <thead>
-          <tr>
-            <th>Qty</th>
-            <th>Package</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (transactions && transactions.length > 0) { %>
-            <% transactions.forEach(function(tx) { %>
-              <%
-                let product = null;
-                if (tx.product) {
-                  product = tx.product;
-                } else if (tx.products && tx.products.length > 0) {
-                  product = tx.products[0].product;
-                }
-              %>
-              <tr>
-                <td data-label="Qty"><%= tx.products?.[0]?.quantity || 1 %></td>
-                <td data-label="Package">
-                  <% if (product && product.category === 'DATA') { %>
-                    <strong><%= product.dataDetails.network %> — <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</strong>
-                    <br>
-                    <small style="color:var(--color-muted);">Phone: <%= tx.phone %></small>
-                  <% } else if (product && product.category === 'COURSES') { %>
-                    <%= product.coursesDetails.course_title %>
-                  <% } else { %>
-                    <span style="color:var(--color-muted);">—</span>
-                  <% } %>
-                </td>
-                <td data-label="Amount">₦<%= tx.amount %></td>
-                <td data-label="Status">
-                  <% if (tx.status === 'success') { %>
-                    <span class="badge badge--success">
-                      <i data-lucide="check-circle"></i>
-                      Success
-                    </span>
-                  <% } else if (tx.status === 'failed') { %>
-                    <span class="badge badge--error">
-                      <i data-lucide="x-circle"></i>
-                      Failed
-                    </span>
-                  <% } else { %>
-                    <span class="badge badge--warning">
-                      <i data-lucide="clock"></i>
-                      <%= tx.status %>
-                    </span>
-                  <% } %>
-                </td>
-                <td data-label="Action">
-                  <% if (tx.status === 'failed') { %>
-                    <button class="btn btn--outline btn--sm retry-btn" data-id="<%= tx._id %>">
-                      <i data-lucide="refresh-cw"></i>
-                      Retry
-                    </button>
-                  <% } else { %>
-                    <span style="color:var(--color-muted);">—</span>
-                  <% } %>
-                </td>
-              </tr>
-            <% }) %>
-          <% } else { %>
-            <tr>
-              <td colspan="5">
-                <div class="empty-state">
-                  <i data-lucide="inbox"></i>
-                  <p>No transactions found</p>
-                  <a href="/category/data-category" class="btn btn--primary btn--sm">Shop Now</a>
-                </div>
-              </td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
+  <thead>
+    <tr>
+      <th>Qty</th>
+      <th>Package</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% if (transactions && transactions.length > 0) { %>
+      <% transactions.forEach(function(tx) { %>
+        <%
+          let product =
+            tx.product ||
+            tx.products?.[0]?.product;
+        %>
+
+        <tr>
+          <td data-label="Qty">
+            <%= tx.products?.[0]?.quantity || 1 %>
+          </td>
+
+          <td data-label="Package">
+            <% if (product && product.category === 'DATA') { %>
+              <strong>
+                <%= product.dataDetails.network %> —
+                <%= product.dataDetails.plan_type %>
+                (<%= product.dataDetails.plan_name %>)
+              </strong>
+              <br />
+              <small style="color:var(--color-muted);">
+                Phone: <%= tx.phone %>
+              </small>
+
+            <% } else if (product && product.category === 'COURSES') { %>
+              <%= product.coursesDetails.course_title %>
+
+            <% } else { %>
+              <span style="color:var(--color-muted);">—</span>
+            <% } %>
+          </td>
+
+          <td data-label="Amount">
+            ₦<%= tx.amount %>
+          </td>
+
+          <td data-label="Status">
+            <% if (tx.status === 'success') { %>
+              <span class="badge badge--success">
+                <i data-lucide="check-circle"></i>
+                Success
+              </span>
+
+            <% } else if (tx.status === 'failed') { %>
+              <span class="badge badge--error">
+                <i data-lucide="x-circle"></i>
+                Failed
+              </span>
+
+            <% } else { %>
+              <span class="badge badge--warning">
+                <i data-lucide="clock"></i>
+                <%= tx.status %>
+              </span>
+            <% } %>
+          </td>
+
+          <td data-label="Action">
+            <% if (tx.status === 'failed') { %>
+              <button
+                class="btn btn--outline btn--sm retry-btn"
+                data-id="<%= tx._id %>">
+                <i data-lucide="refresh-cw"></i>
+                Retry
+              </button>
+            <% } else { %>
+              <span style="color:var(--color-muted);">—</span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+
+    <% } else { %>
+      <tr>
+        <td colspan="5">
+          <div class="empty-state">
+            <i data-lucide="inbox"></i>
+            <p>No transactions found</p>
+            <a href="/category/data-category" class="btn btn--primary btn--sm">
+              Shop Now
+            </a>
+          </div>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
     </div>
 
   </div>
 </section>
 
 <script>
-document.addEventListener('click', async function(e) {
-  if (e.target.closest('.retry-btn')) {
-    const btn  = e.target.closest('.retry-btn');
-    const txId = btn.dataset.id;
-    const confirm = await Swal.fire({
-      title: 'Retry Purchase?',
-      text: 'This will attempt to buy the data again',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Retry'
-    });
-    if (!confirm.isConfirmed) return;
-    const res  = await fetch('/retry-transaction', {
+document.addEventListener('click', async function (e) {
+  const btn = e.target.closest('.retry-btn');
+  if (!btn) return;
+
+  const txId = btn.dataset.id;
+
+  const confirm = await Swal.fire({
+    title: 'Retry Purchase?',
+    text: 'This will attempt to buy the data again',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Retry'
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  btn.disabled = true;
+  btn.innerHTML = 'Processing...';
+
+  try {
+    const res = await fetch('/retry-transaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ transactionId: txId })
     });
+
     const data = await res.json();
+
     if (data.success) {
-      Swal.fire('Success', 'Transaction completed!', 'success').then(() => location.reload());
+      Swal.fire('Success', 'Transaction completed!', 'success')
+        .then(() => location.reload());
     } else {
       Swal.fire('Error', data.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="refresh-cw"></i> Retry';
     }
+
+  } catch (err) {
+    Swal.fire('Error', 'Something went wrong', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="refresh-cw"></i> Retry';
   }
 });
 </script>
