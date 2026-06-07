@@ -12,6 +12,10 @@ const topupSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    nairaAmount:{
+      type: Number,
+        
+    },
 
     balanceType: {
         type: String,

@@ -1009,7 +1009,16 @@ exports.createPalmPayPayment = async (req, res) => {
 
         const userId = req.user.id;
         const { amount } = req.body;
+        const nairaAmount = parseFloat(amount);
+        if (!nairaAmount || nairaAmount <= 0) {
+                return res.json({
+                    success: false,
+                    message: 'Invalid amount'
+                });
+            }
+        const koboAmount = Math.round(nairaAmount * 100);
 
+        
         if (!amount || Number(amount) <= 0) {
 
             return res.json({
@@ -1017,6 +1026,7 @@ exports.createPalmPayPayment = async (req, res) => {
                 message: 'Invalid amount'
             });
         }
+      
 
         const requestTime = Date.now();
 
@@ -1027,13 +1037,24 @@ exports.createPalmPayPayment = async (req, res) => {
         const orderId =
             "PALM-" + Date.now();
 
+            const existing = await TopUp.findOne({
+    reference: orderId
+});
+
+if (existing) {
+    return res.json({
+        success: false,
+        message: "Duplicate transaction"
+    });
+}
+
         const version = "1.1";
 
         const payload = {
 
             requestTime,
 
-            amount: Number(amount),
+            amount: koboAmount,
 
             orderId,
 
@@ -1089,19 +1110,14 @@ exports.createPalmPayPayment = async (req, res) => {
                 }
             );
 
-        if (
-            response.data.respCode !==
-            "00000000"
-        ) {
+     
 
-            return res.json({
-
-                success: false,
-
-                message:
-                    response.data.respMsg
-            });
-        }
+if (!response.data || response.data.respCode !== "00000000") {
+    return res.json({
+        success: false,
+        message: response.data?.respMsg || "Payment failed"
+    });
+}
 
         const topUp =
             await TopUp.create({
@@ -1109,7 +1125,9 @@ exports.createPalmPayPayment = async (req, res) => {
                 user: userId,
 
                 amount:
-                    Number(amount),
+                    koboAmount,
+
+                nairaAmount: nairaAmount,
 
                 balanceType:
                     'NAIRA',
