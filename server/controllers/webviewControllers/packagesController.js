@@ -1010,13 +1010,27 @@ exports.createPalmPayPayment = async (req, res) => {
         const userId = req.user.id;
         const { amount } = req.body;
 
-        if (!amount || Number(amount) <= 0) {
+        // =====================================
+        // VALIDATE AMOUNT
+        // =====================================
+
+        const nairaAmount = parseFloat(amount);
+
+        if (!nairaAmount || nairaAmount <= 0) {
 
             return res.json({
                 success: false,
                 message: 'Invalid amount'
             });
         }
+
+        // Store internally as kobo
+        const koboAmount =
+            Math.round(nairaAmount * 100);
+
+        // =====================================
+        // GENERATE ORDER DETAILS
+        // =====================================
 
         const requestTime = Date.now();
 
@@ -1025,23 +1039,51 @@ exports.createPalmPayPayment = async (req, res) => {
             .toString("hex");
 
         const orderId =
-            "PALM-" + Date.now();
+            `PALM-${Date.now()}-${userId}`;
 
         const version = "1.1";
+
+        // =====================================
+        // PREVENT DUPLICATE REFERENCES
+        // =====================================
+
+        const existing =
+            await TopUp.findOne({
+
+                reference: orderId
+            });
+
+        if (existing) {
+
+            return res.json({
+
+                success: false,
+
+                message:
+                    "Duplicate transaction reference"
+            });
+        }
+
+        // =====================================
+        // PALMPAY PAYLOAD
+        // =====================================
 
         const payload = {
 
             requestTime,
 
-            amount: Number(amount),
+            amount: koboAmount,
 
             orderId,
 
-            payeeName: "Wallet Topup",
+            payeeName:
+                "Wallet Topup",
 
-            payeeBankCode: "MTN",
+            payeeBankCode:
+                "MTN",
 
-            payeeBankAccNo: "0591990607",
+            payeeBankAccNo:
+                "0591990607",
 
             callBackUrl:
                 process.env.PALMPAY_CALLBACK_URL,
@@ -1049,7 +1091,8 @@ exports.createPalmPayPayment = async (req, res) => {
             notifyUrl:
                 process.env.PALMPAY_WEBHOOK_URL,
 
-            currency: "NGN",
+            currency:
+                "NGN",
 
             remark:
                 "Wallet Topup " + orderId,
@@ -1059,11 +1102,22 @@ exports.createPalmPayPayment = async (req, res) => {
             nonceStr
         };
 
+        // =====================================
+        // SIGN REQUEST
+        // =====================================
+
         const signature =
             generateSignature(
+
                 payload,
-                process.env.PALMPAY_PRIVATE_KEY
+
+                process.env
+                .PALMPAY_PRIVATE_KEY
             );
+
+        // =====================================
+        // CREATE PALMPAY ORDER
+        // =====================================
 
         const response =
             await axios.post(
@@ -1074,6 +1128,7 @@ exports.createPalmPayPayment = async (req, res) => {
 
                 {
                     headers: {
+
                         "Content-Type":
                             "application/json",
 
@@ -1089,9 +1144,17 @@ exports.createPalmPayPayment = async (req, res) => {
                 }
             );
 
+        // =====================================
+        // CHECK RESPONSE
+        // =====================================
+
         if (
+
+            !response.data ||
+
             response.data.respCode !==
             "00000000"
+
         ) {
 
             return res.json({
@@ -1099,17 +1162,30 @@ exports.createPalmPayPayment = async (req, res) => {
                 success: false,
 
                 message:
-                    response.data.respMsg
+
+                    response.data?.respMsg ||
+
+                    "PalmPay request failed"
             });
         }
+
+        // =====================================
+        // SAVE TOPUP RECORD
+        // =====================================
 
         const topUp =
             await TopUp.create({
 
-                user: userId,
+                user:
+                    userId,
 
+                // Stored in Kobo
                 amount:
-                    Number(amount),
+                    koboAmount,
+
+                // Stored for display/reporting
+                nairaAmount:
+                    nairaAmount,
 
                 balanceType:
                     'NAIRA',
@@ -1138,6 +1214,10 @@ exports.createPalmPayPayment = async (req, res) => {
                 apiResponse:
                     response.data
             });
+
+        // =====================================
+        // SUCCESS RESPONSE
+        // =====================================
 
         return res.json({
 
@@ -1170,7 +1250,6 @@ exports.createPalmPayPayment = async (req, res) => {
         });
     }
 };
-
 
 
 
@@ -1222,6 +1301,13 @@ async (req, res) => {
             "FOUND TOPUP:",
             topUp
         );
+
+  if (!topUp || !topUp.amount || topUp.amount <= 0) {
+    return res.status(400).json({
+        success: false,
+        message: "Invalid or corrupted topup record"
+    });
+}
 
         if (!topUp) {
 
@@ -1277,9 +1363,7 @@ async (req, res) => {
                         $inc: {
 
                             [walletField]:
-                                Number(
-                                    topUp.amount
-                                )
+                               topUp.amount / 100
                         }
                     },
 

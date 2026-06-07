@@ -1,8 +1,8 @@
 <script>
-  const successMsg = <%- JSON.stringify(success_msg) %>;
-  const errorMsg   = <%- JSON.stringify(error_msg) %>;
+  const successMsg = <% - JSON.stringify(success_msg) %>;
+  const errorMsg = <% - JSON.stringify(error_msg) %>;
   if (successMsg.length > 0) Swal.fire({ icon: 'success', text: successMsg[0] });
-  if (errorMsg.length   > 0) Swal.fire({ icon: 'error',   text: errorMsg[0] });
+  if (errorMsg.length > 0) Swal.fire({ icon: 'error', text: errorMsg[0] });
 </script>
 
 <section class="wallet-page">
@@ -196,113 +196,113 @@
 </section>
 
 <script>
-let topupId = null;
+  let topupId = null;
 
-// ── BTT/RP/USDT Top-up ──────────────────────────────────
-document.getElementById('startTopup').addEventListener('click', async () => {
-  const amount      = document.getElementById('amount').value;
-  const balanceType = document.getElementById('walletType').value;
-  const res  = await fetch('/wallet/start-topup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount, balanceType })
-  });
-  const data = await res.json();
-  if (data.success) {
-    topupId = data.topupId;
-    document.getElementById('otpBox').style.display = 'block';
-    Swal.fire({ icon: 'warning', text: 'OTP Sent to your Telegram bot' });
-  } else {
-    Swal.fire({ icon: 'error', text: data.message });
-  }
-});
-
-document.getElementById('confirmTopup').addEventListener('click', async () => {
-  const otp = document.getElementById('otp').value;
-  const res  = await fetch('/wallet/confirm-topup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ otp, topupId })
-  });
-  const data = await res.json();
-  if (data.success) {
-    Swal.fire({ icon: 'success', text: 'Wallet funded successfully' });
-    setTimeout(() => location.reload(), 1500);
-  } else {
-    Swal.fire({ icon: 'error', text: data.message });
-  }
-});
-
-// ── USDT preview ──────────────────────────────────────────
-document.getElementById('usdtAmount').addEventListener('input', async function() {
-  const amount = this.value;
-  if (!amount || amount <= 0) {
-    document.getElementById('nairaAmount').value = '';
-    document.getElementById('conversionPreview').style.display = 'none';
-    return;
-  }
-  try {
-    const res  = await fetch('/wallet/preview-conversion', {
+  // ── BTT/RP/USDT Top-up ──────────────────────────────────
+  document.getElementById('startTopup').addEventListener('click', async () => {
+    const amount = document.getElementById('amount').value;
+    const balanceType = document.getElementById('walletType').value;
+    const res = await fetch('/wallet/start-topup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount })
+      body: JSON.stringify({ amount, balanceType })
     });
     const data = await res.json();
     if (data.success) {
-      document.getElementById('nairaAmount').value = '₦' + Number(data.nairaAmount).toLocaleString();
-      document.getElementById('conversionPreview').style.display = 'block';
+      topupId = data.topupId;
+      document.getElementById('otpBox').style.display = 'block';
+      Swal.fire({ icon: 'warning', text: 'OTP Sent to your Telegram bot' });
+    } else {
+      Swal.fire({ icon: 'error', text: data.message });
     }
-  } catch (err) { console.log(err); }
-});
+  });
 
-// ── USDT convert ──────────────────────────────────────────
-document.getElementById('convertBtn').addEventListener('click', async () => {
-  const amount = document.getElementById('usdtAmount').value;
-  if (!amount || amount <= 0) {
-    Swal.fire({ icon: 'warning', text: 'Enter valid amount' });
-    return;
-  }
-  try {
-    const res  = await fetch('/wallet/convert-usdt', {
+  document.getElementById('confirmTopup').addEventListener('click', async () => {
+    const otp = document.getElementById('otp').value;
+    const res = await fetch('/wallet/confirm-topup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount })
+      body: JSON.stringify({ otp, topupId })
     });
     const data = await res.json();
     if (data.success) {
-      document.getElementById('nairaAmount').value = '₦' + data.nairaAmount.toLocaleString();
-      Swal.fire({ icon: 'success', text: 'Conversion successful' });
+      Swal.fire({ icon: 'success', text: 'Wallet funded successfully' });
       setTimeout(() => location.reload(), 1500);
     } else {
       Swal.fire({ icon: 'error', text: data.message });
     }
-  } catch (err) {
-    Swal.fire({ icon: 'warning', text: 'Something went wrong' });
-  }
-});
+  });
 
-// ── PalmPay ───────────────────────────────────────────────
-document.getElementById('palmpayBtn').addEventListener('click', async () => {
-  const amount = document.getElementById('palmpayAmount').value;
-  const conversion = amount * 100;
-  if (!conversion) {
-    Swal.fire({ icon: 'warning', text: 'Enter amount' });
-    return;
-  }
-  try {
-    const response = await fetch('/palmpay/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: conversion })
-    });
-    const data = await response.json();
-    if (data.success) {
-      window.location.href = data.paymentUrl;
-    } else {
-      Swal.fire({ icon: 'warning', text: data.message || 'Payment failed' });
+  // ── USDT preview ──────────────────────────────────────────
+  document.getElementById('usdtAmount').addEventListener('input', async function () {
+    const amount = this.value;
+    if (!amount || amount <= 0) {
+      document.getElementById('nairaAmount').value = '';
+      document.getElementById('conversionPreview').style.display = 'none';
+      return;
     }
-  } catch (error) {
-    Swal.fire({ icon: 'warning', text: 'Something went wrong' });
-  }
-});
+    try {
+      const res = await fetch('/wallet/preview-conversion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('nairaAmount').value = '₦' + Number(data.nairaAmount).toLocaleString();
+        document.getElementById('conversionPreview').style.display = 'block';
+      }
+    } catch (err) { console.log(err); }
+  });
+
+  // ── USDT convert ──────────────────────────────────────────
+  document.getElementById('convertBtn').addEventListener('click', async () => {
+    const amount = document.getElementById('usdtAmount').value;
+    if (!amount || amount <= 0) {
+      Swal.fire({ icon: 'warning', text: 'Enter valid amount' });
+      return;
+    }
+    try {
+      const res = await fetch('/wallet/convert-usdt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('nairaAmount').value = '₦' + data.nairaAmount.toLocaleString();
+        Swal.fire({ icon: 'success', text: 'Conversion successful' });
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        Swal.fire({ icon: 'error', text: data.message });
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'warning', text: 'Something went wrong' });
+    }
+  });
+
+  // ── PalmPay ───────────────────────────────────────────────
+  document.getElementById('palmpayBtn').addEventListener('click', async () => {
+    const amount = document.getElementById('palmpayAmount').value;
+    //const conversion = amount * 100;
+    if (!amount) {
+      Swal.fire({ icon: 'warning', text: 'Enter amount' });
+      return;
+    }
+    try {
+      const response = await fetch('/palmpay/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = data.paymentUrl;
+      } else {
+        Swal.fire({ icon: 'warning', text: data.message || 'Payment failed' });
+      }
+    } catch (error) {
+      Swal.fire({ icon: 'warning', text: 'Something went wrong' });
+    }
+  });
 </script>
