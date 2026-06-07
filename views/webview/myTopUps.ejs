@@ -1,0 +1,140 @@
+<section class="history-page">
+  <div class="container">
+
+    <div class="page-hero">
+      <h1 class="page-hero__title">
+        <i data-lucide="wallet"></i>
+        My Top Ups
+      </h1>
+
+      <p class="page-hero__sub">
+        View all wallet funding transactions
+      </p>
+    </div>
+
+    <div class="tx-table-wrap">
+
+      <table class="tx-table">
+
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Wallet</th>
+            <th>Amount</th>
+            <!-- <th>Method</th> -->
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <% if(topups && topups.length > 0){ %>
+
+            <% topups.forEach(function(topup){ %>
+
+              <tr>
+
+                <td data-label="Reference">
+                  <%= topup.reference || 'N/A' %>
+                </td>
+
+                <td data-label="Wallet">
+                  <strong>
+                    <%= topup.balanceType %>
+                  </strong>
+                </td>
+
+                <td data-label="Amount">
+  <% if(topup.balanceType === 'NAIRA'){ %>
+      ₦<%= Number(topup.amount).toLocaleString() %>
+  <% } else { %>
+      <%= Number(topup.amount).toLocaleString() %> <%= topup.balanceType %>
+      <br>
+      <small>
+        ₦<%= Number(topup.nairaAmount || 0).toLocaleString() %>
+      </small>
+  <% } %>
+</td>
+
+              <!-- <td data-label="Method">
+  <% const method = (topup.paymentMethod || 'PalmPay').toUpperCase(); %>
+
+  <% if (method === 'USDT') { %>
+    💰 USDT
+  <% } else if (method === 'BTT') { %>
+    🪙 BTT
+  <% } else if (method === 'RP') { %>
+    ⭐ RP
+  <% } else { %>
+    🏦 PalmPay
+  <% } %>
+</td> -->
+
+                <td data-label="Status">
+
+                  <% if(topup.status === 'COMPLETED'){ %>
+
+                    <span class="badge badge--success">
+                      <i data-lucide="check-circle"></i>
+                      Completed
+                    </span>
+
+                  <% } else if(topup.status === 'FAILED'){ %>
+
+                    <span class="badge badge--error">
+                      <i data-lucide="x-circle"></i>
+                      Failed
+                    </span>
+
+                  <% } else { %>
+
+                    <span class="badge badge--warning">
+                      <i data-lucide="clock"></i>
+                      Pending
+                    </span>
+
+                  <% } %>
+
+                </td>
+
+                <td data-label="Date">
+                  <%= new Date(topup.createdAt).toLocaleDateString() %>
+                </td>
+
+              </tr>
+
+            <% }) %>
+
+          <% } else { %>
+
+            <tr>
+              <td colspan="6">
+
+                <div class="empty-state">
+                  <i data-lucide="wallet"></i>
+
+                  <p>
+                    No top up transactions found
+                  </p>
+
+                  <a
+                    href="/wallet"
+                    class="btn btn--primary btn--sm">
+                    Fund Wallet
+                  </a>
+                </div>
+
+              </td>
+            </tr>
+
+          <% } %>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+</section>

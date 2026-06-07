@@ -20,6 +20,8 @@ router.get('/wallet/checkout', authenticateUser, getPackages.walletCheckout);
 
 router.get('/history', authenticateUser, getPackages.history);
 
+router.get('/my-topUps', authenticateUser, getPackages.myTopUps);
+
 router.post('/retry-transaction', authenticateUser, getPackages.retryTransaction);
 
 router.post('/cart/add', authenticateUser, getPackages.addToCart);

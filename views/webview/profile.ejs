@@ -56,6 +56,21 @@
           <i data-lucide="credit-card"></i>
         </div>
         <div class="acct-link__body">
+          <span class="acct-link__label">My Wallet</span>
+          <% if (recentTopups && recentTopups.length > 0) { %>
+          <span class="acct-link__sub"><%= recentTopups.length %> completed topup<%= recentTopups.length !== 1 ? 's' : '' %></span>
+          <% } else { %>
+          <span class="acct-link__sub">No topups yet</span>
+          <% } %>
+        </div>
+        <i data-lucide="chevron-right" class="acct-link__arrow"></i>
+      </a>
+
+       <a href="/my-topUps" class="acct-link">
+        <div class="acct-link__icon">
+          <i data-lucide="credit-card"></i>
+        </div>
+        <div class="acct-link__body">
           <span class="acct-link__label">Topup History</span>
           <% if (recentTopups && recentTopups.length > 0) { %>
           <span class="acct-link__sub"><%= recentTopups.length %> completed topup<%= recentTopups.length !== 1 ? 's' : '' %></span>

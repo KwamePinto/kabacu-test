@@ -368,6 +368,32 @@ exports.retryTransaction = async (req, res) => {
 };
 
 
+exports.myTopUps = async (req, res) => {
+  try {
+
+    const userId = req.user.id;
+
+    const topups = await TopUp.find({
+      user: userId
+    })
+    .sort({ createdAt: -1 });
+
+    res.render('webview/myTopUps', {
+      title: 'My Top Ups',
+      topups
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.render('webview/myTopUps', {
+      title: 'My Top Ups',
+      topups: []
+    });
+  }
+};
+
+
 exports.addToCart = async (req, res) => {
   try {
     const userId = req.user.id;
