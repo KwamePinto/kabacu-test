@@ -10,6 +10,7 @@ const userSchema = new Schema({
         match:/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
     },
     //country: { type: String, required: true },
+    phone_number: { type: String, required: true },
     minerId: { type: Number, unique: true, sparse: true },
     password: { type: String, required: true },
     role: { type: String, required: true },

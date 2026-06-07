@@ -211,6 +211,7 @@ async (req, res) => {
 
             username,
             email,
+            phone_number,
             minerId,
             password,
             country
@@ -407,6 +408,7 @@ async (req, res) => {
             username,
 
             email,
+            phone_number,
 
             minerId:
                 minerId || null,
