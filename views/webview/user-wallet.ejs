@@ -284,7 +284,7 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
 // ── PalmPay ───────────────────────────────────────────────
 document.getElementById('palmpayBtn').addEventListener('click', async () => {
   const amount = document.getElementById('palmpayAmount').value;
- 
+  const conversion = amount * 100;
   if (!conversion) {
     Swal.fire({ icon: 'warning', text: 'Enter amount' });
     return;
@@ -293,7 +293,7 @@ document.getElementById('palmpayBtn').addEventListener('click', async () => {
     const response = await fetch('/palmpay/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount })
+      body: JSON.stringify({ amount: conversion })
     });
     const data = await response.json();
     if (data.success) {
