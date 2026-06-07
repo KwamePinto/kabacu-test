@@ -1,0 +1,142 @@
+/* =========================================================
+   WALLET — balance cards, action panels
+   ========================================================= */
+
+.wallet-page { padding: 32px 0 64px; }
+
+/* Balance cards row */
+.balance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+@media (min-width: 640px) { .balance-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.balance-card {
+  background: var(--white);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.balance-card__icon {
+  width: 40px; height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--primary-light);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.balance-card__icon svg { width: 20px; height: 20px; color: var(--primary); }
+
+.balance-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.balance-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.balance-card__amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.balance-card--naira .balance-card__icon { background: var(--primary-light); }
+.balance-card--naira .balance-card__icon svg { color: var(--primary); }
+
+.balance-card--btt .balance-card__icon { background: #fef3c7; }
+.balance-card--btt .balance-card__icon svg { color: #f59e0b; }
+
+.balance-card--rp .balance-card__icon { background: #fff3e0; }
+.balance-card--rp .balance-card__icon svg { color: var(--orange); }
+
+.balance-card--usdt .balance-card__icon { background: #e0f2fe; }
+.balance-card--usdt .balance-card__icon svg { color: #0ea5e9; }
+
+/* Action panels grid */
+.wallet-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) { .wallet-actions { grid-template-columns: repeat(3, 1fr); } }
+
+.action-card {
+  background: var(--white);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.action-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.action-card__title svg { width: 18px; height: 18px; color: var(--primary); }
+
+.action-card__desc {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: -8px;
+}
+
+.action-note {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  background: var(--input-bg);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  border-left: 3px solid var(--primary);
+}
+
+/* Conversion preview */
+.conversion-preview {
+  background: var(--primary-light);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.conversion-preview__label  { font-size: 13px; color: var(--muted); }
+.conversion-preview__amount { font-size: 18px; font-weight: 800; color: var(--primary); }
+
+/* OTP section */
+.otp-section {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.otp-section.visible { display: flex; }

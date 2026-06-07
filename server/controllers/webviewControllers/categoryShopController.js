@@ -87,3 +87,17 @@ try{
 
 
 }
+
+
+exports.p2pCategory = async (req,res)=>{
+try{
+    
+    res.render('webview/p2p-category',{
+       
+    })
+}catch(erro){
+    console.log(error)
+}
+
+
+}

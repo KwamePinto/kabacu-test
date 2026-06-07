@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const validator = require('validator')
+const countries = require("i18n-iso-countries");
 
 const UserModel = require('../../models/UserModel');
 const {generateUserToken} = require('../../config/authUtils');
@@ -188,7 +189,14 @@ exports.loginPost = async (req,res)=>{
 }
 
 exports.signup = async (req,res)=>{
-    res.render('webview/register')
+    countries.registerLocale(
+  require("i18n-iso-countries/langs/en.json")
+);
+
+const countryNames = countries.getNames("en");
+
+console.log(countryNames);
+    res.render('webview/register',{countryNames})
 
 }
 

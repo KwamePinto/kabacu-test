@@ -1,753 +1,178 @@
-<style>
-    .custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-}
-
-.custom-modal-content {
-    background: #fff;
-    width: 350px;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    position: relative;
-    animation: fadeIn 0.3s ease;
-}
-
-.close-modal {
-    position: absolute;
-    right: 15px;
-    top: 10px;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(-20px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-    .category-wrapper {
-    position: relative;
-    display: block;
-    text-align: center; /* centers the network */
-}
-
-.category-wrapper .rp {
-   position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    
-    font-size: 11px;        /* small text */
-    font-weight: 600;       /* still visible */
-    color: #fff;            /* strong contrast */
-    background: #ff9800;    /* bright color (visible) */
-    
-    padding: 2px 6px;
-    border-radius: 10px;
-    white-space: nowrap; 
-}
-
-/* OVERLAY */
-
-.custom-modal {
-
-    display: none;
-
-    position: fixed;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-
-    background: rgba(0,0,0,0.65);
-
-    z-index: 9999;
-
-    justify-content: center;
-
-    align-items: center;
-
-    padding: 15px;
-}
-
-/* MODAL BOX */
-
-.custom-modal-content {
-
-    background: #fff;
-
-    width: 100%;
-
-    max-width: 400px;
-
-    border-radius: 12px;
-
-    padding: 25px;
-
-    animation: modalFade .3s ease;
-
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
-/* HEADER */
-
-.modal-header-section h4 {
-
-    margin-bottom: 8px;
-
-    font-size: 22px;
-}
-
-.modal-header-section p {
-
-    color: #666;
-
-    font-size: 14px;
-
-    margin-bottom: 20px;
-}
-
-/* INPUT */
-
-.modal-input-group {
-
-    margin-bottom: 20px;
-}
-
-.modal-input-group label {
-
-    display: block;
-
-    margin-bottom: 8px;
-
-    font-weight: 600;
-}
-
-.modal-input {
-
-    width: 100%;
-
-    height: 45px;
-
-    border: 1px solid #ddd;
-
-    border-radius: 8px;
-
-    padding: 0 12px;
-
-    outline: none;
-
-    transition: .2s;
-}
-
-.modal-input:focus {
-
-    border-color: #0d6efd;
-}
-
-/* BUTTONS */
-
-.modal-buttons {
-
-    display: flex;
-
-    gap: 10px;
-
-    margin-top: 20px;
-}
-
-.modal-btn {
-
-    flex: 1;
-
-    height: 45px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    font-weight: 600;
-
-    transition: .2s;
-}
-
-.cancel-btn {
-
-    background: #dc3545;
-
-    color: #fff;
-}
-
-.success-btn {
-
-    background: #198754;
-
-    color: #fff;
-}
-
-.modal-btn:hover {
-
-    opacity: .9;
-}
-
-/* MOBILE */
-
-@media (max-width: 500px) {
-
-    .custom-modal-content {
-
-        padding: 20px;
-    }
-
-    .modal-buttons {
-
-        flex-direction: column;
-    }
-}
-
-/* ANIMATION */
-
-@keyframes modalFade {
-
-    from {
-
-        transform: translateY(-15px);
-
-        opacity: 0;
-    }
-
-    to {
-
-        transform: translateY(0);
-
-        opacity: 1;
-    }
-}
-
-
-</style>
-
-    <!-- Preloader -->
-    <div id="biof-loading">
-        <div class="biof-loading-center">
-            <div class="biof-loading-center-absolute">
-                <div class="dot dot-one"></div>
-                <div class="dot dot-two"></div>
-                <div class="dot dot-three"></div>
-            </div>
-        </div>
+<section class="category-page">
+  <div class="container">
+
+    <!-- Page header -->
+    <div class="page-hero">
+      <h1 class="page-hero__title">
+        <i data-lucide="wifi"></i>
+        Data Bundles
+      </h1>
+      <p class="page-hero__sub">Instant delivery to any number</p>
     </div>
 
-      <!-- HEADER -->
-   <%- include('../partials/header.ejs')%>
-    <!--Hero Section-->
-    <div class="hero-section hero-background">
-        <h1 class="page-title">Data Products</h1>
-    </div>
-
-    <!--Navigation section-->
-    <div class="container">
-        <nav class="biolife-nav">
-            <ul>
-                <li class="nav-item"><a href="/" class="permal-link">Home</a></li>
-                <li class="nav-item"><a href="#" class="permal-link">Data</a></li>
-                
-            </ul>
-        </nav>
-    </div>
-
-    <div class="page-contain category-page no-sidebar">
-        <div class="container">
-            <div class="row">
-
-                <!-- Main content -->
-                <div id="main-content" class="main-content col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
-                   
-
-                    <div class="product-category grid-style">
-
-                        <!--<div id="top-functions-area" class="top-functions-area" >
-                            <div class="flt-item to-left group-on-mobile">
-                                <span class="flt-title">Refine</span>
-                                <a href="#" class="icon-for-mobile">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                </a>
-                                <div class="wrap-selectors">
-                                    <form action="#" name="frm-refine" method="get">
-                                        <span class="title-for-mobile">Refine Products By</span>
-                                        <div data-title="Price:" class="selector-item">
-                                            <select name="price" class="selector">
-                                                <option value="all">Price</option>
-                                                <option value="class-1st">Less than 5$</option>
-                                                <option value="class-2nd">$5-10$</option>
-                                                <option value="class-3rd">$10-20$</option>
-                                                <option value="class-4th">$20-45$</option>
-                                                <option value="class-5th">$45-100$</option>
-                                                <option value="class-6th">$100-150$</option>
-                                                <option value="class-7th">More than 150$</option>
-                                            </select>
-                                        </div>
-                                        <div data-title="Brand:" class="selector-item">
-                                            <select name="brad" class="selector">
-                                                <option value="all">Top brands</option>
-                                                <option value="br2">Brand first</option>
-                                                <option value="br3">Brand second</option>
-                                                <option value="br4">Brand third</option>
-                                                <option value="br5">Brand fourth</option>
-                                                <option value="br6">Brand fiveth</option>
-                                            </select>
-                                        </div>
-                                        <div data-title="Avalability:" class="selector-item">
-                                            <select name="ability" class="selector">
-                                                <option value="all">Availability</option>
-                                                <option value="vl2">Availability 1</option>
-                                                <option value="vl3">Availability 2</option>
-                                                <option value="vl4">Availability 3</option>
-                                                <option value="vl5">Availability 4</option>
-                                                <option value="vl6">Availability 5</option>
-                                            </select>
-                                        </div>
-                                        <p class="btn-for-mobile"><button type="submit" class="btn-submit">Go</button></p>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="flt-item to-right">
-                                <span class="flt-title">Sort</span>
-                                <div class="wrap-selectors">
-                                    <div class="selector-item orderby-selector">
-                                        <select name="orderby" class="orderby" aria-label="Shop order">
-                                            <option value="menu_order" selected="selected">Default sorting</option>
-                                            <option value="popularity">popularity</option>
-                                            <option value="rating">average rating</option>
-                                            <option value="date">newness</option>
-                                            <option value="price">price: low to high</option>
-                                            <option value="price-desc">price: high to low</option>
-                                        </select>
-                                    </div>
-                                    <div class="selector-item viewmode-selector">
-                                        <a href="category-grid-left-sidebar.html" class="viewmode grid-mode active"><i class="biolife-icon icon-grid"></i></a>
-                                        <a href="category-list-left-sidebar.html" class="viewmode detail-mode"><i class="biolife-icon icon-list"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>-->
-
-                           <!--Block 03: Product Tab-->
-            <div class="product-tab z-index-20 sm-margin-top-193px xs-margin-top-30px" id="shop">
-                <div class="container">
-                    <div class="biolife-title-box">
-                        
-                        <h3 class="main-title">NETWORK PRODUCTS</h3>
-                    </div>
-                    <div class="biolife-tab biolife-tab-contain sm-margin-top-34px">
-                        <div class="tab-head tab-head__icon-top-layout icon-top-layout">
-                            <ul class="tabs md-margin-bottom-35-im xs-margin-bottom-40-im">
-
-                                 <% let tabindex = 0; %>
-  <% for(let network in groupedProducts){ %>
-    <li class="tab-element <%= tabindex === 0 ? 'active' : '' %>">
-      <a href="#tab_<%= tabindex %>" class="tab-link">
-        <span class="biolife-icon icon-phone"></span>
+    <!-- Network tabs -->
+    <div class="tabs-bar network-tabs" id="networkTabs">
+      <% let tabIdx = 0; %>
+      <% for (let network in groupedProducts) { %>
+      <button
+        class="tab-btn network-tab-btn <%= tabIdx === 0 ? 'active' : '' %>"
+        data-tab="net_<%= tabIdx %>"
+      >
         <%= network %>
+      </button>
+      <% tabIdx++; %>
+      <% } %>
+    </div>
+
+    <!-- Network panels -->
+    <% let panelIdx = 0; %>
+    <% for (let network in groupedProducts) { %>
+    <div id="net_<%= panelIdx %>" class="tab-panel network-panel <%= panelIdx === 0 ? 'active' : '' %>">
+      <div class="bundle-grid">
+        <% groupedProducts[network].forEach(function(product) { %>
+        <div class="bundle-card">
+          <div class="bundle-card__img">
+            <img src="<%= product.images[0] %>" alt="<%= network %>">
+          </div>
+          <div class="bundle-card__body">
+            <span class="bundle-card__network"><%= network %></span>
+            <h4 class="bundle-card__name">
+              <%= product.dataDetails.plan_type %> · <%= product.dataDetails.plan_name %>
+            </h4>
+            <div class="bundle-card__rp">
+              <i data-lucide="star"></i>
+              <%= product.reward_point %> RP
+            </div>
+            <div class="bundle-card__footer">
+              <span class="bundle-card__price">₦<%= product.dataDetails.amount %></span>
+              <% if (user) { %>
+              <button class="btn btn--primary btn--sm buy-btn" data-id="<%= product._id %>">
+                <i data-lucide="shopping-cart"></i>
+                Buy
+              </button>
+              <% } else { %>
+              <a href="/user/login" class="btn btn--primary btn--sm">Buy</a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+    <% panelIdx++; %>
+    <% } %>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <% if (hasPrevPage) { %>
+      <a href="/category/data-category?page=<%= prevPage %>" class="pagination__btn">
+        <i data-lucide="chevron-left"></i>
       </a>
-    </li>
-    <% tabindex++; %>
-  <% } %>
-                            </ul> 
-
-                            
-                        </div>
-                        <div class="tab-content">
-
-
-
-
-
- <% let index = 0; %>
-  <% for(let network in groupedProducts){ %>
-
-        <div id="tab_<%= index %>" class="tab-contain <%= index === 0 ? 'active' : '' %>">
-                                <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
-                                   <% groupedProducts[network].forEach(function(product){ %>
-                                    <li class="product-item">
-                                        <div class="contain-product layout-default">
-                                            <div class="product-thumb">
-                                                <a href="#" class="link-to-product">
-                                                    <img src="<%= product.images[0] %>" alt="Vegetables" width="270" height="270" class="product-thumnail">
-                                                </a>
-                                                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
-                                            </div>
-                                            <div class="info">
-                                                <b class="categories category-wrapper">
-                                                   <span class="network"> <%= network %>  </span>
-                                                   <span class="rp">Reward Point(<%= product.reward_point %>)</span>
-                                                </b>
-                                                <h4 class="product-title"><a href="#" class="pr-name">  <%= product.dataDetails.plan_type %> (<%= product.dataDetails.plan_name %>)</a></h4>
-                                                <div class="price ">
-                                                    <ins><span class="price-amount"><span class="currencySymbol">₦</span><%= product.dataDetails.amount %></span></ins>
-                                                    <del><span class="price-amount"><span class="currencySymbol">₦</span>95.00</span></del>
-                                                </div>
-                                                <div class="slide-down-box">
-                                                    <p class="message">All products are carefully selected to ensure food safety.</p>
-                                                    <div class="buttons">
-                                                        <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                                        <%if(!user){%>
-                                                        <a href="/user/login" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Buy Now</a>
-                                                        <%}else{%>
-                                                                 <a href="#" 
-                                                                    class="btn add-to-cart-btn buy-btn"
-                                                                    data-id="<%= product._id %>"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Buy Now</a>
-
-                                                            <%}%>
-
-                                                        <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                     <% }) %>
-                                   
-                                   
-                                </ul>
-                            </div>
-                              <% index++; %>
-                            <% } %>
-</div>
-                    </div>
-                </div>
-            </div>
-                        <div class="biolife-panigations-block">
-                            <ul class="panigation-contain">
-                                  <% if (hasPrevPage) { %>
-                                <li><a href="/category/data-category?page=<%= prevPage %>" class="link-page next"><i class="fa fa-angle-left" aria-hidden="true"></i></a></li>
-                                <%}%>
-                                <% for(let i = 1; i <= pages; i++) { %>
-                                <li class="<%= i == current ? 'active' : '' %>">
-                                    <a href="/category/data-category?page=<%= i %>" class="link-page"><%= i %></a>
-                                </li>
-                                <% } %>
-                                 <!--<li><a href="#" class="link-page">3</a></li>
-                                <li><span class="sep">....</span></li>
-                                <li><a href="#" class="link-page">20</a></li> -->
-                                 <% if (hasNextPage) { %>
-                                <li><a href="/category/data-category?page=<%= nextPage %>" class="link-page next"><i class="fa fa-angle-right" aria-hidden="true"></i></a></li>
-                                <%}%>
-                            </ul>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
+      <% } %>
+      <% for (let i = 1; i <= pages; i++) { %>
+      <a href="/category/data-category?page=<%= i %>"
+         class="pagination__page <%= i == current ? 'active' : '' %>">
+        <%= i %>
+      </a>
+      <% } %>
+      <% if (hasNextPage) { %>
+      <a href="/category/data-category?page=<%= nextPage %>" class="pagination__btn">
+        <i data-lucide="chevron-right"></i>
+      </a>
+      <% } %>
     </div>
 
-     <!-- BUY MODAL -->
-<div id="buyModal" class="custom-modal">
+  </div>
+</section>
 
-    <div class="custom-modal-content">
-
-        <!-- HEADER -->
-        <div class="modal-header-section">
-
-            <h4>Enter Phone Number</h4>
-
-            <p>
-                Please enter your active phone number
-                for payment processing.
-            </p>
-
-        </div>
-
-        <!-- INPUT -->
-        <div class="modal-input-group">
-
-            <label>
-                Phone Number
-            </label>
-
-            <input 
-                type="text"
-                id="phoneInput"
-                class="modal-input"
-                placeholder="e.g 23481533xxxxx"
-                maxlength="11"
-                inputmode="numeric"
-                pattern="[0-9]*"
-            >
-
-        </div>
-
-        <!-- ERROR -->
-        <small 
-            id="phoneError"
-            style="
-                color:red;
-                display:none;
-                margin-top:5px;
-            "
-        >
-            Enter valid phone number
-        </small>
-
-        <!-- BUTTONS -->
-        <div class="modal-buttons">
-
-            <button 
-                id="cancelBtn"
-                class="modal-btn cancel-btn"
-            >
-                Cancel
-            </button>
-
-            <button 
-                id="checkoutBtn"
-                class="modal-btn success-btn"
-            >
-                Checkout
-            </button>
-
-        </div>
-
+<!-- Buy Modal -->
+<div id="buyModal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <div class="modal-box__header">
+      <h3 class="modal-title">Enter Phone Number</h3>
+      <button class="modal-close" id="cancelBtn" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
     </div>
+    <p class="modal-subtitle">Enter the active number to receive the data bundle</p>
+    <div class="form-group">
+      <label class="form-label">Phone Number</label>
+      <div class="input-wrapper">
+        <i data-lucide="phone"></i>
+        <input type="text" id="phoneInput" class="form-input" placeholder="e.g 08012345678" maxlength="11" inputmode="numeric">
+      </div>
+      <small id="phoneError" style="color:var(--color-error);display:none;margin-top:4px;">Phone number must be exactly 11 digits</small>
+    </div>
+    <div class="modal-actions">
+      <button id="checkoutBtn" class="btn btn--primary btn--full">
+        <i data-lucide="arrow-right"></i>
+        Proceed to Checkout
+      </button>
+    </div>
+  </div>
 </div>
 
-    <!-- FOOTER -->
-     <!-- HEADER -->
-   <%- include('../partials/footer.ejs')%>
+<script>
+// ── Tab switching ──
+document.querySelectorAll('.network-tab-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.network-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.network-panel').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById(this.dataset.tab).classList.add('active');
+  });
+});
 
-    <!--Footer For Mobile-->
-    <div class="mobile-footer">
-        <div class="mobile-footer-inner">
-            <div class="mobile-block block-menu-main">
-                <a class="menu-bar menu-toggle btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
-                    <span class="fa fa-bars"></span>
-                    <span class="text">Menu</span>
-                </a>
-            </div>
-            <div class="mobile-block block-sidebar">
-                <a class="menu-bar filter-toggle btn-toggle" data-object="open-mobile-filter" href="javascript:void(0)">
-                    <i class="fa fa-sliders" aria-hidden="true"></i>
-                    <span class="text">Sidebar</span>
-                </a>
-            </div>
-            <div class="mobile-block block-minicart">
-                <a class="link-to-cart" href="#">
-                    <span class="fa fa-shopping-bag" aria-hidden="true"></span>
-                    <span class="text">Cart</span>
-                </a>
-            </div>
-            <div class="mobile-block block-global">
-                <a class="menu-bar myaccount-toggle btn-toggle" data-object="global-panel-opened" href="javascript:void(0)">
-                    <span class="fa fa-globe"></span>
-                    <span class="text">Global</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="mobile-block-global">
-        <div class="biolife-mobile-panels">
-            <span class="biolife-current-panel-title">Global</span>
-            <a class="biolife-close-btn" data-object="global-panel-opened" href="#">&times;</a>
-        </div>
-        <div class="block-global-contain">
-            <div class="glb-item my-account">
-                <b class="title">My Account</b>
-                <ul class="list">
-                    <li class="list-item"><a href="#">Login/register</a></li>
-                    <li class="list-item"><a href="#">Wishlist <span class="index">(8)</span></a></li>
-                    <li class="list-item"><a href="#">Checkout</a></li>
-                </ul>
-            </div>
-            <div class="glb-item currency">
-                <b class="title">Currency</b>
-                <ul class="list">
-                    <li class="list-item"><a href="#">€ EUR (Euro)</a></li>
-                    <li class="list-item"><a href="#">$ USD (Dollar)</a></li>
-                    <li class="list-item"><a href="#">£ GBP (Pound)</a></li>
-                    <li class="list-item"><a href="#">¥ JPY (Yen)</a></li>
-                </ul>
-            </div>
-            <div class="glb-item languages">
-                <b class="title">Language</b>
-                <ul class="list inline">
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/us.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/fr.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/ger.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/jap.jpg" alt="flag" width="24" height="18"></a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scroll Top Button -->
-    <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
-
-   
-       <script id="checkout-js">
+// ── Buy modal ──
 let selectedPackageId = null;
 
-// Open modal
 document.querySelectorAll('.buy-btn').forEach(btn => {
-    btn.addEventListener('click', function(e){
-        e.preventDefault();
-        selectedPackageId = this.dataset.id;
-        document.getElementById('buyModal').style.display = 'block';
-    });
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    selectedPackageId = this.dataset.id;
+    document.getElementById('buyModal').classList.add('open');
+  });
 });
 
-// ✅ Cancel button FIX
 document.getElementById('cancelBtn').addEventListener('click', () => {
-    document.getElementById('buyModal').style.display = 'none';
+  document.getElementById('buyModal').classList.remove('open');
 });
 
-window.addEventListener('click', (e) => {
-    const modal = document.getElementById('buyModal');
-    if (e.target === modal) {
-        modal.style.display = 'none';
-    }
+document.getElementById('buyModal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
 });
 
-// Checkout
+const phoneInput = document.getElementById('phoneInput');
+const phoneError = document.getElementById('phoneError');
 
-
-
-
-const phoneInput =
-    document.getElementById('phoneInput');
-
-const phoneError =
-    document.getElementById('phoneError');
-
-/* ALLOW ONLY NUMBERS */
-
-phoneInput.addEventListener('input', function () {
-
-    // remove non-numbers
-    this.value =
-        this.value.replace(/\D/g, '');
-
-    // limit to 11 digits
-    if (this.value.length > 11) {
-
-        this.value =
-            this.value.slice(0, 11);
-    }
+phoneInput.addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g, '').slice(0, 11);
 });
-
 
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
-    const phone = phoneInput.value.trim();
-
-     // MUST BE EXACTLY 11 DIGITS
-
-    if (!/^\d{11}$/.test(phone)) {
-
-        phoneError.style.display =
-            'block';
-
-        phoneError.innerText =
-            'Phone number must be exactly 11 digits';
-
-        return;
+  const phone = phoneInput.value.trim();
+  if (!/^\d{11}$/.test(phone)) {
+    phoneError.style.display = 'block';
+    phoneError.innerText = 'Phone number must be exactly 11 digits';
+    return;
+  }
+  phoneError.style.display = 'none';
+  const productId = selectedPackageId;
+  if (!productId) { Swal.fire({ icon: 'error', text: 'No product selected' }); return; }
+  try {
+    const res = await fetch('/checkout/initiate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ packageId: productId, phone })
+    });
+    const data = await res.json();
+    if (data.success) {
+      window.location.href = '/checkout';
+    } else {
+      Swal.fire({ icon: 'error', text: data.message || 'Something went wrong' });
     }
-
-    phoneError.style.display =
-        'none';
-
-    console.log(phone);
-
-    // ✅ pick whichever exists
-    const productId = window.selectedProductId || selectedPackageId;
-
-    if (!phone) {
-        Swal.fire({
-            icon: 'warning',
-            text: 'Enter phone number'
-        });
-        return;
-    }
-
-    if (!productId) {
-        Swal.fire({
-            icon: 'error',
-            text: 'No product selected'
-        });
-        return;
-    }
-
-    try {
-        const res = await fetch('/checkout/initiate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ packageId: productId, phone }) // ✅ unified
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-            window.location.href = '/checkout';
-        } else {
-            Swal.fire({
-                icon: 'error',
-                text: data.message || 'Something went wrong'
-            });
-        }
-
-    } catch (err) {
-        console.error(err);
-        Swal.fire({
-            icon: 'error',
-            text: 'Network error'
-        });
-    }
+  } catch (err) {
+    Swal.fire({ icon: 'error', text: 'Network error' });
+  }
 });
-// //modal
-// const modal = document.getElementById('comingSoonModal');
-
-// // Open modal
-// document.addEventListener('click', function(e) {
-//     if (e.target.closest('.add-to-cart')) {
-//         e.preventDefault();
-//         modal.style.display = 'block';
-//     }
-// });
-
-// // Close modal (X or button)
-// document.querySelectorAll('.close-modal, .close-btn').forEach(btn => {
-//     btn.addEventListener('click', () => {
-//         modal.style.display = 'none';
-//     });
-// });
-
-// // Close when clicking outside
-// window.addEventListener('click', function(e) {
-//     if (e.target === modal) {
-//         modal.style.display = 'none';
-//     }
-// });
-
-
-
-
 </script>

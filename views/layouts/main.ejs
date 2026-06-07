@@ -1,89 +1,277 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
-
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Data Mall</title>
-    <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Poppins:600&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400i,700i" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Ubuntu&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/images/new.PNG"/>
-    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/animate.min.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/nice-select.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/slick.min.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/main-color.css">
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Mall — CTC</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/images/new.PNG">
 
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="/assets/css/new/base.css">
+  <link rel="stylesheet" href="/assets/css/new/layout.css">
+  <link rel="stylesheet" href="/assets/css/new/components.css">
+  <link rel="stylesheet" href="/assets/css/new/home.css">
+  <link rel="stylesheet" href="/assets/css/new/auth.css">
+  <link rel="stylesheet" href="/assets/css/new/data-category.css">
+  <link rel="stylesheet" href="/assets/css/new/wallet.css">
+  <link rel="stylesheet" href="/assets/css/new/history.css">
+  <link rel="stylesheet" href="/assets/css/new/profile.css">
+  <link rel="stylesheet" href="/assets/css/new/checkout.css">
 </head>
-<body class="biolife-body">
+<body>
 
-    
-<main class="main">
-  <%- body %>
-</main>
+  <%- include('../partials/header') %>
 
-    <script src="/assets/js/jquery-3.4.1.min.js"></script>
-    <script src="/assets/js/bootstrap.min.js"></script>
-    <script src="/assets/js/jquery.countdown.min.js"></script>
-    <script src="/assets/js/jquery.nice-select.min.js"></script>
-    <script src="/assets/js/jquery.nicescroll.min.js"></script>
-    <script src="/assets/js/slick.min.js"></script>
-    <script src="/assets/js/biolife.framework.js"></script>
-    <script src="/assets/js/functions.js"></script>
+  <main class="page-main">
+    <%- body %>
+  </main>
 
+  <%- include('../partials/footer') %>
 
+  <!-- Bottom Navigation (mobile only) -->
+  <nav class="bottom-nav" id="bottomNav">
+    <a href="/" class="bottom-nav__item" data-path="/">
+      <i data-lucide="home"></i>
+      <span>Home</span>
+    </a>
+    <a href="/history" class="bottom-nav__item" data-path="/history">
+      <i data-lucide="package"></i>
+      <span>My Order</span>
+    </a>
+    <button type="button" class="bottom-nav__item" id="supportNavBtn">
+      <i data-lucide="message-circle"></i>
+      <span>Support</span>
+    </button>
+    <a href="/user-profile" class="bottom-nav__item" data-path="/user-profile">
+      <i data-lucide="user"></i>
+      <span>My Account</span>
+    </a>
+  </nav>
 
-    <script>
-      
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/6902e0dc1dbd2f194b9a9781/1j8pjsnot';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-    </script>
+  <!-- Claim RP Modal -->
+  <% if (user) { %>
+  <div id="claimRpModal" class="claim-rp-modal">
+    <div class="claim-rp-modal__box">
+      <h4 class="modal-title" style="margin-bottom:6px;">Reward Points</h4>
+      <p class="modal-subtitle">Your accumulated RP balance</p>
+      <div class="claim-rp-modal__amount">
+        <%= user?.rpBalance || 0 %> <span class="claim-rp-modal__unit">RP</span>
+      </div>
+      <div class="modal-actions">
+        <button id="confirmClaimBtn" class="btn btn--primary btn--full">
+          <i data-lucide="check"></i>
+          Confirm Claim
+        </button>
+        <button id="closeClaimModal" class="btn btn--ghost btn--full">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <% } %>
 
+  <!-- Lucide icons render -->
+  <script>lucide.createIcons();</script>
 
-    <!-- <script>
-      document.querySelectorAll('.add-to-cart').forEach(btn => {
-  btn.addEventListener('click', async function(e){
-    e.preventDefault();
+  <!-- Dynamic island scroll behaviour -->
+  <script>
+    (function() {
+      var header = document.querySelector('.app-header');
+      var lastY  = window.scrollY;
 
-    const productId = this.dataset.id;
+      if (!header) return;
 
-    const res = await fetch('/cart/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ productId })
-    });
+      window.addEventListener('scroll', function() {
+        var currentY = window.scrollY;
 
-    const data = await res.json();
+        if (currentY > lastY) {
+          /* scrolling DOWN — hide */
+          header.classList.add('island-hidden');
+        } else {
+          /* scrolling UP — show */
+          header.classList.remove('island-hidden');
+        }
 
-    if(data.success){
-      alert('Added to cart');
-      location.reload(); // refresh cart UI
-    } else {
-      alert(data.message);
+        lastY = currentY;
+      }, { passive: true });
+    })();
+  </script>
+
+  <!-- Bottom nav active state -->
+  <script>
+    (function() {
+      const path = window.location.pathname;
+      document.querySelectorAll('.bottom-nav__item').forEach(function(item) {
+        const p = item.getAttribute('data-path');
+        if (p === '/' ? path === '/' : path.startsWith(p)) {
+          item.classList.add('active');
+        }
+      });
+    })();
+  </script>
+
+  <!-- Search bar logic -->
+  <script>
+    (function() {
+      const searchBtn   = document.getElementById('searchBtn');
+      const searchRow   = document.getElementById('headerSearchRow');
+      const searchInput = document.getElementById('headerSearchInput');
+      const clearBtn    = document.getElementById('clearSearchBtn');
+
+      if (!searchBtn || !searchRow || !searchInput) return;
+
+      function openSearch() {
+        searchRow.classList.add('open');
+        lucide.createIcons();
+        searchInput.focus();
+      }
+
+      function closeSearch() {
+        searchRow.classList.remove('open');
+        searchInput.value = '';
+        if (clearBtn) clearBtn.classList.remove('visible');
+        showAll();
+      }
+
+      function showAll() {
+        document.querySelectorAll('.product-card, .bundle-card').forEach(function(c) {
+          c.style.display = '';
+        });
+        const nr = document.getElementById('searchNoResults');
+        if (nr) nr.style.display = 'none';
+      }
+
+      searchBtn.addEventListener('click', openSearch);
+
+      /* X button clears text only — does not close the overlay */
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+          searchInput.value = '';
+          clearBtn.classList.remove('visible');
+          showAll();
+        });
+      }
+
+      /* Back arrow closes the overlay */
+      var closeSearchBtn = document.getElementById('closeSearchBtn');
+      if (closeSearchBtn) closeSearchBtn.addEventListener('click', closeSearch);
+
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSearch();
+      });
+
+      searchInput.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        if (clearBtn) clearBtn.classList.toggle('visible', q.length > 0);
+
+        const cards = document.querySelectorAll('.product-card, .bundle-card');
+        let visible = 0;
+        cards.forEach(function(card) {
+          const name  = (
+            card.getAttribute('data-name') ||
+            card.querySelector('.product-card__name, .bundle-card__name')?.textContent || ''
+          ).toLowerCase();
+          const brand = (
+            card.getAttribute('data-brand') ||
+            card.querySelector('.product-card__brand, .bundle-card__network')?.textContent || ''
+          ).toLowerCase();
+          const match = !q || name.includes(q) || brand.includes(q);
+          card.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+
+        const nr = document.getElementById('searchNoResults');
+        if (nr) nr.style.display = (q && visible === 0) ? 'block' : 'none';
+      });
+    })();
+  </script>
+
+  <!-- Claim RP -->
+  <script>
+    const claimModal      = document.getElementById('claimRpModal');
+    const openClaimBtn    = document.getElementById('openClaimModal');
+    const closeClaimBtn   = document.getElementById('closeClaimModal');
+    const confirmClaimBtn = document.getElementById('confirmClaimBtn');
+
+    if (openClaimBtn)  openClaimBtn.addEventListener('click',  function(e) { e.preventDefault(); claimModal.classList.add('open'); });
+    if (closeClaimBtn) closeClaimBtn.addEventListener('click', function()   { claimModal.classList.remove('open'); });
+    if (claimModal)    claimModal.addEventListener('click',    function(e)  { if (e.target === claimModal) claimModal.classList.remove('open'); });
+
+    if (confirmClaimBtn) {
+      confirmClaimBtn.addEventListener('click', async function() {
+        try {
+          confirmClaimBtn.disabled = true;
+          confirmClaimBtn.textContent = 'Processing...';
+          const res  = await fetch('/wallet/claim-rp', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          const data = await res.json();
+          if (data.success) {
+            Swal.fire({ icon: 'success', text: data.message });
+            setTimeout(() => location.reload(), 1500);
+          } else {
+            Swal.fire({ icon: 'error', text: data.message });
+            confirmClaimBtn.disabled = false;
+            confirmClaimBtn.textContent = 'Confirm Claim';
+          }
+        } catch (e) {
+          Swal.fire({ icon: 'error', text: 'Claim failed' });
+          confirmClaimBtn.disabled = false;
+          confirmClaimBtn.textContent = 'Confirm Claim';
+        }
+      });
     }
-  });
-});
-    </script> -->
+  </script>
 
-    
+  <!-- Desktop nav: mark active link based on current path -->
+  <script>
+    (function() {
+      var path = window.location.pathname;
+      document.querySelectorAll('.desktop-nav__link').forEach(function(link) {
+        var href = link.getAttribute('href');
+        if (!href) return;
+        if ((href === '/' && path === '/') || (href !== '/' && path.startsWith(href))) {
+          link.classList.add('active');
+        }
+      });
+    })();
+  </script>
 
-  
+  <!-- Support nav button → opens Tawk.to chat -->
+  <script>
+    (function() {
+      var supportBtn = document.getElementById('supportNavBtn');
+      if (!supportBtn) return;
+      supportBtn.addEventListener('click', function() {
+        if (typeof Tawk_API !== 'undefined' && typeof Tawk_API.maximize === 'function') {
+          Tawk_API.maximize();
+        }
+      });
+    })();
+  </script>
+
+  <!-- Tawk.to live chat — bubble hidden; opened via Support button -->
+  <script>
+    var Tawk_API = Tawk_API || {};
+    Tawk_API.onLoad = function() { Tawk_API.hideWidget(); };
+    var Tawk_LoadStart = new Date();
+    (function() {
+      var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = 'https://embed.tawk.to/6902e0dc1dbd2f194b9a9781/1j8pjsnot';
+      s1.charset = 'UTF-8';
+      s1.setAttribute('crossorigin', '*');
+      s0.parentNode.insertBefore(s1, s0);
+    })();
+  </script>
+
 </body>
-
 </html>

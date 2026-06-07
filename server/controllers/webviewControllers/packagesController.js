@@ -1647,14 +1647,16 @@ exports.previewUSDTConversion = async (req, res) => {
 
 exports.userProfile = async (req,res)=>{
   try{
-    const userId = req.user.id
-   const user = await User.findById({_id:userId});
-    res.render('webview/profile',{user})
-
+    const userId = req.user.id;
+    const [user, recentOrders, recentTopups] = await Promise.all([
+      User.findById(userId),
+      Transaction.find({ user: userId }).sort({ createdAt: -1 }).limit(5).populate('product products.product'),
+      TopUp.find({ user: userId, status: 'COMPLETED' }).sort({ createdAt: -1 }).limit(5)
+    ]);
+    res.render('webview/profile', { user, recentOrders, recentTopups });
   }catch(error){
     console.log(error)
   }
-
 }
 
 exports.editUserProfile = async (req, res) => {

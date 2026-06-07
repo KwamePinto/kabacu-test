@@ -1,179 +1,103 @@
+<script>
+  const successMsg = <%- JSON.stringify(success_msg) %>;
+  const errorMsg   = <%- JSON.stringify(error_msg) %>;
+  if (successMsg.length > 0) Swal.fire({ icon: 'success', text: successMsg[0] });
+  if (errorMsg.length   > 0) Swal.fire({ icon: 'error',   text: errorMsg[0] });
+</script>
 
+<section class="auth-page">
+  <div class="auth-card">
 
-    <!-- Preloader -->
-    <!-- <div id="biof-loading">
-        <div class="biof-loading-center">
-            <div class="biof-loading-center-absolute">
-                <div class="dot dot-one"></div>
-                <div class="dot dot-two"></div>
-                <div class="dot dot-three"></div>
-            </div>
+    <div class="auth-card__logo">
+      <img src="/assets/images/new.PNG" alt="Data Mall">
+    </div>
+
+    <h1 class="auth-card__title">Create your account</h1>
+    <p class="auth-card__sub">Save up to 80% on your purchases!</p>
+
+    <form action="/user/signup" id="signupForm" method="post" class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <div class="input-wrapper">
+          <i data-lucide="user"></i>
+          <input type="text" name="username" class="form-input" placeholder="Choose a username" required>
         </div>
-    </div> -->
+      </div>
 
-     <script>
-        <!-- ✅ Your SweetAlert Logic -->
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <div class="input-wrapper">
+          <i data-lucide="mail"></i>
+          <input type="email" name="email" class="form-input" placeholder="you@example.com" required>
+        </div>
+      </div>
 
-    const successMsg = <%- JSON.stringify(success_msg) %>;
-    const errorMsg = <%- JSON.stringify(error_msg) %>;
+      <div class="form-group">
+        <label class="form-label">Country</label>
+        <div class="input-wrapper">
+          <i data-lucide="map-pin"></i>
+          <select name="country"  class="form-input form-select" required>
+             <% Object.entries(countryNames).forEach(([code, name]) => { %>
+            
+            <option value="<%= name %>"> <%= name %></option>
 
-    if (successMsg.length > 0) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: successMsg[0]
-        });
-    }
+            <% }) %>
+          
+            
+          </select>
+        </div>
+      </div>
 
-    if (errorMsg.length > 0) {
+      <div class="form-group">
+        <label class="form-label">Miner ID <span style="font-weight:400;color:var(--color-muted);">(optional)</span></label>
+        <div class="input-wrapper">
+          <i data-lucide="cpu"></i>
+          <input type="text" name="minerId" class="form-input" placeholder="Your miner ID">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrapper">
+          <i data-lucide="lock"></i>
+          <input type="password" name="password" id="password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="input-wrapper">
+          <i data-lucide="lock"></i>
+          <input type="password" id="confirm_password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--full btn--lg">Create Account</button>
+    </form>
+
+    <div class="auth-divider"><span>Already have an account?</span></div>
+
+    <a href="/user/login" class="btn btn--outline btn--full">Sign in</a>
+  </div>
+</section>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e){
+
+    const password =
+        document.getElementById('password').value;
+
+    const confirmPassword =
+        document.getElementById('confirm_password').value;
+
+    if(password !== confirmPassword){
+
+        e.preventDefault();
+
         Swal.fire({
             icon: 'error',
-            title: 'Error',
-            text: errorMsg[0]
+            text: 'Passwords do not match'
         });
     }
-
-
-    </script>
-<%- include('../partials/header.ejs')%>
-
-    <!--Hero Section-->
-    <div class="hero-section hero-background">
-        <h1 class="page-title">Join The Family</h1>
-    </div>
-
-    <!--Navigation section-->
-    <div class="container">
-        <nav class="biolife-nav">
-            <ul>
-                <li class="nav-item"><a href="/" class="permal-link">Home</a></li>
-                <li class="nav-item"><span class="current-page">Signup</span></li>
-            </ul>
-        </nav>
-    </div>
-
-    <div class="page-contain login-page">
-
-        <!-- Main content -->
-        <div id="main-content" class="main-content">
-            <div class="container">
-
-                <div class="row">
-
-                    <!--Form Sign In-->
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                        <div class="signin-container">
-                            <form action="/user/signup" name="frm-login" method="post">
-                                <p class="form-row">
-                                    <label for="fid-name">Username:<span class="requite">*</span></label>
-                                    <input type="text" id="fid-name" name="username"  class="txt-input"  required>
-                                </p>
-                                <p class="form-row">
-                                    <label for="fid-name">Email Address:<span class="requite">*</span></label>
-                                    <input type="email" id="fid-name" name="email"  class="txt-input" required>
-                                </p>
-                                 <p class="form-row form-group">
-                                    <label for="fid-name">Country:<span class="requite">*</span></label>
-                                   
-                                     <select name="country" class="select" required>
-                                        <option value="nigeria">Nigeria</option>
-                                        <option value="ghana">Ghana</option>
-                                    </select>
-                                </p> 
-                                <br><br>
-                                <p class="form-row">
-                                    <label for="fid-pass">Miner ID(Optional):<span class="requite">*</span></label>
-                                    <input type="text" id="fid-pass" name="minerId" value="" class="txt-input">
-                                </p>
-                                <p class="form-row">
-                                    <label for="fid-pass">Password:<span class="requite">*</span></label>
-                                    <input type="password" id="fid-pass" name="password" value="" class="txt-input" required minlength="6">
-                                </p>
-                                
-                                <p class="form-row wrap-btn">
-                                    <button class="btn btn-submit btn-bold" type="submit">sign up</button>
-                                    <!-- <a href="#" class="link-to-help">Forgot your password</a> -->
-                                </p>
-                            </form>
-                        </div>
-                    </div>
-
-                    
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-<%- include('../partials/footer.ejs')%>
-
-    <!--Footer For Mobile-->
-    <div class="mobile-footer">
-        <div class="mobile-footer-inner">
-            <div class="mobile-block block-menu-main">
-                <a class="menu-bar menu-toggle btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
-                    <span class="fa fa-bars"></span>
-                    <span class="text">Menu</span>
-                </a>
-            </div>
-            <div class="mobile-block block-sidebar">
-                <a class="menu-bar filter-toggle btn-toggle" data-object="open-mobile-filter" href="javascript:void(0)">
-                    <i class="fa fa-sliders" aria-hidden="true"></i>
-                    <span class="text">Sidebar</span>
-                </a>
-            </div>
-            <div class="mobile-block block-minicart">
-                <a class="link-to-cart" href="#">
-                    <span class="fa fa-shopping-bag" aria-hidden="true"></span>
-                    <span class="text">Cart</span>
-                </a>
-            </div>
-            <div class="mobile-block block-global">
-                <a class="menu-bar myaccount-toggle btn-toggle" data-object="global-panel-opened" href="javascript:void(0)">
-                    <span class="fa fa-globe"></span>
-                    <span class="text">Global</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="mobile-block-global">
-        <div class="biolife-mobile-panels">
-            <span class="biolife-current-panel-title">Global</span>
-            <a class="biolife-close-btn" data-object="global-panel-opened" href="#">&times;</a>
-        </div>
-        <div class="block-global-contain">
-            <div class="glb-item my-account">
-                <b class="title">My Account</b>
-                <ul class="list">
-                    <li class="list-item"><a href="#">Login/register</a></li>
-                    <li class="list-item"><a href="#">Wishlist <span class="index">(8)</span></a></li>
-                    <li class="list-item"><a href="#">Checkout</a></li>
-                </ul>
-            </div>
-            <div class="glb-item currency">
-                <b class="title">Currency</b>
-                <ul class="list">
-                    <li class="list-item"><a href="#">€ EUR (Euro)</a></li>
-                    <li class="list-item"><a href="#">$ USD (Dollar)</a></li>
-                    <li class="list-item"><a href="#">£ GBP (Pound)</a></li>
-                    <li class="list-item"><a href="#">¥ JPY (Yen)</a></li>
-                </ul>
-            </div>
-            <div class="glb-item languages">
-                <b class="title">Language</b>
-                <ul class="list inline">
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/us.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/fr.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/ger.jpg" alt="flag" width="24" height="18"></a></li>
-                    <li class="list-item"><a href="#"><img src="assets/images/languages/jap.jpg" alt="flag" width="24" height="18"></a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scroll Top Button -->
-    <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
-
+});
+</script>

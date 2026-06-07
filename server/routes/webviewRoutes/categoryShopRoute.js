@@ -13,6 +13,8 @@ router.get('/automobile-category',getCategory.automobileCategory)
 
 router.get('/course-category',getCategory.courseCategory)
 
+router.get('/p2p-category',getCategory.p2pCategory)
+
 
 
 

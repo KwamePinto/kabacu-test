@@ -1,0 +1,183 @@
+/* =========================================================
+   PROFILE / MY ACCOUNT — clean app-style account page
+   ========================================================= */
+
+.acct-page {
+  padding: 8px 0 80px;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Avatar + identity ──────────────────────────────────── */
+.acct-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 4px;
+  text-align: center;
+}
+
+.acct-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--white);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 24px rgba(21, 168, 68, .28);
+}
+
+.acct-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.acct-email {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ── Balances ───────────────────────────────────────────── */
+.acct-balances {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.acct-balance-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.acct-balance-card svg {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+}
+
+.acct-balance-card__val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.acct-balance-card__lbl {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ── Sections ───────────────────────────────────────────── */
+.acct-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.acct-section__title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 2px;
+}
+
+/* ── Quick-link rows ────────────────────────────────────── */
+.acct-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.acct-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  text-decoration: none;
+  transition: background .15s;
+  border-bottom: 1px solid var(--border);
+}
+
+.acct-link:last-child { border-bottom: none; }
+.acct-link:hover { background: var(--bg); }
+.acct-link--static { cursor: default; }
+.acct-link--static:hover { background: transparent; }
+
+.acct-link__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--primary-light, #e8f8ee);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.acct-link__icon svg {
+  width: 18px;
+  height: 18px;
+  color: var(--primary);
+}
+
+.acct-link__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.acct-link__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.acct-link__sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.acct-link__arrow {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* ── Card wrapper for edit form ─────────────────────────── */
+.acct-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
