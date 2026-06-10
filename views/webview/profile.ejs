@@ -21,7 +21,7 @@
   <div class="acct-balances">
     <div class="acct-balance-card">
       <i data-lucide="wallet"></i>
-      <div class="acct-balance-card__val">₦<%= (user.walletBalance || 0).toLocaleString() %></div>
+      <div class="acct-balance-card__val">₦<%= ((wallet && wallet.balances && wallet.balances.NAIRA) || 0).toLocaleString() %></div>
       <div class="acct-balance-card__lbl">Wallet Balance</div>
     </div>
     <div class="acct-balance-card">

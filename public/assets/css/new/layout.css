@@ -254,11 +254,26 @@
 .bottom-nav__item.active { color: var(--primary); }
 .bottom-nav__item:hover  { color: var(--primary); }
 
+/* ── Page transitions ───────────────────────────────────── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes page-leave {
+  to { opacity: 0; transform: translateY(-6px); }
+}
+
 /* ── Page main ──────────────────────────────────────────── */
 /* island top(14) + header(50) + gap(16) ≈ 80px */
 .page-main {
   min-height: calc(100vh - 76px);
   padding-top: 82px;
+  animation: page-enter .32s cubic-bezier(.22,.61,.36,1) both;
+}
+
+body.is-leaving .page-main {
+  animation: page-leave .2s ease forwards;
 }
 
 /* ── Page hero (inner pages) ────────────────────────────── */
@@ -436,10 +451,50 @@
     border-bottom: 1px solid var(--border);
     box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
     padding: 0;
+    transition: transform .35s cubic-bezier(.4,0,.2,1), background-color .3s, box-shadow .3s, border-color .3s;
   }
 
   .app-header.island-hidden {
     transform: translateY(-100%);  /* no floating gap on desktop */
+  }
+
+  /* ── Transparent mode — hero section visible behind header ── */
+  .app-header.hero-transparent {
+    background: #155e34 !important;
+    -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid rgba(255,255,255,.1) !important;
+  }
+
+  .app-header.hero-transparent .app-header__logo img {
+    filter: brightness(0) invert(1);
+  }
+
+  .app-header.hero-transparent .desktop-nav__link {
+    color: rgba(255,255,255,.8);
+  }
+
+  .app-header.hero-transparent .desktop-nav__link:hover {
+    color: var(--white);
+    background: rgba(255,255,255,.12);
+  }
+
+  .app-header.hero-transparent .desktop-nav__link.active {
+    color: var(--white);
+  }
+
+  .app-header.hero-transparent .app-header__icon-btn {
+    background: rgba(255,255,255,.12);
+  }
+
+  .app-header.hero-transparent .app-header__icon-btn svg {
+    color: var(--white);
+  }
+
+  .app-header.hero-transparent .app-header__login-btn {
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.38);
   }
 
   .app-header__inner {

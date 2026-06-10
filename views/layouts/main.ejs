@@ -258,6 +258,32 @@
     })();
   </script>
 
+  <!-- Page transition — fade out on navigate, fade in on load -->
+  <script>
+    (function() {
+      document.addEventListener('click', function(e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href) return;
+        /* skip anchors, special protocols, new-tab links, downloads */
+        var ch = href.charAt(0);
+        if (ch === '#' || href.indexOf('javascript') === 0 ||
+            href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) return;
+        if (link.target === '_blank' || link.hasAttribute('download')) return;
+        /* skip cross-origin */
+        try {
+          var url = new URL(href, window.location.href);
+          if (url.origin !== window.location.origin) return;
+        } catch (err) { return; }
+        e.preventDefault();
+        document.body.classList.add('is-leaving');
+        var dest = href;
+        setTimeout(function() { window.location.href = dest; }, 200);
+      });
+    })();
+  </script>
+
   <!-- Tawk.to live chat — bubble hidden; opened via Support button -->
   <script>
     var Tawk_API = Tawk_API || {};

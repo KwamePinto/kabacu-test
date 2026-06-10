@@ -453,3 +453,61 @@ exports.logout = (req, res) => {
     res.clearCookie('user_token')
     res.redirect('/')
 }
+
+exports.resetPassword = async (req, res) => {
+  res.render('webview/reset-password');
+};
+
+exports.resetPasswordPost = async (req, res) => {
+  try {
+    let { email, currentPassword, newPassword, confirmPassword } = req.body;
+
+    email           = email?.trim().toLowerCase();
+    currentPassword = currentPassword?.trim();
+    newPassword     = newPassword?.trim();
+    confirmPassword = confirmPassword?.trim();
+
+    if (!email || !currentPassword || !newPassword || !confirmPassword) {
+      req.flash('error', 'All fields are required');
+      return res.redirect('/user/reset-password');
+    }
+
+    if (!validator.isEmail(email)) {
+      req.flash('error', 'Invalid email address');
+      return res.redirect('/user/reset-password');
+    }
+
+    if (newPassword.length < 6) {
+      req.flash('error', 'New password must be at least 6 characters');
+      return res.redirect('/user/reset-password');
+    }
+
+    if (newPassword !== confirmPassword) {
+      req.flash('error', 'New passwords do not match');
+      return res.redirect('/user/reset-password');
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      req.flash('error', 'No account found with that email address');
+      return res.redirect('/user/reset-password');
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      req.flash('error', 'Current password is incorrect');
+      return res.redirect('/user/reset-password');
+    }
+
+    user.password = await bcrypt.hash(newPassword, saltRounds);
+    await user.save();
+
+    req.flash('success', 'Password updated successfully. Please sign in with your new password.');
+    return res.redirect('/user/login');
+
+  } catch (error) {
+    console.log('RESET PASSWORD ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/reset-password');
+  }
+};

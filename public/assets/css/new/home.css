@@ -21,7 +21,7 @@
   align-items: flex-end;
   padding: 28px 24px;
   opacity: 0;
-  transition: opacity .55s ease;
+  transition: opacity .65s cubic-bezier(.4,0,.2,1);
   pointer-events: none;
 }
 
@@ -103,6 +103,19 @@
 }
 
 .promo-slide__btn:hover { opacity: .9; }
+
+/* Hidden on mobile — desktop CSS enables it */
+.promo-slide__caption { display: none; }
+
+/* Desktop-only decorative hero elements hidden on mobile */
+.hero-bg-pattern,
+.hero-wave { display: none; }
+
+/* Dots wrapper — spacing for mobile (desktop overrides below) */
+.hero-dots-wrap {
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
 
 /* ── Dot indicators ──────────────────────────────────────── */
 .promo-dots {
@@ -370,104 +383,146 @@
 
   .desktop-section { display: block; }
 
-  /* ── Hero carousel — full-bleed image, floating card on right ── */
-  .promo-carousel {
-    height: 560px;
-    border-radius: 24px;
-    margin: 0 32px;
+  /* ── Hero section — green bg, curved wave base ──────────── */
+  .hero-section {
+    background: #155e34;
+    padding: 108px 0 0;
+    position: relative;
+    overflow: visible;
+  }
+
+  /* ── Background watermark pattern ───────────────────────── */
+  .hero-bg-pattern {
+    display: block;
+    position: absolute;
+    inset: -20%;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+    font-size: 58px;
+    font-weight: 900;
+    color: rgba(255,255,255,.055);
+    line-height: 1.7;
+    letter-spacing: 0.05em;
+    word-spacing: 18px;
+    transform: rotate(-13deg);
     overflow: hidden;
   }
 
-  /* Full-cover image, no blur, no clip */
+  /* ── Text + carousel above pattern ──────────────────────── */
+  .hero-section__header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-title {
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 18px;
+    transition: opacity .4s ease;
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    color: rgba(255, 255, 255, .62);
+    line-height: 1.8;
+    max-width: 540px;
+    margin: 0 auto;
+    transition: opacity .4s ease;
+  }
+
+  /* ── Wave curve at hero bottom ───────────────────────────── */
+  .hero-wave {
+    display: block;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 1;
+    pointer-events: none;
+    line-height: 0;
+  }
+
+  .hero-wave svg {
+    display: block;
+    width: 100%;
+    height: 120px;
+  }
+
+  /* ── Carousel — centred card, floats above the wave ─────── */
+  .promo-carousel {
+    height: 440px;
+    border-radius: 20px;
+    width: calc(100% - 180px);
+    max-width: 860px;
+    margin: 0 auto -160px;
+    overflow: hidden;
+    position: relative;
+    z-index: 3; /* above wave (1) and pattern (0) */
+  }
+
+  /* Full-cover image */
   .promo-slide__bg-img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center top;
     clip-path: none;
     filter: none;
     transform: none;
   }
 
-  /* No full-screen overlay — card handles its own readability */
-  .promo-slide__overlay { display: none; }
+  .promo-slide { background: #111; align-items: stretch; padding: 0; }
 
-  .promo-slide { background: #f2ede6; align-items: center; padding: 0; justify-content: flex-end; }
+  /* Bottom gradient for caption legibility */
+  .promo-slide__overlay {
+    display: block;
+    background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.08) 45%, transparent 65%);
+  }
 
-  /* Floating glass card pinned to the right */
-  .promo-slide__content {
-    position: absolute;
-    top: 50%;
-    right: 7%;
-    left: auto;
-    bottom: auto;
-    transform: translateY(-50%);
-    z-index: 5;
-    width: 330px;
-    text-align: left;
+  /* Mobile text hidden — heading lives above the card on desktop */
+  .promo-slide__content { display: none; }
+
+  /* Caption — text only, no avatar */
+  .promo-slide__caption {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    /* warm cream card */
-    background: rgba(244, 239, 228, 0.91);
-    -webkit-backdrop-filter: blur(6px);
-            backdrop-filter: blur(6px);
-    border-radius: 4px;
-    box-shadow: 0 12px 48px rgba(0,0,0,.14);
-    padding: 40px 36px;
-    margin: 0;
-    max-width: none;
+    gap: 6px;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 28px 32px;
+    z-index: 5;
   }
 
-  /* Small label above title */
-  .promo-slide__tag {
-    background: transparent;
-    color: var(--primary);
-    padding: 0;
-    border-radius: 0;
-    font-size: 11px;
+  .promo-slide__caption-text {
+    font-size: 20px;
     font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-  }
-
-  /* Large warm-dark heading */
-  .promo-slide__title {
-    color: #2a1f0e;
-    font-size: 34px;
-    line-height: 1.15;
-    max-width: none;
-    margin: 0;
-  }
-
-  /* Muted description */
-  .promo-slide__sub {
-    color: rgba(42, 31, 14, .58);
-    font-size: 13px;
-    line-height: 1.65;
-    margin-bottom: 6px;
-  }
-
-  /* Button */
-  .promo-slide__btn {
-    background: var(--primary);
     color: var(--white);
-    padding: 12px 28px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    line-height: 1.35;
+    max-width: 520px;
   }
 
-  /* Badge not used */
-  .promo-slide__badge { display: none; }
+  .promo-slide__caption-author { display: none; }
+  .promo-slide__caption-meta   { display: none; }
+  .promo-slide__badge          { display: none; }
 
-  /* Dots centred below hero */
-  .promo-dots { margin: 16px 0 0; padding-left: 0; justify-content: center; }
-  .promo-carousel + .container { margin-top: 0; }
+  /* ── Dots wrap — white area below overflowing card ──────── */
+  .hero-dots-wrap {
+    padding-top: 178px;
+    padding-bottom: 12px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 3;
+  }
+
+  .promo-dot { background: var(--border); }
+  .promo-dot--active { background: var(--primary); }
+  .promo-dots { margin: 0; padding-left: 0; justify-content: center; }
 
   /* ── Section headings — centred on desktop ─────────────── */
   .sec-header {
