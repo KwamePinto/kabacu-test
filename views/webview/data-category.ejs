@@ -15,7 +15,7 @@
       <% let tabIdx = 0; %>
       <% for (let network in groupedProducts) { %>
       <button
-        class="tab-btn network-tab-btn <%= tabIdx === 0 ? 'active' : '' %>"
+        class="tab-btn network-tab-btn <%= network === activeNetwork ? 'active' : '' %>"
         data-tab="net_<%= tabIdx %>"
       >
         <%= network %>
@@ -24,10 +24,11 @@
       <% } %>
     </div>
 
-    <!-- Network panels -->
+    <!-- Network panels — each has its own pagination if needed -->
     <% let panelIdx = 0; %>
     <% for (let network in groupedProducts) { %>
-    <div id="net_<%= panelIdx %>" class="tab-panel network-panel <%= panelIdx === 0 ? 'active' : '' %>">
+    <% const npag = netPagination[network]; %>
+    <div id="net_<%= panelIdx %>" class="tab-panel network-panel <%= network === activeNetwork ? 'active' : '' %>">
       <div class="bundle-grid">
         <% groupedProducts[network].forEach(function(product) { %>
         <div class="bundle-card">
@@ -58,29 +59,30 @@
         </div>
         <% }) %>
       </div>
+
+      <% if (npag && npag.pages > 1) { %>
+      <div class="pagination">
+        <% if (npag.hasPrev) { %>
+        <a href="/category/data-category?network=<%= network %>&page=<%= npag.current - 1 %>" class="pagination__btn">
+          <i data-lucide="chevron-left"></i>
+        </a>
+        <% } %>
+        <% for (let i = 1; i <= npag.pages; i++) { %>
+        <a href="/category/data-category?network=<%= network %>&page=<%= i %>"
+           class="pagination__page <%= i === npag.current ? 'active' : '' %>">
+          <%= i %>
+        </a>
+        <% } %>
+        <% if (npag.hasNext) { %>
+        <a href="/category/data-category?network=<%= network %>&page=<%= npag.current + 1 %>" class="pagination__btn">
+          <i data-lucide="chevron-right"></i>
+        </a>
+        <% } %>
+      </div>
+      <% } %>
     </div>
     <% panelIdx++; %>
     <% } %>
-
-    <!-- Pagination -->
-    <div class="pagination">
-      <% if (hasPrevPage) { %>
-      <a href="/category/data-category?page=<%= prevPage %>" class="pagination__btn">
-        <i data-lucide="chevron-left"></i>
-      </a>
-      <% } %>
-      <% for (let i = 1; i <= pages; i++) { %>
-      <a href="/category/data-category?page=<%= i %>"
-         class="pagination__page <%= i == current ? 'active' : '' %>">
-        <%= i %>
-      </a>
-      <% } %>
-      <% if (hasNextPage) { %>
-      <a href="/category/data-category?page=<%= nextPage %>" class="pagination__btn">
-        <i data-lucide="chevron-right"></i>
-      </a>
-      <% } %>
-    </div>
 
   </div>
 </section>
@@ -97,11 +99,17 @@
     <p class="modal-subtitle">Enter the active number to receive the data bundle</p>
     <div class="form-group">
       <label class="form-label">Phone Number</label>
-      <div class="input-wrapper">
-        <i data-lucide="phone"></i>
-        <input type="text" id="phoneInput" class="form-input" placeholder="e.g 08012345678" maxlength="11" inputmode="numeric">
+      <div class="phone-field">
+        <select class="phone-field__code" id="countryCode">
+          <option value="+234">🇳🇬 +234</option>
+        </select>
+        <input type="tel" id="phoneInput" class="phone-field__num"
+               placeholder="XXX XXX XXXX" maxlength="10" inputmode="numeric"
+               autocomplete="tel-national">
       </div>
-      <small id="phoneError" style="color:var(--color-error);display:none;margin-top:4px;">Phone number must be exactly 11 digits</small>
+      <small id="phoneError" style="color:var(--error);display:none;margin-top:6px;">
+        Enter a valid 10-digit Nigerian number (e.g. 801 234 5678)
+      </small>
     </div>
     <div class="modal-actions">
       <button id="checkoutBtn" class="btn btn--primary btn--full">
@@ -142,21 +150,33 @@ document.getElementById('buyModal').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('open');
 });
 
-const phoneInput = document.getElementById('phoneInput');
-const phoneError = document.getElementById('phoneError');
+const phoneInput   = document.getElementById('phoneInput');
+const countryCode  = document.getElementById('countryCode');
+const phoneError   = document.getElementById('phoneError');
 
+/* Strip non-digits and cap at 10 */
 phoneInput.addEventListener('input', function() {
-  this.value = this.value.replace(/\D/g, '').slice(0, 11);
+  this.value = this.value.replace(/\D/g, '').slice(0, 10);
 });
 
+/* Nigeria: 10 digits after +234, first digit must be 7, 8 or 9 */
+function validateNGPhone(num) {
+  return /^[789]\d{9}$/.test(num);
+}
+
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
-  const phone = phoneInput.value.trim();
-  if (!/^\d{11}$/.test(phone)) {
+  const num   = phoneInput.value.trim();
+  const code  = countryCode.value;         /* e.g. "+234" */
+
+  if (!validateNGPhone(num)) {
     phoneError.style.display = 'block';
-    phoneError.innerText = 'Phone number must be exactly 11 digits';
     return;
   }
   phoneError.style.display = 'none';
+
+  /* Combine into international format: +234XXXXXXXXXX */
+  const phone = code + num;
+
   const productId = selectedPackageId;
   if (!productId) { Swal.fire({ icon: 'error', text: 'No product selected' }); return; }
   try {

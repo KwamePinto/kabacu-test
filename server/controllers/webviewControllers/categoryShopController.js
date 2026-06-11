@@ -8,39 +8,45 @@ const { authenticateUser } = require('../../config/authMiddleware');
 
 
 
-exports.dataCategory =async (req, res) => {
+exports.dataCategory = async (req, res) => {
   try {
+    const perPage  = 12;
+    const reqNet   = (req.query.network || '').toUpperCase();
+    const reqPage  = parseInt(req.query.page) || 1;
 
-       let perPage = 6;
-    let page = req.query.page || 1; 
-    let query = req.query.query || '';
-    //let searchCondition = { users_id: req.userId };
-    const dataProducts = await Product.find({ category: 'DATA' }).sort({ createdAt: -1 });
-    const count = await Product.find({ category: 'DATA' }).countDocuments();
-    console.log("count doc", count)
+    /* Fetch all DATA products sorted: network A-Z, newest first within each */
+    const all = await Product.find({ category: 'DATA' })
+      .sort({ 'dataDetails.network': 1, createdAt: -1 });
 
-    // 🔥 Group by network
-    const groupedProducts = {};
-
-    dataProducts.forEach(product => {
-      const network = product.dataDetails.network || 'OTHERS';
-
-      if (!groupedProducts[network]) {
-        groupedProducts[network] = [];
-      }
-
-      groupedProducts[network].push(product);
+    /* Group every product by network */
+    const allGrouped = {};
+    all.forEach(p => {
+      const net = (p.dataDetails.network || 'OTHERS').toUpperCase();
+      if (!allGrouped[net]) allGrouped[net] = [];
+      allGrouped[net].push(p);
     });
 
+    /* Build per-network page slices + pagination metadata */
+    const groupedProducts = {};
+    const netPagination   = {};
+
+    for (const net of Object.keys(allGrouped)) {
+      const items = allGrouped[net];
+      const pages = Math.ceil(items.length / perPage) || 1;
+      /* Only the requested network uses the requested page; others default to 1 */
+      const page  = Math.min(Math.max(reqNet === net ? reqPage : 1, 1), pages);
+
+      groupedProducts[net] = items.slice((page - 1) * perPage, page * perPage);
+      netPagination[net]   = { pages, current: page, hasNext: page < pages, hasPrev: page > 1 };
+    }
+
+    const networks      = Object.keys(groupedProducts);
+    const activeNetwork = reqNet && networks.includes(reqNet) ? reqNet : (networks[0] || '');
 
     res.render('webview/data-category', {
       groupedProducts,
-        current: page,
-		pages: Math.ceil(count / perPage),
-		hasNextPage: (page * perPage) < count,
-		nextPage: parseInt(page) + 1,
-		 hasPrevPage: page > 1,
-		 prevPage: parseInt(page) - 1,
+      netPagination,
+      activeNetwork,
     });
 
   } catch (error) {

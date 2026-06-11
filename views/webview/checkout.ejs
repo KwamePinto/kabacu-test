@@ -97,10 +97,17 @@
     <form action="/update-checkout/<%= checkout._id %>" method="POST">
       <div class="form-group">
         <label class="form-label">Phone Number</label>
-        <div class="input-wrapper">
-          <i data-lucide="phone"></i>
-          <input type="text" name="phone" value="<%= checkout.phone %>" class="form-input">
+        <div class="phone-field">
+          <select class="phone-field__code" id="editCountryCode">
+            <option value="+234">🇳🇬 +234</option>
+          </select>
+          <input type="tel" id="editPhoneInput" name="phone" class="phone-field__num"
+                 placeholder="XXX XXX XXXX" maxlength="10" inputmode="numeric"
+                 autocomplete="tel-national">
         </div>
+        <small id="editPhoneError" style="color:var(--error);display:none;margin-top:6px;">
+          Enter a valid 10-digit Nigerian number (e.g. 801 234 5678)
+        </small>
       </div>
       <div class="form-group">
         <label class="form-label">Network</label>
@@ -168,6 +175,42 @@ deleteModal.addEventListener('click', e => { if (e.target === deleteModal) delet
 document.getElementById('confirmDelete').addEventListener('click', () => {
   window.location.href = '/delete-checkout/<%= checkout._id %>';
 });
+
+// ── Edit modal: phone field ──
+(function() {
+  var editPhone  = document.getElementById('editPhoneInput');
+  var editCode   = document.getElementById('editCountryCode');
+  var editErr    = document.getElementById('editPhoneError');
+  var editForm   = document.querySelector('#editModal form');
+
+  if (!editPhone || !editForm) return;
+
+  /* Pre-fill: strip +234 prefix if already stored in international format */
+  var stored = '<%= checkout.phone %>';
+  if (stored.startsWith('+234')) {
+    editPhone.value = stored.slice(4);
+  } else if (stored.startsWith('0') && stored.length === 11) {
+    editPhone.value = stored.slice(1);   /* local 0XXXXXXXXXX → drop leading 0 */
+  } else {
+    editPhone.value = stored;
+  }
+
+  editPhone.addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+  });
+
+  editForm.addEventListener('submit', function(e) {
+    var num = editPhone.value.trim();
+    if (!/^[789]\d{9}$/.test(num)) {
+      e.preventDefault();
+      editErr.style.display = 'block';
+      return;
+    }
+    editErr.style.display = 'none';
+    /* Write combined international value into the named input before submit */
+    editPhone.value = editCode.value + num;
+  });
+})();
 
 // ── Wallet payment ──
 document.getElementById('walletBtn').addEventListener('click', async () => {

@@ -1,0 +1,407 @@
+{
+  "info": {
+    "_postman_id": "ctc-ecommerce-api-v1",
+    "name": "CTC eCommerce API",
+    "description": "REST API for CTC Data Mall mobile application.\n\n## Authentication\nAll protected endpoints require a Bearer token in the Authorization header:\n```\nAuthorization: Bearer <token>\n```\nThe token is returned by `POST /api/auth/login` and `POST /api/auth/register`.\n\n## Base URL\n`http://localhost:2000` (development)\n\n## Phone Number Format\nAll phone numbers must be Nigerian format: `+234XXXXXXXXXX` (e.g. `+2348012345678`).\nThe API also accepts 10-digit local format (e.g. `8012345678`) and normalises it.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:2000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT token — set automatically after login/register"
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-save token from login / register responses",
+          "if (pm.response.code === 200 || pm.response.code === 201) {",
+          "  try {",
+          "    const json = pm.response.json();",
+          "    if (json.token) pm.collectionVariables.set('token', json.token);",
+          "  } catch(e) {}",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Authentication endpoints — login, register, reset password. No token required.",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"yourpassword\"\n}"
+            },
+            "description": "Authenticate a user. Returns a JWT token valid for 24 hours.\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | User's email address |\n| password | string | Yes | User's password |\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"...\",\n    \"username\": \"john\",\n    \"email\": \"user@example.com\",\n    \"role\": \"users\",\n    \"minerId\": 12345\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"SecurePass123\",\n  \"country\": \"nigeria\",\n  \"phone_number\": \"+2348012345678\",\n  \"minerId\": \"12345\"\n}"
+            },
+            "description": "Create a new user account. Returns a JWT token on success.\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| username | string | Yes | Min 3 characters |\n| email | string | Yes | Valid email |\n| password | string | Yes | Min 8 characters |\n| country | string | Yes | `nigeria` or `ghana` |\n| phone_number | string | No | Nigerian phone number |\n| minerId | string | No | BitToken Miner ID |\n\n**Success 201**\n```json\n{\n  \"success\": true,\n  \"message\": \"Account created successfully\",\n  \"token\": \"eyJ...\",\n  \"user\": { \"id\": \"...\", \"username\": \"johndoe\", ... }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["api", "auth", "reset-password"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"currentPassword\": \"OldPassword123\",\n  \"newPassword\": \"NewPassword456\",\n  \"confirmPassword\": \"NewPassword456\"\n}"
+            },
+            "description": "Reset password by verifying the current password (no email link required).\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| email | string | Yes | Account email |\n| currentPassword | string | Yes | Existing password |\n| newPassword | string | Yes | Min 8 characters |\n| confirmPassword | string | Yes | Must match newPassword |\n\n**Success 200**\n```json\n{ \"success\": true, \"message\": \"Password updated successfully\" }\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "description": "Browse products — publicly accessible, no token needed.",
+      "item": [
+        {
+          "name": "List All Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products?category=DATA&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "category", "value": "DATA", "description": "Filter by category: DATA, AUTOMOBILE, ELECTRONICS, COURSES" },
+                { "key": "page",     "value": "1",    "description": "Page number (default: 1)" },
+                { "key": "limit",    "value": "20",   "description": "Items per page (default: 20)" }
+              ]
+            },
+            "description": "Fetch all products with optional category filter and pagination.\n\n**Query Params**\n| Param | Type | Description |\n|-------|------|-------------|\n| category | string | Optional. DATA, AUTOMOBILE, ELECTRONICS, COURSES |\n| page | number | Page number, default 1 |\n| limit | number | Items per page, default 20 |\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"total\": 48,\n  \"page\": 1,\n  \"pages\": 3,\n  \"products\": [ ... ]\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "List Data Bundles (by network)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products/data?network=MTN&page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "data"],
+              "query": [
+                { "key": "network", "value": "MTN", "description": "Filter active network tab: MTN, GLO, 9MOBILE, AIRTEL" },
+                { "key": "page",    "value": "1",   "description": "Page for the active network (default: 1)" }
+              ]
+            },
+            "description": "Returns data bundles grouped by network with per-network pagination. Use `network` query param to paginate a specific network tab.\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"activeNetwork\": \"MTN\",\n  \"networks\": [\"MTN\", \"GLO\", \"9MOBILE\", \"AIRTEL\"],\n  \"groupedProducts\": {\n    \"MTN\": [ { \"_id\": \"...\", \"dataDetails\": { \"network\": \"MTN\", \"plan_name\": \"1GB\", \"amount\": 300, \"plan_id\": \"...\", \"plan_type\": \"DAILY\" }, \"images\": [\"...\"], \"reward_point\": 5 }, ... ],\n    \"GLO\": [ ... ]\n  },\n  \"netPagination\": {\n    \"MTN\": { \"total\": 24, \"pages\": 2, \"current\": 1, \"hasPrev\": false, \"hasNext\": true }\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Product",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products/:id", "host": ["{{baseUrl}}"], "path": ["api", "products", ":id"], "variable": [{ "key": "id", "value": "PRODUCT_ID_HERE" }] },
+            "description": "Get full details of a single product by its MongoDB ID.\n\n**Success 200**\n```json\n{ \"success\": true, \"product\": { \"_id\": \"...\", ... } }\n```\n\n**404** — product not found"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Checkout",
+      "description": "Manage the active checkout (one per user at a time). All endpoints require authentication.",
+      "item": [
+        {
+          "name": "Initiate Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/checkout", "host": ["{{baseUrl}}"], "path": ["api", "checkout"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packageId\": \"PRODUCT_ID_HERE\",\n  \"phone\": \"+2348012345678\"\n}"
+            },
+            "description": "Create a checkout record for a data bundle purchase. Called before payment.\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| packageId | string | Yes | Product `_id` from the products API |\n| phone | string | Yes | Recipient phone — Nigerian format |\n\n**Success 201**\n```json\n{ \"success\": true, \"checkout\": { \"_id\": \"...\", \"user\": \"...\", \"product\": \"...\", \"phone\": \"+2348012345678\" } }\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Checkout",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/checkout", "host": ["{{baseUrl}}"], "path": ["api", "checkout"] },
+            "description": "Retrieve the user's most recent active checkout with product details populated.\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"checkout\": {\n    \"_id\": \"...\",\n    \"phone\": \"+2348012345678\",\n    \"product\": { \"_id\": \"...\", \"dataDetails\": { ... }, \"images\": [\"...\"] }\n  }\n}\n```\n\n**404** — no active checkout"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Checkout Phone",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/checkout/:id", "host": ["{{baseUrl}}"], "path": ["api", "checkout", ":id"], "variable": [{ "key": "id", "value": "CHECKOUT_ID_HERE" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+2348098765432\"\n}"
+            },
+            "description": "Update the recipient phone number on an existing checkout.\n\n**Path Param** — `id`: checkout `_id`\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| phone | string | Yes | New Nigerian phone number |\n\n**Success 200**\n```json\n{ \"success\": true, \"checkout\": { \"_id\": \"...\", \"phone\": \"+2348098765432\" } }\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Checkout",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/checkout/:id", "host": ["{{baseUrl}}"], "path": ["api", "checkout", ":id"], "variable": [{ "key": "id", "value": "CHECKOUT_ID_HERE" }] },
+            "description": "Remove a checkout record.\n\n**Path Param** — `id`: checkout `_id`\n\n**Success 200**\n```json\n{ \"success\": true, \"message\": \"Checkout removed\" }\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "description": "Wallet balance, payments, top-ups, RP claims, and USDT conversion. All endpoints require authentication.",
+      "item": [
+        {
+          "name": "Get Wallet Balances",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/wallet", "host": ["{{baseUrl}}"], "path": ["api", "wallet"] },
+            "description": "Retrieve all wallet balances for the authenticated user.\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"balances\": {\n    \"BTT\": 0,\n    \"RP\": 125,\n    \"USDT\": 10.5,\n    \"NAIRA\": 5000\n  }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Pay with Wallet (buy data)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/wallet/pay", "host": ["{{baseUrl}}"], "path": ["api", "wallet", "pay"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"PRODUCT_ID_HERE\"\n}"
+            },
+            "description": "Purchase a data bundle using the Naira wallet balance. A checkout record with the recipient phone must already exist (created via `POST /api/checkout`).\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| productId | string | Yes | Product `_id` |\n\n**Flow**\n1. Call `POST /api/checkout` with `packageId` and `phone`\n2. Call `POST /api/wallet/pay` with `productId`\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"message\": \"Payment successful\",\n  \"balance\": 4700,\n  \"rpEarned\": 5,\n  \"transaction\": { ... }\n}\n```\n\n**Failure** — insufficient balance or data API error (wallet is refunded automatically)"
+          },
+          "response": []
+        },
+        {
+          "name": "Start BTT/USDT/RP Top-Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/wallet/topup/start", "host": ["{{baseUrl}}"], "path": ["api", "wallet", "topup", "start"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100,\n  \"balanceType\": \"USDT\"\n}"
+            },
+            "description": "Step 1 of the BitToken top-up flow. Sends an OTP to the user's miner account.\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| amount | number | Yes | Amount to top-up |\n| balanceType | string | Yes | `BTT`, `RP`, or `USDT` |\n\n**Success 200**\n```json\n{ \"success\": true, \"topupId\": \"64abc...\" }\n```\nStore `topupId` — you need it for the confirm step."
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm BTT/USDT/RP Top-Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/wallet/topup/confirm", "host": ["{{baseUrl}}"], "path": ["api", "wallet", "topup", "confirm"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topupId\": \"TOPUP_ID_FROM_START\",\n  \"otp\": \"123456\"\n}"
+            },
+            "description": "Step 2 of the BitToken top-up flow. Verifies the OTP and credits the wallet.\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| topupId | string | Yes | ID returned by `/topup/start` |\n| otp | string | Yes | OTP sent to miner account |\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"message\": \"Top-up confirmed\",\n  \"balances\": { \"BTT\": 0, \"RP\": 0, \"USDT\": 100 }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Claim Reward Points (RP)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/wallet/claim-rp", "host": ["{{baseUrl}}"], "path": ["api", "wallet", "claim-rp"] },
+            "description": "Transfer accumulated RP from the user's pending `rpBalance` into the RP wallet balance.\n\n**Success 200**\n```json\n{ \"success\": true, \"message\": \"25 RP claimed successfully\", \"claimedRP\": 25 }\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Preview USDT → Naira Conversion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/wallet/preview-convert", "host": ["{{baseUrl}}"], "path": ["api", "wallet", "preview-convert"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 10\n}"
+            },
+            "description": "Preview how much Naira a USDT amount would yield (does not deduct balance).\n\n**Body**\n| Field | Type | Required |\n|-------|------|----------|\n| amount | number | Yes |\n\n**Success 200**\n```json\n{ \"success\": true, \"nairaAmount\": 16450.5, \"finalRate\": 1645.05, \"bestRate\": 1661.67 }\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Convert USDT to Naira",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/wallet/convert-usdt", "host": ["{{baseUrl}}"], "path": ["api", "wallet", "convert-usdt"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 10\n}"
+            },
+            "description": "Convert USDT balance to Naira at the best live rate (CoinGecko vs Coinbase) minus 1% markup.\n\n**Body**\n| Field | Type | Required |\n|-------|------|----------|\n| amount | number | Yes — USDT amount to convert |\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"amountConverted\": 10,\n  \"nairaAmount\": 16450.5,\n  \"rates\": { \"coinGeckoRate\": 1655, \"coinbaseRate\": 1661.67, \"bestRate\": 1661.67, \"finalRate\": 1645.05 },\n  \"balances\": { \"USDT\": 0.5, \"NAIRA\": 16450.5 }\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Create PalmPay Payment (Naira Top-Up)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/wallet/palmpay", "host": ["{{baseUrl}}"], "path": ["api", "wallet", "palmpay"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000\n}"
+            },
+            "description": "Initiate a PalmPay payment to top up the Naira wallet. Returns a payment URL to redirect the user to.\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| amount | number | Yes | Amount in Naira |\n\n**Success 200**\n```json\n{ \"success\": true, \"paymentUrl\": \"https://pay.palmpay.com/...\", \"topUpId\": \"64abc...\" }\n```\n\nAfter the user pays, PalmPay calls `POST /api/palmpay/webhook` and the wallet is credited automatically."
+          },
+          "response": []
+        },
+        {
+          "name": "PalmPay Webhook (internal)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/palmpay/webhook", "host": ["{{baseUrl}}"], "path": ["api", "palmpay", "webhook"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"PALM-...\",\n  \"orderStatus\": 4,\n  \"amount\": 500000,\n  \"nonceStr\": \"...\",\n  \"sign\": \"...\"\n}"
+            },
+            "description": "⚠️ This endpoint is called by PalmPay's servers — **not by the mobile app**. It verifies the PalmPay signature and credits the Naira wallet when payment is successful (`orderStatus = 4`).\n\nNo `Authorization` header needed — verified by HMAC signature from PalmPay."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "description": "Order history and retry failed transactions. All endpoints require authentication.",
+      "item": [
+        {
+          "name": "Get Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"],
+              "query": [
+                { "key": "page",  "value": "1",  "description": "Page number" },
+                { "key": "limit", "value": "20", "description": "Items per page" }
+              ]
+            },
+            "description": "Paginated list of the user's transactions, newest first.\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"total\": 12,\n  \"page\": 1,\n  \"pages\": 1,\n  \"transactions\": [\n    {\n      \"_id\": \"...\",\n      \"product\": { \"dataDetails\": { ... } },\n      \"phone\": \"+2348012345678\",\n      \"amount\": 300,\n      \"status\": \"success\",\n      \"rpEarned\": 5,\n      \"reference\": \"PAY-...\",\n      \"createdAt\": \"2025-06-10T...\"\n    }\n  ]\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Retry Failed Transaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/transactions/:id/retry", "host": ["{{baseUrl}}"], "path": ["api", "transactions", ":id", "retry"], "variable": [{ "key": "id", "value": "TRANSACTION_ID_HERE" }] },
+            "description": "Re-attempt a failed data purchase transaction without charging the wallet again.\n\n**Path Param** — `id`: transaction `_id`\n\n**Success 200**\n```json\n{ \"success\": true, \"message\": \"Transaction successful\" }\n```\n\n**Failure**\n```json\n{ \"success\": false, \"message\": \"Data purchase failed\" }\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "description": "View and update user profile. All endpoints require authentication.",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/profile", "host": ["{{baseUrl}}"], "path": ["api", "profile"] },
+            "description": "Fetch the user's full profile including wallet balances, recent orders, and recent top-ups.\n\n**Success 200**\n```json\n{\n  \"success\": true,\n  \"user\": {\n    \"_id\": \"...\",\n    \"username\": \"johndoe\",\n    \"email\": \"johndoe@example.com\",\n    \"phone_number\": \"+2348012345678\",\n    \"minerId\": 12345,\n    \"rpBalance\": 25,\n    \"role\": \"users\"\n  },\n  \"wallet\": { \"BTT\": 0, \"RP\": 100, \"USDT\": 10, \"NAIRA\": 4700 },\n  \"recentOrders\": [ ... ],\n  \"recentTopups\": [ ... ]\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/profile", "host": ["{{baseUrl}}"], "path": ["api", "profile"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe_updated\",\n  \"email\": \"newemail@example.com\",\n  \"minerId\": \"99999\"\n}"
+            },
+            "description": "Update the user's username, email and/or Miner ID. Rejects if email or username is already taken by another account.\n\n**Body**\n| Field | Type | Required | Description |\n|-------|------|----------|-------------|\n| username | string | Yes | New username |\n| email | string | Yes | New email |\n| minerId | string | No | BitToken Miner ID |\n\n**Success 200**\n```json\n{ \"success\": true, \"message\": \"Profile updated\", \"user\": { ... } }\n```"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

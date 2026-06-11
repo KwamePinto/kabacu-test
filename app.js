@@ -121,7 +121,7 @@ app.use('/admin/product', require('./server/routes/adminRoutes/productsRoute'));
 // app.use('/shop', require('./server/routes/shop'));
 // app.use('/admin', require('./server/routes/admin'));
 
-// app.use('/api', require('./server/routes/apis'));
+app.use('/api', require('./server/routes/apiRoutes'));
 
 
 
