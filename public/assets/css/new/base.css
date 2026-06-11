@@ -80,6 +80,9 @@ body {
 
 a { text-decoration: none; color: inherit; transition: color .2s; }
 img { max-width: 100%; display: block; }
+/* <picture> is layout-transparent so the inner <img> sizes against the
+   real wrapper (object-fit / percentage heights work as if no picture) */
+picture { display: contents; }
 ul, ol { list-style: none; }
 button { cursor: pointer; font-family: inherit; border: none; background: none; }
 input, select, textarea { font-family: inherit; font-size: inherit; }

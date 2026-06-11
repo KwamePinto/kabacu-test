@@ -199,6 +199,10 @@
 
 .cat-banner-card__img img { width: 100%; height: 100%; object-fit: cover; }
 
+/* Data Bundles graphic sits on a faint cool-white — match its container so
+   any cover gap blends with the image background instead of showing white */
+.cat-banner-card:nth-child(1) .cat-banner-card__img { background: #f7f8fb; }
+
 /* Odd cards: image right — fade the left edge of the image into white */
 .cat-banner-card:nth-child(odd) .cat-banner-card__img {
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 38%);
@@ -625,6 +629,9 @@
     aspect-ratio: unset;
     background: var(--input-bg);
   }
+
+  /* Data Bundles card: match the graphic's faint cool-white background */
+  .cat-browse__card:nth-child(1) .cat-browse__img-wrap { background: #f7f8fb; }
 
   .cat-browse__img-wrap img {
     width: 100%; height: 100%;
