@@ -95,29 +95,45 @@
 }
 
 /* ── Password visibility toggle ─────────────────────────── */
-.input-wrapper--pw { position: relative; }
+.input-wrapper--pw {
+  position: relative;       /* anchor for the lock SVG */
+  display: flex;
+  align-items: center;
+  height: 50px;
+  background: var(--input-bg);
+  border-radius: var(--r-sm);
+  transition: background .18s;
+}
 
+.input-wrapper--pw:focus-within { background: #e8e8e8; }
+
+/* Input inside the flex row — transparent so wrapper bg shows */
+.input-wrapper--pw .form-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  background: transparent;
+  transition: none;
+  padding-right: 8px;
+}
+
+/* Toggle sits naturally as the last flex child */
 .pw-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: var(--muted);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--r-xs);
+  padding: 0 12px;
+  height: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
   transition: color .15s;
 }
 
 .pw-toggle:hover { color: var(--text); }
 .pw-toggle svg   { width: 17px; height: 17px; pointer-events: none; }
-
-.input-wrapper--pw .form-input { padding-right: 40px; }
 
 /* ── Password strength meter ─────────────────────────────── */
 .pw-strength {
