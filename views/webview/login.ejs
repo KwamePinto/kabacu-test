@@ -26,9 +26,13 @@
 
       <div class="form-group">
         <label class="form-label">Password</label>
-        <div class="input-wrapper">
+        <div class="input-wrapper input-wrapper--pw">
           <i data-lucide="lock"></i>
-          <input type="password" name="password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
+          <input type="password" name="password" id="loginPassword" class="form-input" placeholder="Enter your password" required minlength="6">
+          <button type="button" class="pw-toggle" data-target="loginPassword" aria-label="Toggle password visibility">
+            <i data-lucide="eye" class="pw-toggle__show"></i>
+            <i data-lucide="eye-off" class="pw-toggle__hide" style="display:none;"></i>
+          </button>
         </div>
       </div>
 
@@ -44,3 +48,18 @@
     <a href="/user/signup" class="btn btn--outline btn--full">Create account</a>
   </div>
 </section>
+
+<script>
+(function() {
+  document.querySelectorAll('.pw-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var input = document.getElementById(btn.getAttribute('data-target'));
+      if (!input) return;
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.querySelector('.pw-toggle__show').style.display = show ? 'none' : '';
+      btn.querySelector('.pw-toggle__hide').style.display = show ? ''     : 'none';
+    });
+  });
+})();
+</script>

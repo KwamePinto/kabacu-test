@@ -7,8 +7,8 @@ const UserModel = require('../../models/UserModel');
 const {generateUserToken} = require('../../config/authUtils');
 
 exports.login = async (req,res)=>{
-    
-    res.render('webview/login')
+
+    res.render('webview/login', { hideHeader: true })
 
 }
 
@@ -196,7 +196,7 @@ exports.signup = async (req,res)=>{
 const countryNames = countries.getNames("en");
 
 console.log(countryNames);
-    res.render('webview/register',{countryNames})
+    res.render('webview/register', { countryNames, hideHeader: true })
 
 }
 
@@ -455,7 +455,7 @@ exports.logout = (req, res) => {
 }
 
 exports.resetPassword = async (req, res) => {
-  res.render('webview/reset-password');
+  res.render('webview/reset-password', { hideHeader: true });
 };
 
 exports.resetPasswordPost = async (req, res) => {

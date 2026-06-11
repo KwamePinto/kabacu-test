@@ -66,17 +66,35 @@
 
       <div class="form-group">
         <label class="form-label">Password</label>
-        <div class="input-wrapper">
+        <div class="input-wrapper input-wrapper--pw">
           <i data-lucide="lock"></i>
-          <input type="password" name="password" id="password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
+          <input type="password" name="password" id="password" class="form-input" placeholder="Min. 8 characters" required minlength="8">
+          <button type="button" class="pw-toggle" data-target="password" aria-label="Toggle password visibility">
+            <i data-lucide="eye" class="pw-toggle__show"></i>
+            <i data-lucide="eye-off" class="pw-toggle__hide" style="display:none;"></i>
+          </button>
+        </div>
+        <!-- Strength meter -->
+        <div class="pw-strength" id="pwStrength">
+          <div class="pw-strength__segments">
+            <span class="pw-strength__seg"></span>
+            <span class="pw-strength__seg"></span>
+            <span class="pw-strength__seg"></span>
+            <span class="pw-strength__seg"></span>
+          </div>
+          <span class="pw-strength__label" id="pwStrengthLabel"></span>
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label">Confirm Password</label>
-        <div class="input-wrapper">
+        <div class="input-wrapper input-wrapper--pw">
           <i data-lucide="lock"></i>
-          <input type="password" id="confirm_password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
+          <input type="password" id="confirm_password" class="form-input" placeholder="Repeat your password" required minlength="8">
+          <button type="button" class="pw-toggle" data-target="confirm_password" aria-label="Toggle password visibility">
+            <i data-lucide="eye" class="pw-toggle__show"></i>
+            <i data-lucide="eye-off" class="pw-toggle__hide" style="display:none;"></i>
+          </button>
         </div>
       </div>
 
@@ -90,22 +108,74 @@
 </section>
 
 <script>
-document.querySelector('form').addEventListener('submit', function(e){
+/* ── Password visibility toggles ─────────────────────── */
+(function() {
+  document.querySelectorAll('.pw-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var input = document.getElementById(btn.getAttribute('data-target'));
+      if (!input) return;
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.querySelector('.pw-toggle__show').style.display = show ? 'none' : '';
+      btn.querySelector('.pw-toggle__hide').style.display = show ? ''     : 'none';
+    });
+  });
+})();
 
-    const password =
-        document.getElementById('password').value;
+/* ── Password strength meter ──────────────────────────── */
+(function() {
+  var input    = document.getElementById('password');
+  var meter    = document.getElementById('pwStrength');
+  var label    = document.getElementById('pwStrengthLabel');
+  var levels   = ['', 'pw-strength--weak', 'pw-strength--fair', 'pw-strength--good', 'pw-strength--strong'];
+  var names    = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 
-    const confirmPassword =
-        document.getElementById('confirm_password').value;
+  function score(pw) {
+    if (!pw) return 0;
+    var s = 0;
+    if (pw.length >= 8)           s++;
+    if (pw.length >= 12)          s++;
+    if (/[A-Z]/.test(pw))         s++;
+    if (/[0-9]/.test(pw))         s++;
+    if (/[^A-Za-z0-9]/.test(pw))  s++;
+    /* map 0-5 score → 1-4 levels */
+    if (s <= 1) return 1;
+    if (s === 2) return 2;
+    if (s === 3) return 3;
+    return 4;
+  }
 
-    if(password !== confirmPassword){
+  if (!input || !meter || !label) return;
 
-        e.preventDefault();
+  input.addEventListener('input', function() {
+    var pw  = input.value;
+    var lvl = pw.length ? score(pw) : 0;
 
-        Swal.fire({
-            icon: 'error',
-            text: 'Passwords do not match'
-        });
-    }
+    /* toggle visibility */
+    meter.classList.toggle('visible', lvl > 0);
+
+    /* remove all level classes then apply current */
+    levels.forEach(function(c) { if (c) meter.classList.remove(c); });
+    if (lvl > 0) meter.classList.add(levels[lvl]);
+
+    label.textContent = names[lvl] || '';
+  });
+})();
+
+/* ── Form submit validation ───────────────────────────── */
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+  var password        = document.getElementById('password').value;
+  var confirmPassword = document.getElementById('confirm_password').value;
+
+  if (password.length < 8) {
+    e.preventDefault();
+    Swal.fire({ icon: 'error', text: 'Password must be at least 8 characters long.' });
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    e.preventDefault();
+    Swal.fire({ icon: 'error', text: 'Passwords do not match.' });
+  }
 });
 </script>

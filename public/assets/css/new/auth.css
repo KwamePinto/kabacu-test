@@ -93,3 +93,69 @@
   font-weight: 500;
   white-space: nowrap;
 }
+
+/* ── Password visibility toggle ─────────────────────────── */
+.input-wrapper--pw { position: relative; }
+
+.pw-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs);
+  transition: color .15s;
+}
+
+.pw-toggle:hover { color: var(--text); }
+.pw-toggle svg   { width: 17px; height: 17px; pointer-events: none; }
+
+.input-wrapper--pw .form-input { padding-right: 40px; }
+
+/* ── Password strength meter ─────────────────────────────── */
+.pw-strength {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pw-strength.visible { display: flex; }
+
+.pw-strength__segments {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+
+.pw-strength__seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background-color .25s ease;
+}
+
+.pw-strength__label {
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 44px;
+  text-align: right;
+}
+
+.pw-strength--weak   .pw-strength__seg:nth-child(1)    { background: #ef4444; }
+.pw-strength--fair   .pw-strength__seg:nth-child(-n+2) { background: #f97316; }
+.pw-strength--good   .pw-strength__seg:nth-child(-n+3) { background: #eab308; }
+.pw-strength--strong .pw-strength__seg                 { background: var(--primary); }
+
+.pw-strength--weak   .pw-strength__label { color: #ef4444; }
+.pw-strength--fair   .pw-strength__label { color: #f97316; }
+.pw-strength--good   .pw-strength__label { color: #eab308; }
+.pw-strength--strong .pw-strength__label { color: var(--primary); }

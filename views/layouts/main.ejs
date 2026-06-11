@@ -30,9 +30,11 @@
   <link rel="stylesheet" href="/assets/css/new/profile.css">
   <link rel="stylesheet" href="/assets/css/new/checkout.css">
 </head>
-<body>
+<body class="<% if (locals.hideHeader) { %>no-header<% } %>">
 
+  <% if (!locals.hideHeader) { %>
   <%- include('../partials/header') %>
+  <% } %>
 
   <main class="page-main">
     <%- body %>

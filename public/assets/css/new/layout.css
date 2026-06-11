@@ -276,6 +276,10 @@ body.is-leaving .page-main {
   animation: page-leave .2s ease forwards;
 }
 
+body.no-header .page-main {
+  padding-top: 0;
+}
+
 /* ── Page hero (inner pages) ────────────────────────────── */
 .page-hero { padding: 20px 0 16px; }
 
