@@ -30,50 +30,82 @@
       <div class="promo-slide promo-slide--1 active">
         <img class="promo-slide__bg-img"
              src="/assets/images/hero-slide-1.jpg"
-             alt="Mobile banking and money transfer">
+             alt="Happy customer earning reward points">
         <div class="promo-slide__overlay"></div>
         <!-- Mobile overlay text -->
         <div class="promo-slide__content">
-          <span class="promo-slide__tag">Fast &amp; Easy</span>
-          <h2 class="promo-slide__title">Buy Data Bundles in Seconds</h2>
-          <p class="promo-slide__sub">Instant delivery to any Nigerian number</p>
-          <a href="/category/data-category" class="promo-slide__btn">Shop Now</a>
+          <span class="promo-slide__tag">Earn Rewards</span>
+          <h2 class="promo-slide__title">Reward Points on Every Purchase</h2>
+          <p class="promo-slide__sub">Redeem RP for free data bundles</p>
+          <a href="/category/data-category" class="promo-slide__btn">Start Earning</a>
         </div>
         <!-- Desktop caption at card bottom -->
         <div class="promo-slide__caption">
-          <p class="promo-slide__caption-text">Instant data delivery to any Nigerian number</p>
+          <p class="promo-slide__caption-text">Earn reward points on every purchase you make</p>
         </div>
       </div>
 
       <div class="promo-slide promo-slide--2">
         <img class="promo-slide__bg-img"
              src="/assets/images/hero-slide-2.jpg"
-             alt="Customer browsing data plans">
+             alt="Customer topping up across all networks">
         <div class="promo-slide__overlay"></div>
         <div class="promo-slide__content">
-          <span class="promo-slide__tag">Always Available</span>
-          <h2 class="promo-slide__title">24/7 Data, Never Run Out</h2>
+          <span class="promo-slide__tag">All Networks</span>
+          <h2 class="promo-slide__title">Top Up Any Network Instantly</h2>
           <p class="promo-slide__sub">MTN · Airtel · Glo · 9Mobile</p>
           <a href="/category/data-category" class="promo-slide__btn">Browse Plans</a>
         </div>
         <div class="promo-slide__caption">
-          <p class="promo-slide__caption-text">MTN · Airtel · Glo · 9Mobile — Always available, 24/7</p>
+          <p class="promo-slide__caption-text">MTN · Airtel · Glo · 9Mobile — always available, 24/7</p>
         </div>
       </div>
 
       <div class="promo-slide promo-slide--3">
         <img class="promo-slide__bg-img"
              src="/assets/images/hero-slide-3.jpg"
-             alt="Happy customer earning reward points">
+             alt="Data delivered instantly to a phone">
         <div class="promo-slide__overlay"></div>
         <div class="promo-slide__content">
-          <span class="promo-slide__tag">Earn Rewards</span>
-          <h2 class="promo-slide__title">Get Reward Points on Every Purchase</h2>
-          <p class="promo-slide__sub">Redeem RP for free data bundles</p>
-          <a href="/category/data-category" class="promo-slide__btn">Start Earning</a>
+          <span class="promo-slide__tag">Instant Delivery</span>
+          <h2 class="promo-slide__title">Data Delivered in Seconds</h2>
+          <p class="promo-slide__sub">Buy once, connect instantly</p>
+          <a href="/category/data-category" class="promo-slide__btn">Shop Now</a>
         </div>
         <div class="promo-slide__caption">
-          <p class="promo-slide__caption-text">Earn reward points on every purchase you make</p>
+          <p class="promo-slide__caption-text">Instant data delivery to any Nigerian number</p>
+        </div>
+      </div>
+
+      <div class="promo-slide promo-slide--4">
+        <img class="promo-slide__bg-img"
+             src="/assets/images/hero-slide-4.jpg"
+             alt="Marketplace of phones, gadgets and more">
+        <div class="promo-slide__overlay"></div>
+        <div class="promo-slide__content">
+          <span class="promo-slide__tag">Marketplace</span>
+          <h2 class="promo-slide__title">Shop Phones, Gadgets &amp; More</h2>
+          <p class="promo-slide__sub">Secure trades · Best deals · Easy exchange</p>
+          <a href="/" class="promo-slide__btn">Explore Shop</a>
+        </div>
+        <div class="promo-slide__caption">
+          <p class="promo-slide__caption-text">Phones, gadgets, fashion &amp; more — all in one place</p>
+        </div>
+      </div>
+
+      <div class="promo-slide promo-slide--5">
+        <img class="promo-slide__bg-img"
+             src="/assets/images/hero-slide-5.jpg"
+             alt="Data plans and analytics dashboard">
+        <div class="promo-slide__overlay"></div>
+        <div class="promo-slide__content">
+          <span class="promo-slide__tag">Best Plans</span>
+          <h2 class="promo-slide__title">Buy Data Bundles in Seconds</h2>
+          <p class="promo-slide__sub">Fast, reliable plans at the best prices</p>
+          <a href="/category/data-category" class="promo-slide__btn">Shop Now</a>
+        </div>
+        <div class="promo-slide__caption">
+          <p class="promo-slide__caption-text">Fast, reliable data plans at the best prices</p>
         </div>
       </div>
 
@@ -92,6 +124,8 @@
   <div class="hero-dots-wrap">
     <div class="promo-dots" id="promoDots">
       <span class="promo-dot promo-dot--active"></span>
+      <span class="promo-dot"></span>
+      <span class="promo-dot"></span>
       <span class="promo-dot"></span>
       <span class="promo-dot"></span>
     </div>
@@ -510,9 +544,11 @@ function switchTab(tab) {
   var timer;
 
   var slideData = [
-    { title: 'Buy Data Bundles in Seconds',          sub: 'Fast, instant delivery to any Nigerian network. Shop the best plans now.' },
-    { title: '24/7 Data, Never Run Out',              sub: 'MTN · Airtel · Glo · 9Mobile — always available at the best prices.' },
-    { title: 'Earn Rewards on Every Purchase',        sub: 'Collect reward points on every order and redeem them for free data.' }
+    { title: 'Reward Points on Every Purchase',  sub: 'Collect reward points on every order and redeem them for free data.' },
+    { title: 'Top Up Any Network Instantly',     sub: 'MTN · Airtel · Glo · 9Mobile — always available at the best prices.' },
+    { title: 'Data Delivered in Seconds',        sub: 'Fast, instant delivery to any Nigerian network. Buy once, connect instantly.' },
+    { title: 'Shop Phones, Gadgets & More',      sub: 'A trusted marketplace — secure trades, best deals and easy exchange.' },
+    { title: 'Buy Data Bundles in Seconds',      sub: 'Fast, reliable plans at the best prices. Shop your network now.' }
   ];
 
   function updateHeroHeader(idx) {

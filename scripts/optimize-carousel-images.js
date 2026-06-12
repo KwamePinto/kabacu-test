@@ -17,12 +17,17 @@ const imgDir = path.join(__dirname, '..', 'public', 'assets', 'images');
 const batches = [
   {
     name: 'carousel',
-    resize: { width: 1400, height: 700, fit: 'cover', position: 'centre' },
+    // Keep native aspect ratio (just normalise width + compress) — the carousel
+    // displays with object-fit:cover, so let the CSS handle display cropping
+    // rather than pre-cropping content out here.
+    resize: { width: 1280, withoutEnlargement: true },
     formats: [{ ext: 'jpg', opts: { quality: 82, progressive: true, mozjpeg: true } }],
     tasks: [
-      { src: '3d-render-money-transfer-mobile-banking-online.jpg', out: 'hero-slide-1' },
-      { src: 'black-lady-texting-her-phone-park.jpg',              out: 'hero-slide-2' },
-      { src: 'happy-joyous-man-clenches-fist-with-triumph-watches-football-match-online-focused-smartphone-device-wears-round-spectacles.jpg', out: 'hero-slide-3' },
+      { src: 'carousel1.jpeg', out: 'hero-slide-1' },
+      { src: 'carousel2.jpeg', out: 'hero-slide-2' },
+      { src: 'carousel3.jpeg', out: 'hero-slide-3' },
+      { src: 'carousel4.jpeg', out: 'hero-slide-4' },
+      { src: 'carousel5.jpeg', out: 'hero-slide-5' },
     ],
   },
   {
