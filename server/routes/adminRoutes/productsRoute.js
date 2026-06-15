@@ -15,6 +15,10 @@ router.get('/view-users',getProducts.userView)
 
 router.get('/details/:id',getProducts.productDetails)
 
+router.get('/view-transactions',getProducts.viewTransactions)
+
+router.get('/view-topUps',getProducts.viewTopUps)
+
 
 
 module.exports = router;

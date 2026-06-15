@@ -1,9 +1,12 @@
  const adminLayouts = 'layouts/adminLayout'
-const { authenticateAdminUser } = require('../../config/authMiddleware');
 
+const Transaction = require('../../models/TransactionModel')
+const TopUp = require('../../models/TopUpModal')
 const Category = require('../../models/CategoryModal');
 const Product =  require('../../models/ProductsModal');
 const User = require('../../models/UserModel')
+
+const { authenticateAdminUser } = require('../../config/authMiddleware');
 
 
 exports.createProducts = [authenticateAdminUser,async(req,res)=>{
@@ -200,3 +203,37 @@ exports.productDetails = async(req,res)=>{
 
 
 }
+
+exports.viewTransactions =[authenticateAdminUser, async(req,res)=>{
+  try{
+    const transactions = await Transaction.find()
+  .populate('user')
+  .populate('product')
+  .sort({ createdAt: -1 });
+    res.render('adminview/tables/transactions',{
+       layout:adminLayouts,
+      transactions
+    })
+
+  }catch(err){
+    console.log(err)
+  }
+}]
+
+exports.viewTopUps =[authenticateAdminUser, async(req,res)=>{
+  try{
+
+    const topups = await TopUp.find()
+  .populate('user')
+  .sort({ createdAt: -1 });
+  
+    res.render('adminview/tables/topUps',{
+       layout:adminLayouts,
+       topups
+    
+    })
+
+  }catch(err){
+    console.log(err)
+  }
+}]
