@@ -367,12 +367,24 @@ async (req, res) => {
         // CHECK MINER ID
         // =====================================
 
+        let parsedMinerId = null;
         if (minerId) {
+            const isNum = /^\d+$/.test(minerId);
+            if (!isNum || minerId.length > 11) {
+                req.flash(
+                    'error',
+                    'Miner ID must be a number with a maximum of 11 digits'
+                );
+
+                return res.redirect(
+                    '/user/signup'
+                );
+            }
+            parsedMinerId = Number(minerId);
 
             const existingMinerId =
                 await UserModel.findOne({
-
-                    minerId
+                    minerId: parsedMinerId
                 });
 
             if (existingMinerId) {
@@ -411,7 +423,7 @@ async (req, res) => {
             phone_number,
 
             minerId:
-                minerId || null,
+                parsedMinerId,
 
             country,
 

@@ -88,8 +88,15 @@ exports.register = async (req, res) => {
       return res.status(409).json({ success: false, message: 'Email already registered' });
     }
 
+    let parsedMinerId = null;
     if (minerId) {
-      const existingMinerId = await UserModel.findOne({ minerId });
+      const isNum = /^\d+$/.test(minerId);
+      if (!isNum || minerId.length > 11) {
+        return res.status(400).json({ success: false, message: 'Miner ID must be a number with a maximum of 11 digits' });
+      }
+      parsedMinerId = Number(minerId);
+
+      const existingMinerId = await UserModel.findOne({ minerId: parsedMinerId });
       if (existingMinerId) {
         return res.status(409).json({ success: false, message: 'Miner ID already taken' });
       }
@@ -101,7 +108,7 @@ exports.register = async (req, res) => {
       username,
       email,
       phone_number,
-      minerId: minerId || null,
+      minerId: parsedMinerId,
       country,
       role: 'users',
       password: hashedPassword

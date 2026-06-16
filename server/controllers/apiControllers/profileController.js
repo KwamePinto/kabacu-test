@@ -49,9 +49,21 @@ exports.updateProfile = async (req, res) => {
     const existingUsername = await User.findOne({ username, _id: { $ne: userId } });
     if (existingUsername) return res.status(409).json({ success: false, message: 'Username already taken' });
 
+    let parsedMinerId = null;
+    if (minerId && minerId !== '') {
+      const isNum = /^\d+$/.test(minerId);
+      if (!isNum || minerId.length > 11) {
+        return res.status(400).json({ success: false, message: 'Miner ID must be a number with a maximum of 11 digits' });
+      }
+      parsedMinerId = Number(minerId);
+
+      const existingMinerId = await User.findOne({ minerId: parsedMinerId, _id: { $ne: userId } });
+      if (existingMinerId) return res.status(409).json({ success: false, message: 'Miner ID already in use' });
+    }
+
     const user = await User.findByIdAndUpdate(
       userId,
-      { username, email, minerId },
+      { username, email, minerId: parsedMinerId },
       { new: true }
     ).select('-password -verificationToken -verificationTokenExpires');
 

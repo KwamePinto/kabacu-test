@@ -11,7 +11,7 @@ const userSchema = new Schema({
     },
     //country: { type: String, required: true },
     phone_number: { type: String },
-    minerId: { type: Number, unique: true, sparse: true },
+    minerId: { type: Number, unique: true,sparse: true },
     password: { type: String, required: true },
     role: { type: String, required: true },
     walletBalance: {

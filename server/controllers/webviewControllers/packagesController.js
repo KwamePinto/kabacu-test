@@ -1790,12 +1790,34 @@ exports.editUserProfile = async (req, res) => {
       return res.redirect('/user-profile');
     }
 
+    let parsedMinerId = null;
+    if (minerId && minerId.trim() !== '') {
+      const trimmed = minerId.trim();
+      const isNum = /^\d+$/.test(trimmed);
+      if (!isNum || trimmed.length > 11) {
+        req.flash('error_msg', 'Miner ID must be a number with a maximum of 11 digits');
+        return res.redirect('/user-profile');
+      }
+      parsedMinerId = Number(trimmed);
+
+      // Check if minerId belongs to another user
+      const existingMinerId = await User.findOne({
+        minerId: parsedMinerId,
+        _id: { $ne: userId }
+      });
+
+      if (existingMinerId) {
+        req.flash('error_msg', 'Miner ID already taken');
+        return res.redirect('/user-profile');
+      }
+    }
+
     await User.findByIdAndUpdate(
       userId,
       {
         username,
         email,
-        minerId
+        minerId: parsedMinerId
       },
       { new: true }
     );
