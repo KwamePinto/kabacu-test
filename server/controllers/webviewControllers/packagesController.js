@@ -1392,9 +1392,7 @@ async (req, res) => {
     JSON.stringify(req.body, null, 2)
 );
 
-        if (
-            req.body.orderStatus == 4
-        ) {
+        if (status === 1 && orderStatus === 2) {
 
 let wallet = await Wallet.findOne({
     user: topUp.user
