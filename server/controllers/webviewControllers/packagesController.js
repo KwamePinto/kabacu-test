@@ -845,11 +845,11 @@ exports.payWithWallet = async (req, res) => {
 
             MTN: 1,
 
-            GLO: 2,
+            GLO: 3,
 
-            '9MOBILE': 3,
+            '9MOBILE': 4,
 
-            AIRTEL: 4
+            AIRTEL: 2
           };
 
           apiResponse = await Promise.race([
@@ -1392,7 +1392,7 @@ async (req, res) => {
     JSON.stringify(req.body, null, 2)
 );
 
-        if (
+         if (
             req.body.status == 1 && req.body.orderStatus == 2
         ) {
 
