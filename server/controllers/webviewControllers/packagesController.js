@@ -1353,17 +1353,17 @@ async (req, res) => {
     });
 }
 
-        if (!topUp) {
+        // if (!topUp) {
 
-            return res.status(404)
-            .json({
+        //     return res.status(404)
+        //     .json({
 
-                success: false,
+        //         success: false,
 
-                message:
-                    "TopUp not found"
-            });
-        }
+        //         message:
+        //             "TopUp not found"
+        //     });
+        // }
 
         if (
             topUp.walletCredited
@@ -1387,52 +1387,41 @@ async (req, res) => {
         await topUp.save();
 
         // SUCCESS PAYMENT
+        console.log(
+    "FULL WEBHOOK:",
+    JSON.stringify(req.body, null, 2)
+);
 
         if (
             req.body.orderStatus == 4
         ) {
 
-            const walletField =
-                `balances.${topUp.balanceType}`;
+let wallet = await Wallet.findOne({
+    user: topUp.user
+});
 
-            const wallet =
-                await Wallet.findOneAndUpdate(
+if (!wallet) {
+    wallet = new Wallet({
+        user: topUp.user,
+        balances: {
+            BTT: 0,
+            RP: 0,
+            USDT: 0,
+            NAIRA: 0
+        }
+    });
+}
 
-                    {
-                        user:
-                            topUp.user
-                    },
+wallet.balances[topUp.balanceType] =
+    (wallet.balances[topUp.balanceType] || 0)
+    + (topUp.amount / 100);
 
-                    {
-                        $inc: {
+await wallet.save();
 
-                            [walletField]:
-                               topUp.amount / 100
-                        }
-                    },
-
-                    {
-                        returnDocument:
-                            'after'
-                    }
-                );
-
-            console.log(
-                "UPDATED WALLET:",
-                wallet
-            );
-
-            if (!wallet) {
-
-                return res.status(404)
-                .json({
-
-                    success: false,
-
-                    message:
-                        "Wallet not found"
-                });
-            }
+console.log(
+    "UPDATED WALLET:",
+    wallet
+);
 
             topUp.status =
                 'COMPLETED';

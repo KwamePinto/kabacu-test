@@ -5,6 +5,7 @@ const countries = require("i18n-iso-countries");
 
 const UserModel = require('../../models/UserModel');
 const {generateUserToken} = require('../../config/authUtils');
+const emailService = require('../../utils/emailService');
 
 exports.login = async (req,res)=>{
 
@@ -122,6 +123,15 @@ exports.loginPost = async (req,res)=>{
             return res.redirect(
                 '/user/login'
             );
+        }
+
+        // =====================================
+        // CHECK IF EMAIL IS VERIFIED
+        // =====================================
+        if (user.isVerified === false) {
+            req.session.pendingVerificationEmail = email;
+            req.flash('error', 'Your email is not verified yet. Please enter the OTP code sent to your email.');
+            return res.redirect('/user/verify-otp');
         }
 
         // =====================================
@@ -412,8 +422,10 @@ async (req, res) => {
             );
 
         // =====================================
-        // CREATE USER
+        // GENERATE OTP & CREATE UNVERIFIED USER
         // =====================================
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
         await UserModel.create({
 
@@ -430,8 +442,19 @@ async (req, res) => {
             role: 'users',
 
             password:
-                hashedPassword
+                hashedPassword,
+
+            isVerified: false,
+            verificationToken: otp,
+            verificationTokenExpires: Date.now() + 15 * 60 * 1000
         });
+
+        // =====================================
+        // SEND OTP EMAIL
+        // =====================================
+        await emailService.sendOTP(email, otp);
+
+        req.session.pendingVerificationEmail = email;
 
         // =====================================
         // SUCCESS
@@ -439,11 +462,11 @@ async (req, res) => {
 
         req.flash(
             'success',
-            'Account created successfully'
+            'Registration successful! Please enter the OTP code sent to your email.'
         );
 
         return res.redirect(
-            '/user/login'
+            '/user/verify-otp'
         );
 
     } catch (error) {
@@ -521,5 +544,87 @@ exports.resetPasswordPost = async (req, res) => {
     console.log('RESET PASSWORD ERROR:', error);
     req.flash('error', 'Something went wrong. Please try again.');
     return res.redirect('/user/reset-password');
+  }
+};
+
+exports.verifyOTP = async (req, res) => {
+  const email = req.session.pendingVerificationEmail;
+  if (!email) {
+    req.flash('error', 'No pending verification. Please register first.');
+    return res.redirect('/user/signup');
+  }
+  res.render('webview/otp', { email, hideHeader: true });
+};
+
+exports.verifyOTPPost = async (req, res) => {
+  try {
+    const email = req.session.pendingVerificationEmail;
+    if (!email) {
+      req.flash('error', 'No pending verification. Please register first.');
+      return res.redirect('/user/signup');
+    }
+
+    const { otp } = req.body;
+    if (!otp) {
+      req.flash('error', 'OTP is required');
+      return res.redirect('/user/verify-otp');
+    }
+
+    const user = await UserModel.findOne({
+      email,
+      verificationToken: otp,
+      verificationTokenExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      req.flash('error', 'Invalid or expired OTP code.');
+      return res.redirect('/user/verify-otp');
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    delete req.session.pendingVerificationEmail;
+
+    req.flash('success', 'Email verified successfully! Please log in.');
+    return res.redirect('/user/login');
+
+  } catch (error) {
+    console.error('VERIFY OTP ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/verify-otp');
+  }
+};
+
+exports.resendOTP = async (req, res) => {
+  try {
+    const email = req.session.pendingVerificationEmail;
+    if (!email) {
+      req.flash('error', 'No pending verification. Please register first.');
+      return res.redirect('/user/signup');
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      req.flash('error', 'User not found.');
+      return res.redirect('/user/signup');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationToken = otp;
+    user.verificationTokenExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    await emailService.sendOTP(email, otp);
+
+    req.flash('success', 'A new OTP code has been sent to your email.');
+    return res.redirect('/user/verify-otp');
+
+  } catch (error) {
+    console.error('RESEND OTP ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/verify-otp');
   }
 };

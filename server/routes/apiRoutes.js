@@ -12,6 +12,8 @@ const profile     = require('../controllers/apiControllers/profileController');
 router.post('/auth/login',          auth.login);
 router.post('/auth/register',       auth.register);
 router.post('/auth/reset-password', auth.resetPassword);
+router.post('/auth/verify-otp',     auth.verifyOTP);
+router.post('/auth/resend-otp',     auth.resendOTP);
 
 // ── Products (public) ──────────────────────────────────────
 router.get('/products',      products.getProducts);

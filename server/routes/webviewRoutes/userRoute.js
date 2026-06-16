@@ -17,4 +17,8 @@ router.get('/logout',getUser.logout)
 router.get('/reset-password',getUser.resetPassword)
 router.post('/reset-password',getUser.resetPasswordPost)
 
+router.get('/verify-otp', getUser.verifyOTP)
+router.post('/verify-otp', getUser.verifyOTPPost)
+router.post('/resend-otp', getUser.resendOTP)
+
 module.exports = router;

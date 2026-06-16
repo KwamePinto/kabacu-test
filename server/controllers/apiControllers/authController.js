@@ -3,6 +3,7 @@ const saltRounds = 10;
 const validator = require('validator');
 const UserModel = require('../../models/UserModel');
 const { generateUserToken } = require('../../config/authUtils');
+const emailService = require('../../utils/emailService');
 
 exports.login = async (req, res) => {
   try {
@@ -29,6 +30,10 @@ exports.login = async (req, res) => {
 
     if (!isValid) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    if (user.isVerified === false) {
+      return res.status(403).json({ success: false, message: 'Email not verified. Please verify your email.', email, isVerified: false });
     }
 
     const token = generateUserToken(user);
@@ -104,6 +109,8 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     const user = await UserModel.create({
       username,
       email,
@@ -111,22 +118,19 @@ exports.register = async (req, res) => {
       minerId: parsedMinerId,
       country,
       role: 'users',
-      password: hashedPassword
+      password: hashedPassword,
+      isVerified: false,
+      verificationToken: otp,
+      verificationTokenExpires: Date.now() + 15 * 60 * 1000
     });
 
-    const token = generateUserToken(user);
+    await emailService.sendOTP(email, otp);
 
     res.status(201).json({
       success: true,
-      message: 'Account created successfully',
-      token,
-      user: {
-        id:       user._id,
-        username: user.username,
-        email:    user.email,
-        role:     user.role,
-        minerId:  user.minerId
-      }
+      message: 'Account created successfully. Please verify the OTP sent to your email.',
+      email,
+      isVerified: false
     });
 
   } catch (error) {
@@ -177,6 +181,67 @@ exports.resetPassword = async (req, res) => {
 
   } catch (error) {
     console.log('API RESET PASSWORD ERROR:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.verifyOTP = async (req, res) => {
+  try {
+    let { email, otp } = req.body;
+    email = email?.trim().toLowerCase();
+
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Email and OTP are required' });
+    }
+
+    const user = await UserModel.findOne({
+      email,
+      verificationToken: otp,
+      verificationTokenExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP code' });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    res.json({ success: true, message: 'Email verified successfully' });
+
+  } catch (error) {
+    console.error('API VERIFY OTP ERROR:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.resendOTP = async (req, res) => {
+  try {
+    let { email } = req.body;
+    email = email?.trim().toLowerCase();
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationToken = otp;
+    user.verificationTokenExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    await emailService.sendOTP(email, otp);
+
+    res.json({ success: true, message: 'OTP resent successfully' });
+
+  } catch (error) {
+    console.error('API RESEND OTP ERROR:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
