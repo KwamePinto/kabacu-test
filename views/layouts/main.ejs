@@ -306,5 +306,15 @@
     })();
   </script>
 
+
+  <!-- Flash messages (success / error from server) -->
+  <script>
+    (function() {
+      var sm = <%- JSON.stringify(success_msg) %>;
+      var em = <%- JSON.stringify(error_msg) %>;
+      if (sm && sm.length > 0) Swal.fire({ icon: 'success', title: 'Success', text: sm[0], timer: 3000, showConfirmButton: false });
+      if (em && em.length > 0) Swal.fire({ icon: 'error',   title: 'Error',   text: em[0] });
+    })();
+  </script>
 </body>
 </html>
