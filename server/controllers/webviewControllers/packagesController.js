@@ -145,17 +145,16 @@ exports.checkoutPage = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const checkout = await Checkout.findOne({ user: userId })
-      .sort({ createdAt: -1 })
-      .populate('product');
-
-    console.log("checkout:", checkout);
+    const [user, checkout] = await Promise.all([
+      User.findById(userId),
+      Checkout.findOne({ user: userId }).sort({ createdAt: -1 }).populate('product')
+    ]);
 
     if (!checkout) {
-      return res.render('webview/checkout', { checkout: null });
+      return res.render('webview/checkout', { user, checkout: null });
     }
 
-    res.render('webview/checkout', { checkout });
+    res.render('webview/checkout', { user, checkout });
 
   } catch (error) {
     console.log("ERROR:", error);
@@ -269,19 +268,17 @@ exports.history = async (req, res) => {
 
   try {
 
-    const transactions = await Transaction.find({
-      user: req.user.id
-    })
+    const userId = req.user.id;
 
-    .populate('product')
+    const [user, transactions] = await Promise.all([
+      User.findById(userId),
+      Transaction.find({ user: userId })
+        .populate('product')
+        .populate('products.product')
+        .sort({ createdAt: -1 })
+    ]);
 
-    .populate('products.product')
-
-    .sort({ createdAt: -1 });
-
-    res.render('webview/history', {
-      transactions
-    });
+    res.render('webview/history', { user, transactions });
 
   } catch (error) {
 
@@ -377,13 +374,14 @@ exports.myTopUps = async (req, res) => {
 
     const userId = req.user.id;
 
-    const topups = await TopUp.find({
-      user: userId
-    })
-    .sort({ createdAt: -1 });
+    const [user, topups] = await Promise.all([
+      User.findById(userId),
+      TopUp.find({ user: userId }).sort({ createdAt: -1 })
+    ]);
 
     res.render('webview/myTopUps', {
       title: 'My Top Ups',
+      user,
       topups
     });
 
@@ -482,7 +480,10 @@ exports.itemCheckout = async (req, res) => {
       };
     });
 
+    const user = await User.findById(req.user.id);
+
     res.render('webview/item-checkout', {
+      user,
       cart: formattedCart,
       total,
       totalItems
@@ -494,12 +495,17 @@ exports.itemCheckout = async (req, res) => {
   }
 };
 
-exports.userWallet = (req,res)=>{
-  try{
-    res.render('webview/user-wallet')
-
-  }catch(error){
-    console.log(error)
+exports.userWallet = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const [user, wallet] = await Promise.all([
+      User.findById(userId),
+      Wallet.findOne({ user: userId })
+    ]);
+    res.render('webview/user-wallet', { user, wallet });
+  } catch (error) {
+    console.log(error);
+    res.render('webview/user-wallet', { user: null, wallet: null });
   }
 }
 
