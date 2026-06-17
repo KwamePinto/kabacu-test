@@ -73,7 +73,7 @@ exports.updateCheckout = async (req, res) => {
     const checkout = await Checkout.findByIdAndUpdate(
       req.params.id,
       { phone: '+234' + localNum },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!checkout) {

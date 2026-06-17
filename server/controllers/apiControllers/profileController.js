@@ -64,7 +64,7 @@ exports.updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       { username, email, minerId: parsedMinerId },
-      { new: true }
+      { returnDocument: 'after' }
     ).select('-password -verificationToken -verificationTokenExpires');
 
     res.json({ success: true, message: 'Profile updated', user });

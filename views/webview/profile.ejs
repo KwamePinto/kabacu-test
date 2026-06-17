@@ -104,7 +104,7 @@
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
         <div class="form-group">
-          <label class="form-label">Username</label>
+          <label class="form-label">Full Name</label>
           <div class="input-wrapper">
             <i data-lucide="user"></i>
             <input type="text" name="username" value="<%= user.username %>" class="form-input" required>
@@ -115,7 +115,7 @@
           <label class="form-label">Email address</label>
           <div class="input-wrapper">
             <i data-lucide="mail"></i>
-            <input type="email" name="email" value="<%= user.email %>" class="form-input" disabled required>
+            <input type="email" name="email" value="<%= user.email %>" class="form-input" readonly>
           </div>
         </div>
 

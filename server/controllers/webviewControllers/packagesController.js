@@ -1828,7 +1828,7 @@ exports.editUserProfile = async (req, res) => {
         email,
         minerId: parsedMinerId
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     req.flash('success_msg', 'Profile updated successfully');
