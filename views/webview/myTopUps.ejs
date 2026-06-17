@@ -49,10 +49,10 @@
   <% if(topup.balanceType === 'NAIRA'){ %>
       ₦<%= Number(topup.nairaAmount).toLocaleString() %>
   <% } else { %>
-      <%= Number(topup.nairaAmount).toLocaleString() %> <%= topup.balanceType %>
+      <%= Number(topup.amount).toLocaleString() %> <%= topup.balanceType %>
       <br>
       <small>
-        ₦<%= Number(topup.nairaAmount || 0).toLocaleString() %>
+        ₦<%= Number(topup.amount || 0).toLocaleString() %>
       </small>
   <% } %>
 </td>
