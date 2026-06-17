@@ -5,7 +5,7 @@ const countries = require("i18n-iso-countries");
 
 const UserModel = require('../../models/UserModel');
 const {generateUserToken} = require('../../config/authUtils');
-const emailService = require('../../utils/emailService');
+const sendEmail = require('../../utils/emailService');
 
 exports.login = async (req,res)=>{
 
@@ -452,7 +452,86 @@ async (req, res) => {
         // =====================================
         // SEND OTP EMAIL
         // =====================================
-        await emailService.sendOTP(email, otp);
+        //await emailService.sendOTP(email, otp);
+
+          await sendEmail({
+  to: email,
+  subject: 'Verify Your Email – OTP Code',
+  html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Verification</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f7f6;font-family:'Inter',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f7f6;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#15a844 0%,#0e7a31 100%);padding:36px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabaco</h1>
+              <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;font-weight:400;">Your trusted marketplace</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px 40px 32px;">
+              <h2 style="margin:0 0 12px;color:#1a1a2e;font-size:20px;font-weight:600;">Verify your email address</h2>
+              <p style="margin:0 0 28px;color:#555;font-size:15px;line-height:1.6;">
+                Thanks for signing up! Enter the code below to confirm your email and activate your account.
+              </p>
+
+              <!-- OTP Box -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <div style="display:inline-block;background:#e8f5ee;border:2px dashed #15a844;border-radius:12px;padding:22px 48px;margin-bottom:28px;">
+                      <p style="margin:0 0 4px;color:#0e7a31;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">Your OTP Code</p>
+                      <p style="margin:0;color:#0e7a31;font-size:40px;font-weight:800;letter-spacing:10px;line-height:1.2;">${otp}</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiry notice -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                <tr>
+                  <td style="background:#fff8ed;border-left:4px solid #f97316;border-radius:4px;padding:12px 16px;">
+                    <p style="margin:0;color:#b45309;font-size:13px;">
+                      &#9201;&nbsp; This code expires in <strong>15 minutes</strong>. Do not share it with anyone.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;color:#888;font-size:13px;line-height:1.6;">
+                If you didn't create a Kabaco account, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f9fafb;border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;">
+              <p style="margin:0;color:#aaa;font-size:12px;line-height:1.6;">
+                &copy; ${new Date().getFullYear()} Kabaco. All rights reserved.<br/>
+                This is an automated message — please do not reply.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+});
 
         req.session.pendingVerificationEmail = email;
 
@@ -598,6 +677,232 @@ exports.verifyOTPPost = async (req, res) => {
   }
 };
 
+// =============================================
+// FORGOT PASSWORD FLOW
+// =============================================
+
+exports.forgotPassword = (req, res) => {
+  res.render('webview/forgot-password', { hideHeader: true });
+};
+
+exports.forgotPasswordPost = async (req, res) => {
+  try {
+    let { email } = req.body;
+    email = email?.trim().toLowerCase();
+
+    if (!email || !validator.isEmail(email)) {
+      req.flash('error', 'Please enter a valid email address');
+      return res.redirect('/user/forgot-password');
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      req.flash('error', 'No account found with that email address');
+      return res.redirect('/user/forgot-password');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.forgotPasswordToken = otp;
+    user.forgotPasswordTokenExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    req.session.forgotPasswordEmail = email;
+
+    await sendEmail({
+      to: email,
+      subject: 'Reset Your Password – OTP Code',
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Password Reset</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f7f6;font-family:'Inter',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f7f6;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#15a844 0%,#0e7a31 100%);padding:36px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabaco</h1>
+              <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">Your trusted marketplace</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px 40px 32px;">
+              <h2 style="margin:0 0 12px;color:#1a1a2e;font-size:20px;font-weight:600;">Password reset request</h2>
+              <p style="margin:0 0 28px;color:#555;font-size:15px;line-height:1.6;">
+                We received a request to reset your password. Use the code below to continue. If you didn't request this, ignore this email.
+              </p>
+
+              <!-- OTP Box -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <div style="display:inline-block;background:#e8f5ee;border:2px dashed #15a844;border-radius:12px;padding:22px 48px;margin-bottom:28px;">
+                      <p style="margin:0 0 4px;color:#0e7a31;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">Reset Code</p>
+                      <p style="margin:0;color:#0e7a31;font-size:40px;font-weight:800;letter-spacing:10px;line-height:1.2;">\ ${otp}</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiry notice -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                <tr>
+                  <td style="background:#fff8ed;border-left:4px solid #f97316;border-radius:4px;padding:12px 16px;">
+                    <p style="margin:0;color:#b45309;font-size:13px;">
+                      &#9201;&nbsp; This code expires in <strong>15 minutes</strong>. Do not share it with anyone.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;color:#888;font-size:13px;line-height:1.6;">
+                If you didn't request a password reset, your account is still secure — no action needed.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f9fafb;border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;">
+              <p style="margin:0;color:#aaa;font-size:12px;line-height:1.6;">
+                &copy; ${new Date().getFullYear()} Kabaco. All rights reserved.<br/>
+                This is an automated message — please do not reply.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+    });
+
+    req.flash('success', 'A reset code has been sent to your email.');
+    return res.redirect('/user/forgot-password-otp');
+
+  } catch (error) {
+    console.error('FORGOT PASSWORD ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/forgot-password');
+  }
+};
+
+exports.forgotPasswordOTP = (req, res) => {
+  const email = req.session.forgotPasswordEmail;
+  if (!email) {
+    req.flash('error', 'Please start the password reset process again.');
+    return res.redirect('/user/forgot-password');
+  }
+  res.render('webview/forgot-password-otp', { email, hideHeader: true });
+};
+
+exports.forgotPasswordOTPPost = async (req, res) => {
+  try {
+    const email = req.session.forgotPasswordEmail;
+    if (!email) {
+      req.flash('error', 'Session expired. Please start again.');
+      return res.redirect('/user/forgot-password');
+    }
+
+    const { otp } = req.body;
+    if (!otp) {
+      req.flash('error', 'OTP is required');
+      return res.redirect('/user/forgot-password-otp');
+    }
+
+    const user = await UserModel.findOne({
+      email,
+      forgotPasswordToken: otp,
+      forgotPasswordTokenExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      req.flash('error', 'Invalid or expired reset code.');
+      return res.redirect('/user/forgot-password-otp');
+    }
+
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordTokenExpires = undefined;
+    await user.save();
+
+    req.session.forgotPasswordVerified = true;
+
+    req.flash('success', 'Code verified! Please set your new password.');
+    return res.redirect('/user/forgot-password-reset');
+
+  } catch (error) {
+    console.error('FORGOT PASSWORD OTP ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/forgot-password-otp');
+  }
+};
+
+exports.forgotPasswordReset = (req, res) => {
+  if (!req.session.forgotPasswordEmail || !req.session.forgotPasswordVerified) {
+    req.flash('error', 'Please complete the password reset process from the beginning.');
+    return res.redirect('/user/forgot-password');
+  }
+  res.render('webview/forgot-password-reset', { hideHeader: true });
+};
+
+exports.forgotPasswordResetPost = async (req, res) => {
+  try {
+    if (!req.session.forgotPasswordEmail || !req.session.forgotPasswordVerified) {
+      req.flash('error', 'Session expired. Please start again.');
+      return res.redirect('/user/forgot-password');
+    }
+
+    let { newPassword, confirmPassword } = req.body;
+    newPassword = newPassword?.trim();
+    confirmPassword = confirmPassword?.trim();
+
+    if (!newPassword || !confirmPassword) {
+      req.flash('error', 'All fields are required');
+      return res.redirect('/user/forgot-password-reset');
+    }
+
+    if (newPassword.length < 6) {
+      req.flash('error', 'Password must be at least 6 characters');
+      return res.redirect('/user/forgot-password-reset');
+    }
+
+    if (newPassword !== confirmPassword) {
+      req.flash('error', 'Passwords do not match');
+      return res.redirect('/user/forgot-password-reset');
+    }
+
+    const user = await UserModel.findOne({ email: req.session.forgotPasswordEmail });
+    if (!user) {
+      req.flash('error', 'Account not found. Please try again.');
+      return res.redirect('/user/forgot-password');
+    }
+
+    user.password = await bcrypt.hash(newPassword, saltRounds);
+    await user.save();
+
+    delete req.session.forgotPasswordEmail;
+    delete req.session.forgotPasswordVerified;
+
+    req.flash('success', 'Password reset successfully! Please sign in with your new password.');
+    return res.redirect('/user/login');
+
+  } catch (error) {
+    console.error('FORGOT PASSWORD RESET ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/forgot-password-reset');
+  }
+};
+
 exports.resendOTP = async (req, res) => {
   try {
     const email = req.session.pendingVerificationEmail;
@@ -617,7 +922,86 @@ exports.resendOTP = async (req, res) => {
     user.verificationTokenExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    await emailService.sendOTP(email, otp);
+   // await emailService.sendOTP(email, otp);
+
+    await sendEmail({
+  to: email,
+  subject: 'Your New OTP Code – Kabaco',
+  html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New OTP Code</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f7f6;font-family:'Inter',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f7f6;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#15a844 0%,#0e7a31 100%);padding:36px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabaco</h1>
+              <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;font-weight:400;">Your trusted marketplace</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px 40px 32px;">
+              <h2 style="margin:0 0 12px;color:#1a1a2e;font-size:20px;font-weight:600;">Here's your new verification code</h2>
+              <p style="margin:0 0 28px;color:#555;font-size:15px;line-height:1.6;">
+                You requested a new OTP. Use the code below to verify your email address.
+              </p>
+
+              <!-- OTP Box -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <div style="display:inline-block;background:#e8f5ee;border:2px dashed #15a844;border-radius:12px;padding:22px 48px;margin-bottom:28px;">
+                      <p style="margin:0 0 4px;color:#0e7a31;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">Your OTP Code</p>
+                      <p style="margin:0;color:#0e7a31;font-size:40px;font-weight:800;letter-spacing:10px;line-height:1.2;">${otp}</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiry notice -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                <tr>
+                  <td style="background:#fff8ed;border-left:4px solid #f97316;border-radius:4px;padding:12px 16px;">
+                    <p style="margin:0;color:#b45309;font-size:13px;">
+                      &#9201;&nbsp; This code expires in <strong>15 minutes</strong>. Do not share it with anyone.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;color:#888;font-size:13px;line-height:1.6;">
+                If you didn't request this code, please secure your account immediately.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f9fafb;border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;">
+              <p style="margin:0;color:#aaa;font-size:12px;line-height:1.6;">
+                &copy; ${new Date().getFullYear()} Kabaco. All rights reserved.<br/>
+                This is an automated message — please do not reply.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+});
 
     req.flash('success', 'A new OTP code has been sent to your email.');
     return res.redirect('/user/verify-otp');

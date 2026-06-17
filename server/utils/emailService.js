@@ -19,7 +19,7 @@ module.exports = async function sendEmail({
 }) {
   try {
     const info = await transporter.sendMail({
-      from: '"Salem Estate" <noreply@yourdomain.com>',
+      from: '"Kabaco" <verified@kabacu.com>',
       to,
       subject,
       text,

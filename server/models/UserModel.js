@@ -37,6 +37,10 @@ lockUntil: Date,
 verificationToken: String,
 
 verificationTokenExpires: Date,
+
+forgotPasswordToken: String,
+
+forgotPasswordTokenExpires: Date,
     checkout:{
         type: mongoose.Schema.Types.ObjectId,
             ref: 'checkout',
