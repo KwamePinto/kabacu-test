@@ -473,7 +473,7 @@ async (req, res) => {
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#15a844 0%,#0e7a31 100%);padding:36px 40px;text-align:center;">
-              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabaco</h1>
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabacu</h1>
               <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;font-weight:400;">Your trusted marketplace</p>
             </td>
           </tr>
@@ -510,7 +510,7 @@ async (req, res) => {
               </table>
 
               <p style="margin:0;color:#888;font-size:13px;line-height:1.6;">
-                If you didn't create a Kabaco account, you can safely ignore this email.
+                If you didn't create a Kabacu account, you can safely ignore this email.
               </p>
             </td>
           </tr>
@@ -519,7 +519,7 @@ async (req, res) => {
           <tr>
             <td style="background:#f9fafb;border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;">
               <p style="margin:0;color:#aaa;font-size:12px;line-height:1.6;">
-                &copy; ${new Date().getFullYear()} Kabaco. All rights reserved.<br/>
+                &copy; ${new Date().getFullYear()} Kabacu. All rights reserved.<br/>
                 This is an automated message — please do not reply.
               </p>
             </td>
@@ -727,7 +727,7 @@ exports.forgotPasswordPost = async (req, res) => {
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#15a844 0%,#0e7a31 100%);padding:36px 40px;text-align:center;">
-              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabaco</h1>
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabacu</h1>
               <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">Your trusted marketplace</p>
             </td>
           </tr>
@@ -773,7 +773,7 @@ exports.forgotPasswordPost = async (req, res) => {
           <tr>
             <td style="background:#f9fafb;border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;">
               <p style="margin:0;color:#aaa;font-size:12px;line-height:1.6;">
-                &copy; ${new Date().getFullYear()} Kabaco. All rights reserved.<br/>
+                &copy; ${new Date().getFullYear()} Kabacu. All rights reserved.<br/>
                 This is an automated message — please do not reply.
               </p>
             </td>
@@ -926,7 +926,7 @@ exports.resendOTP = async (req, res) => {
 
     await sendEmail({
   to: email,
-  subject: 'Your New OTP Code – Kabaco',
+  subject: 'Your New OTP Code – Kabacu',
   html: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -943,7 +943,7 @@ exports.resendOTP = async (req, res) => {
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#15a844 0%,#0e7a31 100%);padding:36px 40px;text-align:center;">
-              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabaco</h1>
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabacu</h1>
               <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;font-weight:400;">Your trusted marketplace</p>
             </td>
           </tr>
@@ -989,7 +989,7 @@ exports.resendOTP = async (req, res) => {
           <tr>
             <td style="background:#f9fafb;border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;">
               <p style="margin:0;color:#aaa;font-size:12px;line-height:1.6;">
-                &copy; ${new Date().getFullYear()} Kabaco. All rights reserved.<br/>
+                &copy; ${new Date().getFullYear()} Kabacu. All rights reserved.<br/>
                 This is an automated message — please do not reply.
               </p>
             </td>
@@ -1057,7 +1057,7 @@ exports.profileChangePasswordPost = async (req, res) => {
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#15a844 0%,#0e7a31 100%);padding:36px 40px;text-align:center;">
-              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabaco</h1>
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabacu</h1>
               <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">Your trusted marketplace</p>
             </td>
           </tr>
@@ -1103,7 +1103,7 @@ exports.profileChangePasswordPost = async (req, res) => {
           <tr>
             <td style="background:#f9fafb;border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;">
               <p style="margin:0;color:#aaa;font-size:12px;line-height:1.6;">
-                &copy; ${new Date().getFullYear()} Kabaco. All rights reserved.<br/>
+                &copy; ${new Date().getFullYear()} Kabacu. All rights reserved.<br/>
                 This is an automated message — please do not reply.
               </p>
             </td>
