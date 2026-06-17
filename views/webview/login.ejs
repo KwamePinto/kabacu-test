@@ -16,6 +16,7 @@
     <p class="auth-card__sub">Sign in to your account</p>
 
     <form action="/user/login" method="post" class="auth-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="form-group">
         <label class="form-label">Email address</label>
         <div class="input-wrapper">

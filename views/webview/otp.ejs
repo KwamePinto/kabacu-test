@@ -15,6 +15,7 @@
     <p class="auth-card__sub">An OTP has been sent to <strong><%= email %></strong></p>
 
     <form action="/user/verify-otp" method="post" class="auth-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="form-group">
         <label class="form-label" style="text-align: center; display: block; margin-bottom: 15px;">OTP Verification Code</label>
         <div class="input-wrapper" style="justify-content: center;">
@@ -27,6 +28,7 @@
 
     <div style="text-align:center; margin-top:20px;">
       <form action="/user/resend-otp" method="post" id="resendForm" style="display:inline;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit" id="resendBtn" class="btn btn--link" style="color:var(--primary); font-size:14px; background:none; border:none; cursor:pointer; padding:0; text-decoration:underline; font-weight: 500;">
           Resend Code
         </button>

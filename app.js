@@ -1,115 +1,102 @@
 require('dotenv').config();
-const path = require('path')
+const path = require('path');
 const express = require('express');
-const bodyParser = require('body-parser')
-const expressLayout = require('express-ejs-layouts')
-const methodOverride = require('method-override')
-const cookieParser = require('cookie-parser')
+const expressLayout = require('express-ejs-layouts');
+const methodOverride = require('method-override');
+const cookieParser = require('cookie-parser');
 const MongoStore = require('connect-mongo').default;
-const session = require('express-session')
+const session = require('express-session');
 const flash = require('connect-flash');
-const logger = require('morgan')
+const logger = require('morgan');
 const cors = require('cors');
+const helmet = require('helmet');
+const csrf = require('csurf');
 
-
-
-
-
- const connectDB = require('./server/config/db')
-// const emailQueue = require('./server/config/emailQueue');
-
+const connectDB = require('./server/config/db');
 const loadUser = require('./server/config/loadUser');
-const loadCart = require('./server/config/loadCart');
 const loadWallt = require('./server/config/loadWallet');
-const loadAdmin = require('./server/config/loadAdmin');
-
 const { optionalUser } = require('./server/config/authMiddleware');
-
-
-
 
 const app = express();
 const PORT = process.env.PORT || 2000;
 
+connectDB();
 
-connectDB()
-// require('./server/config/cronJob')
-// require('./server/config/cronJobOrders')
+// ── Security headers ──────────────────────────────────────────────────────────
+// CSP disabled: app uses CDN scripts + inline scripts/styles.
+// Re-enable with proper nonces once those are migrated.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
 
-// Middleware
-app.use(cors());
+// ── Logging ───────────────────────────────────────────────────────────────────
 app.use(logger('dev'));
+
+// ── Body parsing & cookies ────────────────────────────────────────────────────
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method', { methods: ['POST', 'GET'] }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Global user loader
-app.use(optionalUser);
-app.use(loadUser);
-//app.use(loadCart);
-app.use(loadWallt);
- // ✅ applies to all pages
+// ── CORS — applied to API routes only ─────────────────────────────────────────
+// Web (browser-rendered) routes do not need CORS; keeping it only here prevents
+// the wildcard header from weakening CSRF protection on the web side.
+const apiCors = cors({
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  credentials: true,
+});
 
-app.use(cors({
-    origin: '*', // or use the actual WebView origin
-    credentials: true
-}));
-
-app.use((req, res, next) => {
-    //Giving access to all clients
-    res.header('Access-Control-Allow-Origin', '*')
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'PUT,POST,PATCH,DELETE,GET')
-        return res.status(200).json({});
-    }
-    next()
-})
-
-
-
-app.use(methodOverride('_method', {
-    methods: ['POST', 'GET']
-}));
+// ── Session ───────────────────────────────────────────────────────────────────
 app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    store: MongoStore.create({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,  // don't create a session until data is stored
+  store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
-    //mongoUrl: process.env.MONGODBMLAB,
-        collectionName: 'sessions',
-        ttl: 14 * 24 * 60 * 60 // 14 days
-    })
+    collectionName: 'sessions',
+    ttl: 14 * 24 * 60 * 60,
+  }),
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 14 * 24 * 60 * 60 * 1000,
+  },
 }));
 
 app.use(flash());
 
+// ── CSRF protection (web routes only, skip /api) ──────────────────────────────
+const csrfProtection = csrf({ cookie: false }); // store secret in session
 
 app.use((req, res, next) => {
-     res.locals.session = req.session;
-    res.locals.isAuthenticated = !!req.user; // ✅ better
-    console.log("user", req.user);
-   // res.locals.user = req.user || null;
-    //res.locals.admin = req.admin || null;
-    res.locals.success_msg = req.flash('success');
-     res.locals.error_msg = req.flash('error');
-    next();
-    // res.locals.session = req.session;
-    // res.locals.isAuthenticated = req.cookies.token;
-    // //res.locals.user = req.user || {};
-    // console.log("user",req.user);
-    // next();
+  if (req.originalUrl.startsWith('/api')) return next();
+  csrfProtection(req, res, next);
 });
 
+// ── Shared locals (flash, auth state, CSRF token) ─────────────────────────────
+app.use((req, res, next) => {
+  res.locals.csrfToken       = req.csrfToken ? req.csrfToken() : '';
+  res.locals.session         = req.session;
+  res.locals.isAuthenticated = !!req.user;
+  res.locals.success_msg     = req.flash('success');
+  res.locals.error_msg       = req.flash('error');
+  next();
+});
+
+// ── User loaders ──────────────────────────────────────────────────────────────
+app.use(optionalUser);
+app.use(loadUser);
+app.use(loadWallt);
+
+// ── View engine ───────────────────────────────────────────────────────────────
 app.use(expressLayout);
-app.set('layout', './layouts/main')
+app.set('layout', './layouts/main');
 app.set('view engine', 'ejs');
 
-
-
+// ── Web routes ────────────────────────────────────────────────────────────────
 app.use('/', require('./server/routes/webviewRoutes/packagesRoute'));
 app.use('/user', require('./server/routes/webviewRoutes/userRoute'));
 app.use('/category', require('./server/routes/webviewRoutes/categoryShopRoute'));
@@ -117,14 +104,19 @@ app.use('/admin/user', require('./server/routes/adminRoutes/userAdminRoute'));
 app.use('/admin/main', require('./server/routes/adminRoutes/dashboardRoute'));
 app.use('/admin/category', require('./server/routes/adminRoutes/categoryRoute'));
 app.use('/admin/product', require('./server/routes/adminRoutes/productsRoute'));
-// app.use('/security', require('./server/routes/security'));
-// app.use('/shop', require('./server/routes/shop'));
-// app.use('/admin', require('./server/routes/admin'));
 
-app.use('/api', require('./server/routes/apiRoutes'));
+// ── API routes (CORS enabled here only) ──────────────────────────────────────
+app.use('/api', apiCors, require('./server/routes/apiRoutes'));
 
-
+// ── CSRF error handler ────────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    req.flash('error', 'Your form session expired or was tampered with. Please try again.');
+    return res.redirect('back');
+  }
+  next(err);
+});
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
