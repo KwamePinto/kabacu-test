@@ -2,12 +2,14 @@ const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
   host: "email-smtp.eu-north-1.amazonaws.com",
-  port: 587,
-  secure: false, // TLS on port 587
+  port: 465,
+  secure: true, // implicit SSL — required on Render (port 587 is blocked)
   auth: {
     user: process.env.SES_SMTP_USER,
     pass: process.env.SES_SMTP_PASS
-  }
+  },
+  connectionTimeout: 10000,
+  socketTimeout: 10000
 });
 
 module.exports = async function sendEmail({
