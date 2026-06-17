@@ -112,7 +112,8 @@ app.use('/api', apiCors, require('./server/routes/apiRoutes'));
 app.use((err, req, res, next) => {
   if (err.code === 'EBADCSRFTOKEN') {
     req.flash('error', 'Your form session expired or was tampered with. Please try again.');
-    return res.redirect('back');
+    const referer = req.get('Referer') || '/';
+    return res.redirect(referer);
   }
   next(err);
 });
