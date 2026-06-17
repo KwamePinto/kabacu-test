@@ -3,6 +3,7 @@ const router = express.Router();
 const rateLimit = require('express-rate-limit');
 
 const getUser = require('../../controllers/webviewControllers/userController');
+const { authenticateUser } = require('../../config/authMiddleware');
 
 // ── Rate limiters ─────────────────────────────────────────────────────────────
 
@@ -73,5 +74,16 @@ router.post('/forgot-password-otp', otpLimiter, getUser.forgotPasswordOTPPost);
 
 router.get('/forgot-password-reset', getUser.forgotPasswordReset);
 router.post('/forgot-password-reset', passwordLimiter, getUser.forgotPasswordResetPost);
+
+// ── Profile change password flow (must be logged in) ──────────────────────────
+
+router.get('/profile-change-password', authenticateUser, getUser.profileChangePassword);
+router.post('/profile-change-password', authenticateUser, passwordLimiter, getUser.profileChangePasswordPost);
+
+router.get('/profile-change-password-otp', authenticateUser, getUser.profileChangePasswordOTP);
+router.post('/profile-change-password-otp', authenticateUser, otpLimiter, getUser.profileChangePasswordOTPPost);
+
+router.get('/profile-change-password-new', authenticateUser, getUser.profileChangePasswordNew);
+router.post('/profile-change-password-new', authenticateUser, passwordLimiter, getUser.profileChangePasswordNewPost);
 
 module.exports = router;

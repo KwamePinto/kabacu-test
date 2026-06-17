@@ -1012,3 +1012,224 @@ exports.resendOTP = async (req, res) => {
     return res.redirect('/user/verify-otp');
   }
 };
+
+// =============================================
+// PROFILE CHANGE PASSWORD FLOW (authenticated)
+// =============================================
+
+exports.profileChangePassword = (req, res) => {
+  res.render('webview/profile-change-password', {
+    email: req.user.email,
+  });
+};
+
+exports.profileChangePasswordPost = async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.user.id);
+    if (!user) {
+      req.flash('error', 'Account not found.');
+      return res.redirect('/user-profile');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.forgotPasswordToken = otp;
+    user.forgotPasswordTokenExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    req.session.profileChangePwEmail = user.email;
+
+    await sendEmail({
+      to: user.email,
+      subject: 'Change Your Password – Verification Code',
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Change Password</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f7f6;font-family:'Inter',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f7f6;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#15a844 0%,#0e7a31 100%);padding:36px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">Kabaco</h1>
+              <p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:13px;">Your trusted marketplace</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px 40px 32px;">
+              <h2 style="margin:0 0 12px;color:#1a1a2e;font-size:20px;font-weight:600;">Password change request</h2>
+              <p style="margin:0 0 28px;color:#555;font-size:15px;line-height:1.6;">
+                You requested to change your account password. Enter the code below to confirm it's really you.
+              </p>
+
+              <!-- OTP Box -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <div style="display:inline-block;background:#e8f5ee;border:2px dashed #15a844;border-radius:12px;padding:22px 48px;margin-bottom:28px;">
+                      <p style="margin:0 0 4px;color:#0e7a31;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">Verification Code</p>
+                      <p style="margin:0;color:#0e7a31;font-size:40px;font-weight:800;letter-spacing:10px;line-height:1.2;">${otp}</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiry notice -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                <tr>
+                  <td style="background:#fff8ed;border-left:4px solid #f97316;border-radius:4px;padding:12px 16px;">
+                    <p style="margin:0;color:#b45309;font-size:13px;">
+                      &#9201;&nbsp; This code expires in <strong>15 minutes</strong>. Do not share it with anyone.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;color:#888;font-size:13px;line-height:1.6;">
+                If you did not request this, your password has not been changed — you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f9fafb;border-top:1px solid #ebebeb;padding:20px 40px;text-align:center;">
+              <p style="margin:0;color:#aaa;font-size:12px;line-height:1.6;">
+                &copy; ${new Date().getFullYear()} Kabaco. All rights reserved.<br/>
+                This is an automated message — please do not reply.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+    });
+
+    req.flash('success', 'A verification code has been sent to your email.');
+    return res.redirect('/user/profile-change-password-otp');
+
+  } catch (error) {
+    console.error('PROFILE CHANGE PW ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/profile-change-password');
+  }
+};
+
+exports.profileChangePasswordOTP = (req, res) => {
+  if (!req.session.profileChangePwEmail) {
+    req.flash('error', 'Please start the process again.');
+    return res.redirect('/user/profile-change-password');
+  }
+  res.render('webview/profile-change-password-otp', {
+    email: req.session.profileChangePwEmail,
+  });
+};
+
+exports.profileChangePasswordOTPPost = async (req, res) => {
+  try {
+    const email = req.session.profileChangePwEmail;
+    if (!email) {
+      req.flash('error', 'Session expired. Please start again.');
+      return res.redirect('/user/profile-change-password');
+    }
+
+    const { otp } = req.body;
+    if (!otp) {
+      req.flash('error', 'Verification code is required.');
+      return res.redirect('/user/profile-change-password-otp');
+    }
+
+    const user = await UserModel.findOne({
+      email,
+      forgotPasswordToken: otp,
+      forgotPasswordTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      req.flash('error', 'Invalid or expired code. Please try again.');
+      return res.redirect('/user/profile-change-password-otp');
+    }
+
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordTokenExpires = undefined;
+    await user.save();
+
+    req.session.profileChangePwVerified = true;
+
+    req.flash('success', 'Identity confirmed! Set your new password below.');
+    return res.redirect('/user/profile-change-password-new');
+
+  } catch (error) {
+    console.error('PROFILE CHANGE PW OTP ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/profile-change-password-otp');
+  }
+};
+
+exports.profileChangePasswordNew = (req, res) => {
+  if (!req.session.profileChangePwEmail || !req.session.profileChangePwVerified) {
+    req.flash('error', 'Please complete the verification step first.');
+    return res.redirect('/user/profile-change-password');
+  }
+  res.render('webview/profile-change-password-new');
+};
+
+exports.profileChangePasswordNewPost = async (req, res) => {
+  try {
+    if (!req.session.profileChangePwEmail || !req.session.profileChangePwVerified) {
+      req.flash('error', 'Session expired. Please start again.');
+      return res.redirect('/user/profile-change-password');
+    }
+
+    let { newPassword, confirmPassword } = req.body;
+    newPassword = newPassword?.trim();
+    confirmPassword = confirmPassword?.trim();
+
+    if (!newPassword || !confirmPassword) {
+      req.flash('error', 'Both fields are required.');
+      return res.redirect('/user/profile-change-password-new');
+    }
+
+    if (newPassword.length < 6) {
+      req.flash('error', 'Password must be at least 6 characters.');
+      return res.redirect('/user/profile-change-password-new');
+    }
+
+    if (newPassword !== confirmPassword) {
+      req.flash('error', 'Passwords do not match.');
+      return res.redirect('/user/profile-change-password-new');
+    }
+
+    const user = await UserModel.findById(req.user.id);
+    if (!user) {
+      req.flash('error', 'Account not found.');
+      return res.redirect('/user/profile-change-password');
+    }
+
+    user.password = await bcrypt.hash(newPassword, saltRounds);
+    await user.save();
+
+    delete req.session.profileChangePwEmail;
+    delete req.session.profileChangePwVerified;
+
+    req.flash('success', 'Password updated successfully!');
+    return res.redirect('/user-profile');
+
+  } catch (error) {
+    console.error('PROFILE CHANGE PW NEW ERROR:', error);
+    req.flash('error', 'Something went wrong. Please try again.');
+    return res.redirect('/user/profile-change-password-new');
+  }
+};
