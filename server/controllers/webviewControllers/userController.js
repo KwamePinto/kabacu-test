@@ -329,27 +329,27 @@ async (req, res) => {
         // COUNTRY VALIDATION
         // =====================================
 
-        const allowedCountries = [
+        // const allowedCountries = [
 
-            'ghana',
-            'nigeria'
-        ];
+        //     'ghana',
+        //     'nigeria'
+        // ];
 
-        if (
+        // if (
 
-            !allowedCountries.includes(country)
+        //     !allowedCountries.includes(country)
 
-        ) {
+        // ) {
 
-            req.flash(
-                'error',
-                'Invalid country selected'
-            );
+        //     req.flash(
+        //         'error',
+        //         'Invalid country selected'
+        //     );
 
-            return res.redirect(
-                '/user/signup'
-            );
-        }
+        //     return res.redirect(
+        //         '/user/signup'
+        //     );
+        // }
 
         // =====================================
         // CHECK EXISTING EMAIL
