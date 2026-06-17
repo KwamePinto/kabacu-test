@@ -7,10 +7,19 @@ const UserModel = require('../../models/UserModel');
 const {generateUserToken} = require('../../config/authUtils');
 const sendEmail = require('../../utils/emailService');
 
-exports.login = async (req,res)=>{
-
-    res.render('webview/login', { hideHeader: true })
-
+exports.login = async (req, res) => {
+    const a = Math.floor(Math.random() * 9) + 1;
+    const b = Math.floor(Math.random() * 9) + 1;
+    const ops = [
+        { sym: '+', answer: a + b },
+        { sym: '−', answer: Math.max(a, b) - Math.min(a, b), x: Math.max(a, b), y: Math.min(a, b) },
+        { sym: '×', answer: a * b }
+    ];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    const x = op.x !== undefined ? op.x : a;
+    const y = op.y !== undefined ? op.y : b;
+    req.session.mathCaptchaAnswer = op.answer;
+    res.render('webview/login', { hideHeader: true, mathQuestion: `${x} ${op.sym} ${y}` });
 }
 
 exports.loginPost = async (req,res)=>{
@@ -33,6 +42,19 @@ exports.loginPost = async (req,res)=>{
 
         password =
             password?.trim();
+
+        // =====================================
+        // MATH CAPTCHA VALIDATION
+        // =====================================
+
+        const mathAnswer = parseInt(req.body.mathAnswer, 10);
+        const expectedAnswer = req.session.mathCaptchaAnswer;
+        req.session.mathCaptchaAnswer = null;
+
+        if (isNaN(mathAnswer) || mathAnswer !== expectedAnswer) {
+            req.flash('error', 'Incorrect answer to the math question. Please try again.');
+            return res.redirect('/user/login');
+        }
 
         // =====================================
         // REQUIRED VALIDATION
