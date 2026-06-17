@@ -175,7 +175,7 @@ walletBtn.addEventListener('click', async () => {
     walletBtn.style.pointerEvents = 'none';
     const res  = await fetch('/wallet/pay', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' }
     });
     const data = await res.json();
     if (data.success) {

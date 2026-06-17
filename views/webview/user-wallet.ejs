@@ -204,7 +204,7 @@
     const balanceType = document.getElementById('walletType').value;
     const res = await fetch('/wallet/start-topup', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
       body: JSON.stringify({ amount, balanceType })
     });
     const data = await res.json();
@@ -221,7 +221,7 @@
     const otp = document.getElementById('otp').value;
     const res = await fetch('/wallet/confirm-topup', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
       body: JSON.stringify({ otp, topupId })
     });
     const data = await res.json();
@@ -244,7 +244,7 @@
     try {
       const res = await fetch('/wallet/preview-conversion', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
         body: JSON.stringify({ amount })
       });
       const data = await res.json();
@@ -265,7 +265,7 @@
     try {
       const res = await fetch('/wallet/convert-usdt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
         body: JSON.stringify({ amount })
       });
       const data = await res.json();
@@ -292,7 +292,7 @@
     try {
       const response = await fetch('/palmpay/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
         body: JSON.stringify({ amount })
       });
       const data = await response.json();
