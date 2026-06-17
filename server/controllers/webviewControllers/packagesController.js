@@ -507,34 +507,44 @@ exports.userWallet = (req,res)=>{
 
 exports.startTopUp = async (req, res) => {
   try {
-    const { amount, balanceType  } = req.body;
+    const { amount, balanceType } = req.body;
 
     if (!amount || amount <= 0) {
       return res.json({ success: false, message: 'Invalid amount' });
     }
 
-    if (!['BTT', 'RP','USDT'].includes(balanceType )) {
+    if (!['BTT', 'RP', 'USDT'].includes(balanceType)) {
       return res.json({ success: false, message: 'Invalid wallet type' });
     }
 
     const user = await User.findById(req.user.id);
 
+    if (!user.minerId) {
+      return res.json({ success: false, message: 'You must set your Miner ID in your profile before topping up.' });
+    }
+
     const topup = await TopUp.create({
       user: user._id,
       amount,
-      balanceType 
+      balanceType
     });
 
-    await axios.post(
-      'https://dev-api.bittokenapp.com/api/user/send-otp',
-      { minerId: user.minerId },
-      
-    );
+    try {
+      await axios.post(
+        'https://dev-api.bittokenapp.com/api/user/send-otp',
+        { minerId: user.minerId }
+      );
+    } catch (apiErr) {
+      await TopUp.findByIdAndDelete(topup._id);
+      const apiMsg = apiErr.response?.data?.message || apiErr.message || 'OTP service unavailable';
+      console.log('TOPUP OTP API ERROR:', apiErr.response?.data || apiErr.message);
+      return res.json({ success: false, message: apiMsg });
+    }
 
     res.json({ success: true, topupId: topup._id });
 
   } catch (error) {
-    console.log(error);
+    console.log('START TOPUP ERROR:', error);
     res.json({ success: false, message: 'Failed to start top-up' });
   }
 };
