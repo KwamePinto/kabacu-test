@@ -697,7 +697,7 @@ document.getElementById('checkoutBtn').addEventListener('click', async function(
   try {
     var res  = await fetch('/checkout/initiate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
       body: JSON.stringify({ packageId: selectedPackageId, phone: phone })
     });
     var data = await res.json();

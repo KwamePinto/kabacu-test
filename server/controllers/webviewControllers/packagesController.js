@@ -346,6 +346,10 @@ exports.retryTransaction = async (req, res) => {
 
       tx.status = 'success';
 
+      if (tx.rpEarned > 0) {
+        await User.findByIdAndUpdate(tx.user, { $inc: { rpBalance: tx.rpEarned } });
+      }
+
     } else {
       tx.status = 'failed';
     }

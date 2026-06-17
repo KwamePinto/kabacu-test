@@ -95,6 +95,7 @@
       </button>
     </div>
     <form action="/update-checkout/<%= checkout._id %>" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="form-group">
         <label class="form-label">Phone Number</label>
         <div class="phone-field">
@@ -227,7 +228,7 @@ document.getElementById('walletBtn').addEventListener('click', async () => {
   try {
     const res  = await fetch('/wallet/pay', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
       body: JSON.stringify({ productId: selectedProductId })
     });
     const data = await res.json();

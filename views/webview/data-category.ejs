@@ -104,11 +104,11 @@
           <option value="+234">🇳🇬 +234</option>
         </select>
         <input type="tel" id="phoneInput" class="phone-field__num"
-               placeholder="XXX XXX XXXX" maxlength="10" inputmode="numeric"
+               placeholder="XXX XXX XXXX" maxlength="11" inputmode="numeric"
                autocomplete="tel-national">
       </div>
       <small id="phoneError" style="color:var(--error);display:none;margin-top:6px;">
-        Enter a valid 10-digit Nigerian number (e.g. 801 234 5678)
+        Phone number must be exactly 11 digits
       </small>
     </div>
     <div class="modal-actions">
@@ -150,39 +150,27 @@ document.getElementById('buyModal').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('open');
 });
 
-const phoneInput   = document.getElementById('phoneInput');
-const countryCode  = document.getElementById('countryCode');
-const phoneError   = document.getElementById('phoneError');
+const phoneInput  = document.getElementById('phoneInput');
+const phoneError  = document.getElementById('phoneError');
 
-/* Strip non-digits and cap at 10 */
 phoneInput.addEventListener('input', function() {
-  this.value = this.value.replace(/\D/g, '').slice(0, 10);
+  this.value = this.value.replace(/\D/g, '').slice(0, 11);
 });
 
-/* Nigeria: 10 digits after +234, first digit must be 7, 8 or 9 */
-function validateNGPhone(num) {
-  return /^[789]\d{9}$/.test(num);
-}
-
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
-  const num   = phoneInput.value.trim();
-  const code  = countryCode.value;         /* e.g. "+234" */
-
-  if (!validateNGPhone(num)) {
+  const phone = phoneInput.value.trim();
+  if (!/^\d{11}$/.test(phone)) {
     phoneError.style.display = 'block';
     return;
   }
   phoneError.style.display = 'none';
-
-  /* Combine into international format: +234XXXXXXXXXX */
-  const phone = code + num;
 
   const productId = selectedPackageId;
   if (!productId) { Swal.fire({ icon: 'error', text: 'No product selected' }); return; }
   try {
     const res = await fetch('/checkout/initiate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
       body: JSON.stringify({ packageId: productId, phone })
     });
     const data = await res.json();

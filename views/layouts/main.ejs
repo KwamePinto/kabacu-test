@@ -214,7 +214,7 @@
         try {
           confirmClaimBtn.disabled = true;
           confirmClaimBtn.textContent = 'Processing...';
-          const res  = await fetch('/wallet/claim-rp', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          const res  = await fetch('/wallet/claim-rp', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' } });
           const data = await res.json();
           if (data.success) {
             Swal.fire({ icon: 'success', text: data.message });

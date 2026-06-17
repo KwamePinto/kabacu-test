@@ -1,6 +1,7 @@
 const Transaction = require('../../models/TransactionModel');
 const Wallet      = require('../../models/WalletModal');
 const Product     = require('../../models/ProductsModal');
+const User        = require('../../models/UserModel');
 const { buyData } = require('../../services/ourdatastore');
 
 exports.getTransactions = async (req, res) => {
@@ -63,6 +64,10 @@ exports.retryTransaction = async (req, res) => {
       wallet.balances.NAIRA -= tx.amount;
       await wallet.save();
       tx.status = 'success';
+
+      if (tx.rpEarned > 0) {
+        await User.findByIdAndUpdate(tx.user, { $inc: { rpBalance: tx.rpEarned } });
+      }
     } else {
       tx.status = 'failed';
     }
