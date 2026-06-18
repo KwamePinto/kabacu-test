@@ -1759,12 +1759,13 @@ exports.previewUSDTConversion = async (req, res) => {
 exports.userProfile = async (req,res)=>{
   try{
     const userId = req.user.id;
-    const [user, recentOrders, recentTopups] = await Promise.all([
+    const [user, recentOrders, recentTopups, totalTopups] = await Promise.all([
       User.findById(userId),
       Transaction.find({ user: userId }).sort({ createdAt: -1 }).limit(5).populate('product products.product'),
-      TopUp.find({ user: userId, status: 'COMPLETED' }).sort({ createdAt: -1 }).limit(5)
+      TopUp.find({ user: userId, status: 'COMPLETED' }).sort({ createdAt: -1 }).limit(5),
+      TopUp.countDocuments({ user: userId, status: 'COMPLETED' })
     ]);
-    res.render('webview/profile', { user, recentOrders, recentTopups });
+    res.render('webview/profile', { user, recentOrders, recentTopups, totalTopups });
   }catch(error){
     console.log(error)
   }
