@@ -529,10 +529,13 @@ exports.startTopUp = async (req, res) => {
       return res.json({ success: false, message: 'You must set your Miner ID in your profile before topping up.' });
     }
 
+    const reference = `TOPUP-${balanceType}-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+
     const topup = await TopUp.create({
       user: user._id,
       amount,
-      balanceType
+      balanceType,
+      reference
     });
 
     try {

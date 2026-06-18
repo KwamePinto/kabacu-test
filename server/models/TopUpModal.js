@@ -40,7 +40,8 @@ const topupSchema = new mongoose.Schema({
 
     reference: {
         type: String,
-        unique: true
+        unique: true,
+        sparse: true
     },
 
     paymentMethod: {
