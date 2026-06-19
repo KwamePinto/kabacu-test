@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-ses": "^3.1071.0",
+    "@aws-sdk/client-sesv2": "^3.1072.0",
     "axios": "^1.15.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.2",
