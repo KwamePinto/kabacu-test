@@ -20,6 +20,10 @@ const { optionalUser } = require('./server/config/authMiddleware');
 const app = express();
 const PORT = process.env.PORT || 2000;
 
+// Trust Render's (and any cloud host's) reverse proxy so req.ip returns
+// the real client IP — without this, all users share one rate-limit bucket.
+app.set('trust proxy', 1);
+
 connectDB();
 
 // ── Security headers ──────────────────────────────────────────────────────────
