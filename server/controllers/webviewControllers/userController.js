@@ -471,11 +471,13 @@ async (req, res) => {
             verificationTokenExpires: Date.now() + 15 * 60 * 1000
         });
 
-        // =====================================
-        // SEND OTP EMAIL
-        // =====================================
-        //await emailService.sendOTP(email, otp);
+        req.session.pendingVerificationEmail = email;
 
+        // =====================================
+        // SEND OTP EMAIL (non-fatal)
+        // =====================================
+
+        try {
           await sendEmail({
   to: email,
   subject: 'Verify Your Email – OTP Code',
@@ -553,9 +555,11 @@ async (req, res) => {
   </table>
 </body>
 </html>`,
-});
-
-        req.session.pendingVerificationEmail = email;
+          });
+        } catch (emailErr) {
+            console.error('SIGNUP OTP EMAIL ERROR:', emailErr.message || emailErr);
+            req.flash('error', 'Account created but we could not send the verification email. Use Resend Code on the next page.');
+        }
 
         // =====================================
         // SUCCESS
@@ -572,11 +576,11 @@ async (req, res) => {
 
     } catch (error) {
 
-        console.log(error);
+        console.log('SIGNUP ERROR:', error);
 
         req.flash(
             'error',
-            'Something went wrong'
+            'Something went wrong during registration. Please try again.'
         );
 
         return res.redirect(
