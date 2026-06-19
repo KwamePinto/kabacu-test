@@ -227,8 +227,19 @@ exports.signup = async (req,res)=>{
 
 const countryNames = countries.getNames("en");
 
-console.log(countryNames);
-    res.render('webview/register', { countryNames, hideHeader: true })
+    const a = Math.floor(Math.random() * 9) + 1;
+    const b = Math.floor(Math.random() * 9) + 1;
+    const ops = [
+        { sym: '+', answer: a + b },
+        { sym: '−', answer: Math.max(a, b) - Math.min(a, b), x: Math.max(a, b), y: Math.min(a, b) },
+        { sym: '×', answer: a * b }
+    ];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    const x = op.x !== undefined ? op.x : a;
+    const y = op.y !== undefined ? op.y : b;
+    req.session.signupMathCaptcha = op.answer;
+
+    res.render('webview/register', { countryNames, hideHeader: true, mathQuestion: `${x} ${op.sym} ${y}` })
 
 }
 
@@ -268,6 +279,19 @@ async (req, res) => {
 
         country =
             country?.trim().toLowerCase();
+
+        // =====================================
+        // MATH CAPTCHA VALIDATION
+        // =====================================
+
+        const mathAnswer = parseInt(req.body.mathAnswer, 10);
+        const expectedAnswer = req.session.signupMathCaptcha;
+        req.session.signupMathCaptcha = null;
+
+        if (isNaN(mathAnswer) || mathAnswer !== expectedAnswer) {
+            req.flash('error', 'Incorrect answer to the math question. Please try again.');
+            return res.redirect('/user/signup');
+        }
 
         // =====================================
         // REQUIRED FIELD VALIDATION
