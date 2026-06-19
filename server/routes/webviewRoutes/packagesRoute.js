@@ -55,5 +55,6 @@ router.post( '/palmpay/webhook', getPackages.palmPayWebhook);
 
 router.post( '/wallet/claim-rp', authenticateUser, getPackages.claimRP);
 
+router.get('/conversion-history', authenticateUser, getPackages.conversionHistory);
 
 module.exports = router;

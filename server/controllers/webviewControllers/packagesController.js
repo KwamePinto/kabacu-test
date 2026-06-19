@@ -7,6 +7,7 @@ const Cart = require('../../models/CartModal')
 const Wallet = require('../../models/WalletModal')
 const TopUp = require('../../models/TopUpModal')
 const Transaction = require('../../models/TransactionModel')
+const Conversion = require('../../models/ConversionModal')
 const axios = require('axios');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
@@ -1621,6 +1622,15 @@ exports.convertUSDTtoNaira = async (req, res) => {
 
     await wallet.save();
 
+    await Conversion.create({
+      user: userId,
+      usdtAmount: amount,
+      nairaAmount,
+      finalRate,
+      bestRate,
+      status: 'COMPLETED'
+    });
+
     // =========================================
     // RESPONSE
     // =========================================
@@ -1985,5 +1995,19 @@ exports.claimRP = async (req, res) => {
 exports.wallet =  (req, res) => {
     // wallet deduction logic
     res.send('Processing wallet payment...');
+};
+
+exports.conversionHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const [user, conversions] = await Promise.all([
+      User.findById(userId),
+      Conversion.find({ user: userId }).sort({ createdAt: -1 })
+    ]);
+    res.render('webview/conversion-history', { user, conversions });
+  } catch (error) {
+    console.log('CONVERSION HISTORY ERROR:', error);
+    res.redirect('/user-profile');
+  }
 };
 

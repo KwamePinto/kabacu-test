@@ -1,0 +1,71 @@
+<script>
+  const successMsg = <%- JSON.stringify(success_msg) %>;
+  const errorMsg   = <%- JSON.stringify(error_msg) %>;
+  if (successMsg.length > 0) Swal.fire({ icon: 'success', text: successMsg[0] });
+  if (errorMsg.length   > 0) Swal.fire({ icon: 'error',   text: errorMsg[0] });
+</script>
+
+<section class="history-page">
+  <div class="container">
+
+    <div class="page-hero">
+      <h1 class="page-hero__title">
+        <i data-lucide="arrow-left-right"></i>
+        Conversion History
+      </h1>
+      <p class="page-hero__sub">Your USDT → Naira conversion records</p>
+    </div>
+
+    <div class="tx-table-wrap">
+      <table class="tx-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>USDT Amount</th>
+            <th>Rate (₦/USDT)</th>
+            <th>Naira Received</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (conversions && conversions.length > 0) { %>
+            <% conversions.forEach(function(c) { %>
+              <tr>
+                <td>
+                  <span style="font-size:0.85rem;color:var(--color-muted);">
+                    <%= new Date(c.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) %>
+                    <br>
+                    <%= new Date(c.createdAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }) %>
+                  </span>
+                </td>
+                <td><strong><%= c.usdtAmount.toFixed(4) %> USDT</strong></td>
+                <td>₦<%= c.finalRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                <td><strong>₦<%= c.nairaAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></strong></td>
+                <td>
+                  <span class="status-badge status-badge--<%= c.status === 'COMPLETED' ? 'success' : 'failed' %>">
+                    <%= c.status %>
+                  </span>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="5" style="text-align:center;padding:40px;color:var(--color-muted);">
+                <i data-lucide="inbox" style="display:block;margin:0 auto 8px;width:32px;height:32px;"></i>
+                No conversions yet
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:24px;">
+      <a href="/user-profile" class="btn btn--outline">
+        <i data-lucide="arrow-left"></i>
+        Back to Profile
+      </a>
+    </div>
+
+  </div>
+</section>
