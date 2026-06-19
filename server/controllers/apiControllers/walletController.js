@@ -451,12 +451,12 @@ exports.palmPayWebhook = async (req, res) => {
     topUp.webhookVerified = true;
     await topUp.save();
 
-    if (req.body.orderStatus == 4) {
+    if (req.body.orderStatus == 2) {
       const walletField = `balances.${topUp.balanceType}`;
       const wallet = await Wallet.findOneAndUpdate(
         { user: topUp.user },
         { $inc: { [walletField]: topUp.amount / 100 } },
-        { returnDocument: 'after' }
+        { returnDocument: 'after', upsert: true, setOnInsert: { user: topUp.user } }
       );
 
       if (!wallet) return res.status(404).json({ success: false, message: 'Wallet not found' });

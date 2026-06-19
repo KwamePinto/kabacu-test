@@ -77,6 +77,8 @@ const csrfProtection = csrf({ cookie: false }); // store secret in session
 
 app.use((req, res, next) => {
   if (req.originalUrl.startsWith('/api')) return next();
+  // PalmPay webhook is a server-to-server POST — no CSRF token possible
+  if (req.originalUrl === '/palmpay/webhook') return next();
   csrfProtection(req, res, next);
 });
 
