@@ -175,12 +175,12 @@ exports.startTopUp = async (req, res) => {
 
     const topup = await TopUp.create({ user: user._id, amount, balanceType });
 
-    await axios.post(
+    const otpRes = await axios.post(
       'https://dev-api.bittokenapp.com/api/user/send-otp',
       { minerId: user.minerId }
     );
 
-    res.json({ success: true, topupId: topup._id });
+    res.json({ success: true, topupId: topup._id, message: otpRes.data.message || 'OTP sent to your Telegram Bot.' });
 
   } catch (error) {
     console.log(error);
@@ -224,7 +224,7 @@ exports.confirmTopUp = async (req, res) => {
     topup.status = 'COMPLETED';
     await topup.save();
 
-    res.json({ success: true, message: 'Top-up confirmed', balances: wallet.balances });
+    res.json({ success: true, message: response.data.message || 'Top-up confirmed', balances: wallet.balances });
 
   } catch (error) {
     console.log(error.response?.data || error);

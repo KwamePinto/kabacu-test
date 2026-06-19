@@ -538,11 +538,13 @@ exports.startTopUp = async (req, res) => {
       reference
     });
 
+    let otpMessage = 'OTP sent to your Telegram Bot.';
     try {
-      await axios.post(
+      const otpRes = await axios.post(
         'https://dev-api.bittokenapp.com/api/user/send-otp',
         { minerId: user.minerId }
       );
+      otpMessage = otpRes.data?.message || otpMessage;
     } catch (apiErr) {
       await TopUp.findByIdAndDelete(topup._id);
       const apiMsg = apiErr.response?.data?.message || apiErr.message || 'OTP service unavailable';
@@ -550,7 +552,7 @@ exports.startTopUp = async (req, res) => {
       return res.json({ success: false, message: apiMsg });
     }
 
-    res.json({ success: true, topupId: topup._id });
+    res.json({ success: true, topupId: topup._id, message: otpMessage });
 
   } catch (error) {
     console.log('START TOPUP ERROR:', error);
@@ -611,7 +613,7 @@ exports.confirmTopUp = async (req, res) => {
     topup.status = 'COMPLETED';
     await topup.save();
 
-    res.json({ success: true });
+    res.json({ success: true, message: response.data.message || 'Top-up confirmed' });
 
   } catch (error) {
     console.log(error.response?.data || error);

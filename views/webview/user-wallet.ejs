@@ -211,7 +211,7 @@
     if (data.success) {
       topupId = data.topupId;
       document.getElementById('otpBox').style.display = 'block';
-      Swal.fire({ icon: 'warning', text: 'OTP Sent to your Telegram bot' });
+      Swal.fire({ icon: 'success', text: data.message });
     } else {
       Swal.fire({ icon: 'error', text: data.message });
     }
@@ -226,7 +226,7 @@
     });
     const data = await res.json();
     if (data.success) {
-      Swal.fire({ icon: 'success', text: 'Wallet funded successfully' });
+      Swal.fire({ icon: 'success', text: data.message });
       setTimeout(() => location.reload(), 1500);
     } else {
       Swal.fire({ icon: 'error', text: data.message });
