@@ -135,12 +135,18 @@
 .pw-toggle:hover { color: var(--text); }
 .pw-toggle svg   { width: 17px; height: 17px; pointer-events: none; }
 
+/* ── Auth form compact overrides ────────────────────────── */
+.auth-form .form-group {
+  gap: 3px;
+  margin-bottom: 12px;
+}
+
 /* ── Password strength meter ─────────────────────────────── */
 .pw-strength {
   display: none;
   align-items: center;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 3px;
 }
 
 .pw-strength.visible { display: flex; }

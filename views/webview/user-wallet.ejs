@@ -156,19 +156,26 @@
         </button>
       </div>
 
-      <!-- PalmPay fund Naira wallet -->
+      <!-- Fund Naira Wallet -->
       <div class="action-card">
         <h3 class="action-card__title">
           <i data-lucide="credit-card"></i>
           Fund Naira Wallet
         </h3>
-        <p class="action-card__desc">Pay securely via PalmPay</p>
+        <p class="action-card__desc">Choose a payment method and fund your Naira balance</p>
 
         <div class="form-group">
           <label class="form-label">Payment Method</label>
           <div class="input-wrapper">
             <i data-lucide="credit-card"></i>
-            <input type="text" value="PalmPay" class="form-input" disabled>
+            <select id="paymentMethod" class="form-input form-select">
+              <option value="">Select payment method</option>
+              <% if (paymentMethods && paymentMethods.length > 0) { %>
+                <% paymentMethods.forEach(function(m) { %>
+                  <option value="<%= m.name %>"><%= m.name %></option>
+                <% }) %>
+              <% } %>
+            </select>
           </div>
         </div>
 
@@ -180,14 +187,14 @@
           </div>
         </div>
 
-        <button id="palmpayBtn" class="btn btn--primary btn--full">
+        <button id="palmpayBtn" class="btn btn--primary btn--full" disabled>
           <i data-lucide="external-link"></i>
-          Pay with PalmPay
+          <span id="palmpayBtnText">Select a payment method</span>
         </button>
 
         <p class="action-note">
           <i data-lucide="info"></i>
-          You will be redirected to PalmPay secure checkout
+          You will be redirected to the secure payment checkout
         </p>
       </div>
 
@@ -281,19 +288,37 @@
     }
   });
 
-  // ── PalmPay ───────────────────────────────────────────────
+  // ── Payment method selector ───────────────────────────────
+  document.getElementById('paymentMethod').addEventListener('change', function () {
+    var method = this.value;
+    var btn     = document.getElementById('palmpayBtn');
+    var btnText = document.getElementById('palmpayBtnText');
+    if (method) {
+      btn.disabled    = false;
+      btnText.textContent = 'Pay with ' + method;
+    } else {
+      btn.disabled    = true;
+      btnText.textContent = 'Select a payment method';
+    }
+  });
+
+  // ── Fund Naira Wallet ─────────────────────────────────────
   document.getElementById('palmpayBtn').addEventListener('click', async () => {
+    const method = document.getElementById('paymentMethod').value;
     const amount = document.getElementById('palmpayAmount').value;
-    //const conversion = amount * 100;
-    if (!amount) {
-      Swal.fire({ icon: 'warning', text: 'Enter amount' });
+    if (!method) {
+      Swal.fire({ icon: 'warning', text: 'Please select a payment method' });
+      return;
+    }
+    if (!amount || amount < 100) {
+      Swal.fire({ icon: 'warning', text: 'Enter a valid amount (minimum ₦100)' });
       return;
     }
     try {
       const response = await fetch('/palmpay/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
-        body: JSON.stringify({ amount })
+        body: JSON.stringify({ amount, paymentMethod: method })
       });
       const data = await response.json();
       if (data.success) {

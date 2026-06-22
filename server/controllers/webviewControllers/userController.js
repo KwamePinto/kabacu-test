@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt')
+﻿const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const validator = require('validator')
 const countries = require("i18n-iso-countries");
@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
     const x = op.x !== undefined ? op.x : a;
     const y = op.y !== undefined ? op.y : b;
     req.session.mathCaptchaAnswer = op.answer;
-    res.render('webview/login', { hideHeader: true, mathQuestion: `${x} ${op.sym} ${y}` });
+    res.render('webview/login', { hideHeader: true, hideFooter: true, mathQuestion: `${x} ${op.sym} ${y}` });
 }
 
 exports.loginPost = async (req,res)=>{
@@ -239,7 +239,7 @@ const countryNames = countries.getNames("en");
     const y = op.y !== undefined ? op.y : b;
     req.session.signupMathCaptcha = op.answer;
 
-    res.render('webview/register', { countryNames, hideHeader: true, mathQuestion: `${x} ${op.sym} ${y}` })
+    res.render('webview/register', { countryNames, hideHeader: true, hideFooter: true, mathQuestion: `${x} ${op.sym} ${y}` })
 
 }
 
@@ -1283,3 +1283,4 @@ exports.profileChangePasswordNewPost = async (req, res) => {
     return res.redirect('/user/profile-change-password-new');
   }
 };
+

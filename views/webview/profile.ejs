@@ -132,15 +132,15 @@
 
         
 
-         <!-- <div class="form-group">
-          <label class="form-label">Miner ID</label>
+        <div class="form-group">
+          <label class="form-label">Miner ID <span style="font-weight:400;color:var(--color-muted);">(optional)</span></label>
           <div class="input-wrapper">
             <i data-lucide="cpu"></i>
-            <input type="text" name="minerId" value="<%= user.minerId %>" class="form-input" placeholder="Your miner ID" pattern="[0-9]{0,11}" title="Miner ID must be a number with a maximum of 11 digits" maxlength="11" inputmode="numeric">
+            <input type="text" name="minerId" value="<%= user.minerId || '' %>" class="form-input" placeholder="Your miner ID" pattern="[0-9]{0,11}" title="Miner ID must be a number with a maximum of 11 digits" maxlength="11" inputmode="numeric">
           </div>
-        </div> -->
+        </div>
 
-    
+
 
 
 

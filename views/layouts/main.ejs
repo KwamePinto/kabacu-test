@@ -40,8 +40,11 @@
     <%- body %>
   </main>
 
+  <% if (!locals.hideFooter) { %>
   <%- include('../partials/footer') %>
+  <% } %>
 
+  <% if (!locals.hideFooter) { %>
   <!-- Bottom Navigation (mobile only) -->
   <nav class="bottom-nav" id="bottomNav">
     <a href="/" class="bottom-nav__item" data-path="/">
@@ -80,6 +83,7 @@
       </div>
     </div>
   </div>
+  <% } %>
   <% } %>
 
   <!-- Lucide icons render -->
@@ -287,6 +291,7 @@
   </script>
 
   <!-- Tawk.to live chat -->
+  <% if (!locals.hideFooter) { %>
   <script type="text/javascript">
     var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
     /* Offset the bubble up on mobile so it clears the bottom nav bar */
@@ -305,6 +310,7 @@
       s0.parentNode.insertBefore(s1, s0);
     })();
   </script>
+  <% } %>
 
 
   <!-- Flash messages (success / error from server) -->

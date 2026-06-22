@@ -8,6 +8,7 @@ const Wallet = require('../../models/WalletModal')
 const TopUp = require('../../models/TopUpModal')
 const Transaction = require('../../models/TransactionModel')
 const Conversion = require('../../models/ConversionModal')
+const PaymentMethod = require('../../models/PaymentMethodModel')
 const axios = require('axios');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
@@ -499,11 +500,12 @@ exports.itemCheckout = async (req, res) => {
 exports.userWallet = async (req, res) => {
   try {
     const userId = req.user.id;
-    const [user, wallet] = await Promise.all([
+    const [user, wallet, paymentMethods] = await Promise.all([
       User.findById(userId),
-      Wallet.findOne({ user: userId })
+      Wallet.findOne({ user: userId }),
+      PaymentMethod.find({ isActive: true }).sort({ createdAt: 1 })
     ]);
-    res.render('webview/user-wallet', { user, wallet });
+    res.render('webview/user-wallet', { user, wallet, paymentMethods });
   } catch (error) {
     console.log(error);
     res.render('webview/user-wallet', { user: null, wallet: null });
@@ -548,7 +550,9 @@ exports.startTopUp = async (req, res) => {
       otpMessage = otpRes.data?.message || otpMessage;
     } catch (apiErr) {
       await TopUp.findByIdAndDelete(topup._id);
-      const apiMsg = apiErr.response?.data?.message || apiErr.message || 'OTP service unavailable';
+      const apiMsg = apiErr.response?.data?.message
+        || apiErr.response?.data?.error
+        || 'Could not send OTP. Please check your Miner ID or try again later.';
       console.log('TOPUP OTP API ERROR:', apiErr.response?.data || apiErr.message);
       return res.json({ success: false, message: apiMsg });
     }
@@ -578,19 +582,27 @@ exports.confirmTopUp = async (req, res) => {
 
     const user = await User.findById(req.user.id);
 
-    const response = await axios.post(
-      'https://dev-api.bittokenapp.com/api/user/deduct-fund',
-      {
-        minerId: user.minerId,
-        otp,
-        amount: topup.amount,
-        balance_type: topup.balanceType
-      },
-      
-    );
+    let response;
+    try {
+      response = await axios.post(
+        'https://dev-api.bittokenapp.com/api/user/deduct-fund',
+        {
+          minerId: user.minerId,
+          otp,
+          amount: topup.amount,
+          balance_type: topup.balanceType
+        }
+      );
+    } catch (apiErr) {
+      const apiMsg = apiErr.response?.data?.message
+        || apiErr.response?.data?.error
+        || 'Deduction failed. Please check your OTP and try again.';
+      console.log('CONFIRM TOPUP API ERROR:', apiErr.response?.data || apiErr.message);
+      return res.json({ success: false, message: apiMsg });
+    }
 
     if (response.data.status !== 200) {
-      return res.json({ success: false, message: 'Deduction failed' });
+      return res.json({ success: false, message: response.data.message || 'Deduction failed' });
     }
 
     // ✅ Wallet update (NEW LOGIC)
