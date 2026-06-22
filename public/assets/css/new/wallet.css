@@ -1,8 +1,22 @@
-/* =========================================================
+﻿/* =========================================================
    WALLET — balance cards, action panels
    ========================================================= */
 
-.wallet-page { padding: 32px 0 64px; }
+.wallet-page { padding: 24px 0 64px; }
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
+.back-btn svg { width: 16px; height: 16px; }
+.back-btn:hover { opacity: .75; }
 
 /* Balance cards row */
 .balance-grid {
@@ -140,3 +154,4 @@
 }
 
 .otp-section.visible { display: flex; }
+
