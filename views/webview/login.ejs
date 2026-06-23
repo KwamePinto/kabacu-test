@@ -38,12 +38,15 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" style="margin-bottom:8px;display:block;">
-          Human check &nbsp;<span style="background:#e8f5ee;color:#15a844;border:1.5px dashed #15a844;border-radius:8px;padding:4px 14px;font-size:1.1rem;font-weight:700;letter-spacing:2px;"><%= mathQuestion %> = ?</span>
+        <label class="form-label" style="margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+          Human check &nbsp;<span id="mathQuestion" style="background:#e8f5ee;color:#15a844;border:1.5px dashed #15a844;border-radius:8px;padding:4px 14px;font-size:1.1rem;font-weight:700;letter-spacing:2px;"><%= mathQuestion %> = ?</span>
+          <button type="button" id="refreshCaptcha" title="Get new question" style="background:none;border:none;cursor:pointer;color:#15a844;padding:2px;display:flex;align-items:center;">
+            <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i>
+          </button>
         </label>
         <div class="input-wrapper">
           <i data-lucide="calculator"></i>
-          <input type="number" name="mathAnswer" class="form-input" placeholder="Enter the answer" required inputmode="numeric" autocomplete="off">
+          <input type="number" id="mathAnswer" name="mathAnswer" class="form-input" placeholder="Enter the answer" required inputmode="numeric" autocomplete="off">
         </div>
       </div>
 
@@ -73,4 +76,19 @@
     });
   });
 })();
+
+/* ── Refresh math captcha ─────────────────────────────── */
+document.getElementById('refreshCaptcha').addEventListener('click', async function() {
+  var btn = this;
+  btn.style.opacity = '0.4';
+  btn.style.pointerEvents = 'none';
+  try {
+    var res  = await fetch('/user/refresh-captcha?type=login');
+    var data = await res.json();
+    document.getElementById('mathQuestion').textContent = data.question + ' = ?';
+    document.getElementById('mathAnswer').value = '';
+  } catch (e) { /* silently ignore */ }
+  btn.style.opacity = '';
+  btn.style.pointerEvents = '';
+});
 </script>

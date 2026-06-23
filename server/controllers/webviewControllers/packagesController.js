@@ -1,4 +1,4 @@
-
+﻿
 const { buyData  } = require('../../services/ourdatastore');
 const Product = require('../../models/ProductsModal')
 const Checkout = require('../../models/CheckoutModal')
@@ -1810,7 +1810,7 @@ exports.editUserProfile = async (req, res) => {
     });
 
     if (existingEmail) {
-      req.flash('error_msg', 'Email already exists');
+      req.flash('error', 'Email already exists');
       return res.redirect('/user-profile');
     }
 
@@ -1821,16 +1821,18 @@ exports.editUserProfile = async (req, res) => {
     });
 
     if (existingUsername) {
-      req.flash('error_msg', 'Username already exists');
+      req.flash('error', 'Username already exists');
       return res.redirect('/user-profile');
     }
+
+    const currentUser = await User.findById(userId);
 
     let parsedMinerId = null;
     if (minerId && minerId.trim() !== '') {
       const trimmed = minerId.trim();
       const isNum = /^\d+$/.test(trimmed);
-      if (!isNum || trimmed.length > 11) {
-        req.flash('error_msg', 'Miner ID must be a number with a maximum of 11 digits');
+      if (!isNum || (trimmed.length !== 10 && trimmed.length !== 11)) {
+        req.flash('error', 'Miner ID must be exactly 10 or 11 digits');
         return res.redirect('/user-profile');
       }
       parsedMinerId = Number(trimmed);
@@ -1842,8 +1844,25 @@ exports.editUserProfile = async (req, res) => {
       });
 
       if (existingMinerId) {
-        req.flash('error_msg', 'Miner ID already taken');
+        req.flash('error', 'Miner ID already taken');
         return res.redirect('/user-profile');
+      }
+
+      // Validate via API only when the miner ID has actually changed
+      if (currentUser.minerId !== parsedMinerId) {
+        try {
+          await axios.post(
+            'https://dev-api.bittokenapp.com/api/user/kabacu/verify/user',
+            { email_id: email, miner_id: parsedMinerId }
+          );
+        } catch (apiErr) {
+          const apiMsg = apiErr.response?.data?.message
+            || apiErr.response?.data?.error
+            || 'Invalid Miner ID. Please check and try again.';
+          console.log('MINER ID VERIFY ERROR:', apiErr.response?.data || apiErr.message);
+          req.flash('error', apiMsg);
+          return res.redirect('/user-profile');
+        }
       }
     }
 
@@ -1857,12 +1876,12 @@ exports.editUserProfile = async (req, res) => {
       { returnDocument: 'after' }
     );
 
-    req.flash('success_msg', 'Profile updated successfully');
+    req.flash('success', 'Profile updated successfully');
     res.redirect('/user-profile');
 
   } catch (error) {
     console.log(error);
-    req.flash('error_msg', 'Something went wrong');
+    req.flash('error', 'Something went wrong');
     res.redirect('/user-profile');
   }
 };
@@ -2022,4 +2041,5 @@ exports.conversionHistory = async (req, res) => {
     res.redirect('/user-profile');
   }
 };
+
 

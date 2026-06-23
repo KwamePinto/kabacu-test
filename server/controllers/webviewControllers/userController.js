@@ -618,6 +618,28 @@ exports.logout = (req, res) => {
     res.redirect('/')
 }
 
+exports.refreshCaptcha = (req, res) => {
+    const { type } = req.query;
+    const a = Math.floor(Math.random() * 9) + 1;
+    const b = Math.floor(Math.random() * 9) + 1;
+    const ops = [
+        { sym: '+', answer: a + b },
+        { sym: '−', answer: Math.max(a, b) - Math.min(a, b), x: Math.max(a, b), y: Math.min(a, b) },
+        { sym: '×', answer: a * b }
+    ];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    const x = op.x !== undefined ? op.x : a;
+    const y = op.y !== undefined ? op.y : b;
+
+    if (type === 'signup') {
+        req.session.signupMathCaptcha = op.answer;
+    } else {
+        req.session.mathCaptchaAnswer = op.answer;
+    }
+
+    res.json({ question: `${x} ${op.sym} ${y}` });
+};
+
 exports.resetPassword = async (req, res) => {
   res.render('webview/reset-password', { hideHeader: true });
 };
