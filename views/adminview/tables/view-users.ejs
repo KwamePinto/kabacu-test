@@ -69,7 +69,6 @@
                             <th>Miner ID</th>
                             <th>RP Balance</th>
                             <th>Verified</th>
-                            <th>Joined</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -104,14 +103,11 @@
                                     <span class="badge badge-danger">Unverified</span>
                                   <% } %>
                                 </td>
-                                <td>
-                                  <small><%= new Date(user.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) %></small>
-                                </td>
                               </tr>
                             <% }) %>
                           <% } else { %>
                             <tr>
-                              <td colspan="8" class="text-center">No users found</td>
+                              <td colspan="7" class="text-center">No users found</td>
                             </tr>
                           <% } %>
                         </tbody>
