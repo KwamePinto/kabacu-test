@@ -21,7 +21,7 @@
         <label class="form-label">Full Name</label>
         <div class="input-wrapper">
           <i data-lucide="user"></i>
-          <input type="text" name="username" class="form-input" placeholder="Enter your full name" required>
+          <input type="text" id="fullName" name="username" class="form-input" placeholder="Enter your full name" required>
         </div>
       </div>
 
@@ -271,6 +271,21 @@ document.getElementById('refreshCaptcha').addEventListener('click', async functi
   } catch (e) { /* silently ignore */ }
   btn.style.opacity = '';
   btn.style.pointerEvents = '';
+});
+
+/* ── Full name: letters and spaces only ───────────────── */
+document.getElementById('fullName').addEventListener('input', function() {
+  this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+  var valid = this.value.trim().length > 0 && /^[a-zA-Z\s]+$/.test(this.value.trim());
+  this.style.outline     = this.value === '' ? '' : '2px solid ' + (valid ? '#15a844' : '#dc3545');
+  this.style.borderColor = this.value === '' ? '' :                (valid ? '#15a844' : '#dc3545');
+});
+
+/* ── Phone number: digits only ────────────────────────── */
+document.getElementById('phoneLocal').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g, '');
+  this.style.outline     = this.value === '' ? '' : '2px solid #15a844';
+  this.style.borderColor = this.value === '' ? '' : '#15a844';
 });
 
 /* ── Form submit validation ───────────────────────────── */
