@@ -210,6 +210,7 @@ exports.viewTransactions =[authenticateAdminUser, async(req,res)=>{
     const transactions = await Transaction.find()
   .populate('user')
   .populate('product')
+  .populate('products.product')
   .sort({ createdAt: -1 });
     res.render('adminview/tables/transactions',{
        layout:adminLayouts,
