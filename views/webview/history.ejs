@@ -24,6 +24,7 @@
       <th>Package</th>
       <th>Amount</th>
       <th>Status</th>
+      <th>Date</th>
       <th>Action</th>
     </tr>
   </thead>
@@ -87,6 +88,14 @@
             <% } %>
           </td>
 
+          <td data-label="Date">
+            <small>
+              <%= new Date(tx.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) %>
+              <br>
+              <%= new Date(tx.createdAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }) %>
+            </small>
+          </td>
+
           <td data-label="Action">
             <% if (tx.status === 'failed') { %>
               <button
@@ -104,7 +113,7 @@
 
     <% } else { %>
       <tr>
-        <td colspan="5">
+        <td colspan="6">
           <div class="empty-state">
             <i data-lucide="inbox"></i>
             <p>No transactions found</p>

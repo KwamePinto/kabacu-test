@@ -234,6 +234,27 @@
   });
 })();
 
+/* ── Math captcha: parse equation and return expected answer ── */
+function getMathAnswer() {
+  var text = document.getElementById('mathQuestion').textContent.replace('= ?', '').trim();
+  var m = text.match(/(-?\d+)\s*([+\-*\/×÷])\s*(-?\d+)/);
+  if (!m) return NaN;
+  var a = parseInt(m[1], 10), op = m[2], b = parseInt(m[3], 10);
+  if (op === '+')            return a + b;
+  if (op === '-')            return a - b;
+  if (op === '*' || op === '×') return a * b;
+  if (op === '/' || op === '÷') return a / b;
+  return NaN;
+}
+
+/* ── Real-time border feedback on math answer ────────────── */
+document.getElementById('mathAnswer').addEventListener('input', function() {
+  if (this.value === '') { this.style.outline = ''; this.style.borderColor = ''; return; }
+  var correct = parseInt(this.value, 10) === getMathAnswer();
+  this.style.outline     = '2px solid ' + (correct ? '#15a844' : '#dc3545');
+  this.style.borderColor =                (correct ? '#15a844' : '#dc3545');
+});
+
 /* ── Refresh math captcha ─────────────────────────────── */
 document.getElementById('refreshCaptcha').addEventListener('click', async function() {
   var btn = this;
@@ -243,7 +264,10 @@ document.getElementById('refreshCaptcha').addEventListener('click', async functi
     var res  = await fetch('/user/refresh-captcha?type=signup');
     var data = await res.json();
     document.getElementById('mathQuestion').textContent = data.question + ' = ?';
-    document.getElementById('mathAnswer').value = '';
+    var inp = document.getElementById('mathAnswer');
+    inp.value = '';
+    inp.style.outline = '';
+    inp.style.borderColor = '';
   } catch (e) { /* silently ignore */ }
   btn.style.opacity = '';
   btn.style.pointerEvents = '';
