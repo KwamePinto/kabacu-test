@@ -152,10 +152,6 @@
           </div>
         </div>
 
-        <div class="conversion-preview" id="conversionPreview" style="display:none;">
-          <span id="conversionRate"></span>
-        </div>
-
         <button id="convertBtn" class="btn btn--primary btn--full">
           <i data-lucide="arrow-right"></i>
           Convert Now
@@ -258,18 +254,33 @@
       return Swal.fire({ icon: 'error', title: 'Amount too low', text: 'Minimum USDT top-up is 0.50.' });
     }
 
-    const res = await fetch('/wallet/start-topup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
-      body: JSON.stringify({ amount, balanceType })
-    });
-    const data = await res.json();
-    if (data.success) {
-      topupId = data.topupId;
-      document.getElementById('otpBox').style.display = 'block';
-      Swal.fire({ icon: 'success', text: data.message });
-    } else {
-      Swal.fire({ icon: 'error', text: data.message });
+    const btn = document.getElementById('startTopup');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader"></i> Sending OTP...';
+    if (window.lucide) lucide.createIcons();
+
+    try {
+      const res = await fetch('/wallet/start-topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
+        body: JSON.stringify({ amount, balanceType })
+      });
+      const data = await res.json();
+      if (data.success) {
+        topupId = data.topupId;
+        document.getElementById('otpBox').style.display = 'block';
+        Swal.fire({ icon: 'success', text: data.message });
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send"></i> Request OTP';
+        if (window.lucide) lucide.createIcons();
+        Swal.fire({ icon: 'error', text: data.message });
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="send"></i> Request OTP';
+      if (window.lucide) lucide.createIcons();
+      Swal.fire({ icon: 'error', text: 'Something went wrong. Please try again.' });
     }
   });
 
@@ -290,25 +301,33 @@
   });
 
   // ── USDT preview ──────────────────────────────────────────
+  let conversionController = null;
+
   document.getElementById('usdtAmount').addEventListener('input', async function () {
     const amount = this.value;
-    if (!amount || amount <= 0) {
+
+    if (conversionController) conversionController.abort();
+
+    if (!amount || parseFloat(amount) <= 0) {
       document.getElementById('nairaAmount').value = '';
-      document.getElementById('conversionPreview').style.display = 'none';
       return;
     }
+
+    conversionController = new AbortController();
     try {
       const res = await fetch('/wallet/preview-conversion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
-        body: JSON.stringify({ amount })
+        body: JSON.stringify({ amount }),
+        signal: conversionController.signal
       });
       const data = await res.json();
       if (data.success) {
         document.getElementById('nairaAmount').value = '₦' + Number(data.nairaAmount).toLocaleString();
-        document.getElementById('conversionPreview').style.display = 'block';
       }
-    } catch (err) { console.log(err); }
+    } catch (err) {
+      if (err.name !== 'AbortError') console.log(err);
+    }
   });
 
   // ── USDT convert ──────────────────────────────────────────

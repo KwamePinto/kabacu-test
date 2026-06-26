@@ -237,13 +237,13 @@
 /* ── Math captcha: parse equation and return expected answer ── */
 function getMathAnswer() {
   var text = document.getElementById('mathQuestion').textContent.replace('= ?', '').trim();
-  var m = text.match(/(-?\d+)\s*([+\-*\/×÷])\s*(-?\d+)/);
+  var m = text.match(/(\d+)\s*([+\-−×÷*\/])\s*(\d+)/);
   if (!m) return NaN;
   var a = parseInt(m[1], 10), op = m[2], b = parseInt(m[3], 10);
-  if (op === '+')            return a + b;
-  if (op === '-')            return a - b;
-  if (op === '*' || op === '×') return a * b;
-  if (op === '/' || op === '÷') return a / b;
+  if (op === '+')                      return a + b;
+  if (op === '-' || op === '−')   return a - b;
+  if (op === '*' || op === '×')        return a * b;
+  if (op === '/' || op === '÷')        return a / b;
   return NaN;
 }
 
