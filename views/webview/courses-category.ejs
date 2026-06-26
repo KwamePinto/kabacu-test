@@ -1,20 +1,59 @@
-<section class="category-page">
-  <div class="container">
-    <div class="page-hero">
-      <h1 class="page-hero__title">
-        <i data-lucide="graduation-cap"></i>
-        Courses
-      </h1>
-      <p class="page-hero__sub">Learn new skills at your own pace</p>
-    </div>
-    <div class="coming-soon" style="max-width:520px;margin:60px auto;">
-      <i data-lucide="graduation-cap"></i>
-      <h3>Coming Soon</h3>
-      <p>Our course library is being curated by experts. Check back soon!</p>
-      <a href="/" class="btn btn--primary btn--sm">
-        <i data-lucide="arrow-left"></i>
-        Back to Home
-      </a>
-    </div>
+<section class="courses-coming-soon">
+
+  <div class="courses-banner-wrap">
+    <img
+      src="/assets/images/courses-banner.jpeg"
+      alt="Courses – Coming Soon"
+      class="courses-banner__img"
+    >
   </div>
+
+  <div class="courses-cta">
+    <a href="/" class="btn btn--outline">
+      <i data-lucide="arrow-left"></i>
+      Back to Home
+    </a>
+  </div>
+
 </section>
+
+<style>
+  .courses-coming-soon {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px 48px;
+    background: #f8fdf9;
+  }
+
+  .courses-banner-wrap {
+    width: 100%;
+    max-width: 1200px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10);
+  }
+
+  .courses-banner__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .courses-cta {
+    margin-top: 32px;
+  }
+
+  @media (max-width: 600px) {
+    .courses-banner-wrap {
+      border-radius: 12px;
+    }
+
+    .courses-coming-soon {
+      padding: 24px 12px 36px;
+    }
+  }
+</style>
