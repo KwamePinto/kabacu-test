@@ -1856,11 +1856,8 @@ exports.editUserProfile = async (req, res) => {
             { email_id: email, miner_id: parsedMinerId }
           );
         } catch (apiErr) {
-          const apiMsg = apiErr.response?.data?.message
-            || apiErr.response?.data?.error
-            || 'Invalid Miner ID. Please check and try again.';
           console.log('MINER ID VERIFY ERROR:', apiErr.response?.data || apiErr.message);
-          req.flash('error', apiMsg);
+          req.flash('error', `Your email (${email}) and the miner ID you entered (${parsedMinerId}) do not match an account on BitToken App.`);
           return res.redirect('/user-profile');
         }
       }
