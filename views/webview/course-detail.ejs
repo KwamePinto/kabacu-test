@@ -1,0 +1,301 @@
+<%
+  /* resolve thumbnail to an absolute URL */
+  var thumb = course.thumbnail
+    ? (/^https?:\/\//i.test(course.thumbnail)
+        ? course.thumbnail
+        : coursesApiUrl.replace(/\/$/, '') + '/' + course.thumbnail.replace(/^\//, ''))
+    : null;
+
+  var price = course.price
+    ? '₦' + Number(course.price).toLocaleString()
+    : 'Free';
+
+  var diffColor = { Beginner: '#15a844', Intermediate: '#f97316', Advanced: '#e53e3e' };
+  var diffBg    = { Beginner: '#e8f5ee', Intermediate: '#fff3e0', Advanced: '#fdecea' };
+%>
+
+<style>
+.cd-page { padding-bottom: 64px; }
+
+/* ── Back link ───────────────────────────────────────────── */
+.cd-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  text-decoration: none; padding: 16px 0 12px;
+  transition: color .15s;
+}
+.cd-back:hover { color: var(--primary); }
+.cd-back svg { width: 15px; height: 15px; }
+
+/* ── Hero image ──────────────────────────────────────────── */
+.cd-hero {
+  width: 100%; height: 240px;
+  overflow: hidden; background: var(--primary-light);
+  display: flex; align-items: center; justify-content: center;
+}
+.cd-hero img { width:100%; height:100%; object-fit:cover; display:block; }
+.cd-hero svg { width:56px; height:56px; color:var(--primary); opacity:.35; }
+@media (min-width: 768px) { .cd-hero { height: 360px; } }
+
+/* ── Layout ──────────────────────────────────────────────── */
+.cd-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+@media (min-width: 900px) {
+  .cd-layout { grid-template-columns: 1fr 300px; gap: 32px; align-items: start; }
+}
+
+/* ── Main content ────────────────────────────────────────── */
+.cd-meta { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+
+.cd-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+  padding: 3px 10px; border-radius: 4px;
+  color: var(--primary); background: var(--primary-light);
+}
+.cd-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 4px;
+}
+
+.cd-title {
+  font-size: 24px; font-weight: 800; line-height: 1.25;
+  color: var(--text); margin-bottom: 6px;
+}
+@media (min-width: 768px) { .cd-title { font-size: 30px; } }
+
+.cd-instructor {
+  font-size: 14px; color: var(--muted); margin-bottom: 20px;
+}
+
+/* ── Stats bar ───────────────────────────────────────────── */
+.cd-stats {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.cd-stat {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 14px 8px; gap: 2px;
+  background: var(--white);
+}
+.cd-stat + .cd-stat { border-left: 1px solid var(--border); }
+.cd-stat__icon { color: var(--primary); margin-bottom: 4px; }
+.cd-stat__icon svg { width: 18px; height: 18px; }
+.cd-stat__val { font-size: 17px; font-weight: 800; color: var(--text); }
+.cd-stat__lbl { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+/* ── Section blocks ──────────────────────────────────────── */
+.cd-section { margin-bottom: 24px; }
+.cd-section__label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--muted); margin-bottom: 8px;
+}
+.cd-section__text {
+  font-size: 14px; color: var(--text-sub); line-height: 1.7;
+}
+
+/* ── Learn list ──────────────────────────────────────────── */
+.cd-learn {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 560px) { .cd-learn { grid-template-columns: 1fr 1fr; } }
+
+.cd-learn li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: var(--text-sub); line-height: 1.45;
+}
+.cd-learn li::before {
+  content: ''; flex-shrink: 0;
+  width: 18px; height: 18px; margin-top: 1px;
+  border-radius: 50%; background: var(--primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-size: 10px; background-repeat: no-repeat; background-position: center;
+}
+
+/* ── Sidebar / price card ────────────────────────────────── */
+.cd-sidebar {}
+
+.cd-price-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 22px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+}
+@media (min-width: 900px) {
+  .cd-price-card { position: sticky; top: 80px; }
+}
+
+.cd-price-card__amount {
+  font-size: 32px; font-weight: 800; color: var(--text);
+  margin-bottom: 16px;
+}
+.cd-price-card__enroll {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px;
+  background: var(--primary); color: #fff;
+  border: none; border-radius: 6px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: opacity .15s;
+  text-decoration: none;
+}
+.cd-price-card__enroll:hover { opacity: .9; color: #fff; }
+.cd-price-card__enroll svg { width: 17px; height: 17px; }
+
+.cd-price-card__perks {
+  list-style: none; margin-top: 18px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cd-price-card__perks li {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text-sub);
+}
+.cd-price-card__perks li svg { width:14px; height:14px; color:var(--primary); flex-shrink:0; }
+
+/* mobile sticky price bar */
+.cd-mobile-price {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  position: fixed; bottom: var(--bottom-nav-h); left: 0; right: 0;
+  background: var(--white); border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  z-index: 80;
+}
+@media (min-width: 900px) { .cd-mobile-price { display: none; } }
+
+.cd-mobile-price__amount { font-size: 20px; font-weight: 800; color: var(--text); }
+.cd-mobile-price__btn {
+  flex-shrink: 0; padding: 11px 24px;
+  background: var(--primary); color: #fff;
+  border: none; border-radius: 6px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: opacity .15s; text-decoration: none;
+}
+.cd-mobile-price__btn:hover { opacity: .9; color: #fff; }
+</style>
+
+<section class="cd-page">
+  <div class="container">
+    <a href="/category/course-category" class="cd-back">
+      <i data-lucide="arrow-left"></i>
+      All Courses
+    </a>
+  </div>
+
+  <!-- Hero image -->
+  <div class="cd-hero">
+    <% if (thumb) { %>
+    <img src="<%= thumb %>" alt="<%= course.title %>">
+    <% } else { %>
+    <i data-lucide="book-open"></i>
+    <% } %>
+  </div>
+
+  <div class="container">
+    <div class="cd-layout">
+
+      <!-- ── Main ── -->
+      <div class="cd-main">
+
+        <div class="cd-meta">
+          <% if (course.category) { %>
+          <span class="cd-tag"><%= course.category %></span>
+          <% } %>
+          <% if (course.difficulty) { %>
+          <span class="cd-badge" style="background:<%= diffBg[course.difficulty] || '#f0f0f0' %>;color:<%= diffColor[course.difficulty] || '#555' %>">
+            <%= course.difficulty %>
+          </span>
+          <% } %>
+        </div>
+
+        <h1 class="cd-title"><%= course.title %></h1>
+
+        <% if (course.instructor) { %>
+        <p class="cd-instructor">by <%= course.instructor %></p>
+        <% } %>
+
+        <!-- Stats -->
+        <div class="cd-stats">
+          <div class="cd-stat">
+            <div class="cd-stat__icon"><i data-lucide="layout-list"></i></div>
+            <div class="cd-stat__val"><%= course.chapterCount || '—' %></div>
+            <div class="cd-stat__lbl">Chapters</div>
+          </div>
+          <div class="cd-stat">
+            <div class="cd-stat__icon"><i data-lucide="play-circle"></i></div>
+            <div class="cd-stat__val"><%= course.lessonCount || '—' %></div>
+            <div class="cd-stat__lbl">Lessons</div>
+          </div>
+          <div class="cd-stat">
+            <div class="cd-stat__icon"><i data-lucide="clock"></i></div>
+            <div class="cd-stat__val"><%= course.estimatedDuration || '—' %></div>
+            <div class="cd-stat__lbl">Duration</div>
+          </div>
+        </div>
+
+        <% if (course.overview) { %>
+        <div class="cd-section">
+          <div class="cd-section__label">Overview</div>
+          <p class="cd-section__text"><%= course.overview %></p>
+        </div>
+        <% } %>
+
+        <% if (course.description) { %>
+        <div class="cd-section">
+          <div class="cd-section__label">About this course</div>
+          <p class="cd-section__text"><%= course.description %></p>
+        </div>
+        <% } %>
+
+        <% if (course.whatYouWillLearn && course.whatYouWillLearn.length) { %>
+        <div class="cd-section">
+          <div class="cd-section__label">What you'll learn</div>
+          <ul class="cd-learn">
+            <% course.whatYouWillLearn.forEach(function(pt) { %>
+            <li><%= pt %></li>
+            <% }) %>
+          </ul>
+        </div>
+        <% } %>
+
+      </div>
+
+      <!-- ── Sidebar (desktop) ── -->
+      <div class="cd-sidebar">
+        <div class="cd-price-card">
+          <div class="cd-price-card__amount"><%= price %></div>
+          <a href="#" class="cd-price-card__enroll">
+            <i data-lucide="zap"></i>
+            Enroll Now
+          </a>
+          <ul class="cd-price-card__perks">
+            <% if (course.lessonCount) { %>
+            <li><i data-lucide="play-circle"></i> <%= course.lessonCount %> lessons</li>
+            <% } %>
+            <% if (course.estimatedDuration) { %>
+            <li><i data-lucide="clock"></i> <%= course.estimatedDuration %></li>
+            <% } %>
+            <li><i data-lucide="infinity"></i> Full lifetime access</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Mobile sticky price bar -->
+<div class="cd-mobile-price">
+  <div class="cd-mobile-price__amount"><%= price %></div>
+  <a href="#" class="cd-mobile-price__btn">Enroll Now</a>
+</div>

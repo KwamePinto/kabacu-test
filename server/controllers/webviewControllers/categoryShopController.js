@@ -2,6 +2,7 @@ const Product = require('../../models/ProductsModal')
 const Checkout = require('../../models/CheckoutModal')
 const User = require('../../models/UserModel')
 const Cart = require('../../models/CartModal')
+const axios = require('axios')
 
 const { authenticateUser } = require('../../config/authMiddleware');
 
@@ -81,19 +82,32 @@ try{
 }
 
 
-exports.courseCategory =async (req,res)=>{
-try{
-    const coursesProducts = await Product.find({ category: 'COURSES' }).sort({ createdAt: -1 }).limit(9);
-    res.render('webview/courses-category',{
-        coursesProducts
-    })
-}catch(erro){
-    console.log(error)
+exports.courseCategory = async (req, res) => {
+  try {
+    res.render('webview/courses-category', {
+      coursesApiUrl: process.env.COURSES_API_URL || 'http://localhost:5000'
+    });
+  } catch (erro) {
+    console.log(erro);
+  }
 }
 
 
-}
-
+exports.courseDetail = async (req, res) => {
+  try {
+    const apiUrl = process.env.COURSES_API_URL || 'http://localhost:5000';
+    const response = await axios.get(`${apiUrl}/api/public/courses/${req.params.id}`, {
+      headers: { 'Cache-Control': 'no-cache' }
+    });
+    const data = response.data;
+    const course = data.course || data.data || (typeof data === 'object' && !Array.isArray(data) ? data : null);
+    if (!course) return res.redirect('/category/course-category');
+    res.render('webview/course-detail', { course, coursesApiUrl: apiUrl });
+  } catch (err) {
+    console.error(err);
+    res.redirect('/category/course-category');
+  }
+};
 
 exports.p2pCategory = async (req,res)=>{
 try{
