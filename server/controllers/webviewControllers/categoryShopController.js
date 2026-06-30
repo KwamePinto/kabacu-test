@@ -85,13 +85,25 @@ try{
 
 
 exports.courseCategory = async (req, res) => {
+  const apiUrl = process.env.COURSES_API_URL || 'http://localhost:5000';
+  let courses  = [];
+  let apiError = false;
+
   try {
-    res.render('webview/courses-category', {
-      coursesApiUrl: process.env.COURSES_API_URL || 'http://localhost:5000'
+    const response = await axios.get(`${apiUrl}/api/public/courses`, {
+      headers: { 'Cache-Control': 'no-cache' }
     });
-  } catch (erro) {
-    console.log(erro);
+    const data = response.data;
+    courses = Array.isArray(data)          ? data
+            : Array.isArray(data.courses)  ? data.courses
+            : Array.isArray(data.data)     ? data.data
+            : [];
+  } catch (err) {
+    console.error('[courseCategory]', err.message);
+    apiError = true;
   }
+
+  res.render('webview/courses-category', { coursesApiUrl: apiUrl, courses, apiError });
 }
 
 

@@ -44,20 +44,6 @@
       <button onclick="clearFilters()" class="btn btn--primary btn--sm">Clear filters</button>
     </div>
 
-    <!-- loading skeletons -->
-    <div id="coursesLoading" class="course-grid">
-      <% for(var i=0;i<8;i++){ %>
-      <div class="course-card course-card--skeleton">
-        <div class="course-card__thumb" style="background:#e8e8e8;animation:skel-pulse 1.4s ease infinite"></div>
-        <div class="course-card__body">
-          <div class="skel skel--line skel--w60"></div>
-          <div class="skel skel--line skel--w80" style="margin-top:6px"></div>
-          <div class="skel skel--line skel--w40" style="margin-top:10px"></div>
-        </div>
-      </div>
-      <% } %>
-    </div>
-
     <!-- populated grid -->
     <div id="coursesGrid" class="course-grid" style="display:none"></div>
 
@@ -66,21 +52,13 @@
       <i data-lucide="book-open"></i>
       <h3>No courses yet</h3>
       <p>Our course library is being curated by experts. Check back soon!</p>
-      <a href="/" class="btn btn--primary btn--sm">
-        <i data-lucide="arrow-left"></i>
-        Back to Home
-      </a>
     </div>
 
     <!-- error state -->
-    <div id="coursesError" style="display:none;max-width:520px;margin:60px auto;" class="coming-soon">
+    <div id="coursesError" style="display:<%= apiError ? 'block' : 'none' %>;max-width:520px;margin:60px auto;" class="coming-soon">
       <i data-lucide="wifi-off"></i>
       <h3>Could not load courses</h3>
       <p>Please check your connection and try again.</p>
-      <button onclick="loadCourses()" class="btn btn--primary btn--sm">
-        <i data-lucide="refresh-cw"></i>
-        Retry
-      </button>
     </div>
 
   </div>
@@ -281,16 +259,14 @@
     return BASE_URL + '/' + url.replace(/^\//, '');
   }
 
-  /* ── State ── */
-  var allCourses      = [];
+  /* ── State (seeded server-side) ── */
+  var allCourses      = <%- JSON.stringify(courses) %>;
   var activeCategory  = 'ALL';
   var searchQuery     = '';
 
   /* ── DOM refs ── */
   var grid        = document.getElementById('coursesGrid');
-  var loading     = document.getElementById('coursesLoading');
   var empty       = document.getElementById('coursesEmpty');
-  var errBox      = document.getElementById('coursesError');
   var noResults   = document.getElementById('coursesNoResults');
   var noResultMsg = document.getElementById('coursesNoResultsMsg');
   var pillsWrap   = document.getElementById('categoryPills');
@@ -438,44 +414,19 @@
     applyFilter();
   };
 
-  /* ── Load courses from API ── */
-  window.loadCourses = function () {
-    loading.style.display   = 'grid';
-    grid.style.display      = 'none';
-    empty.style.display     = 'none';
-    errBox.style.display    = 'none';
-    noResults.style.display = 'none';
-    pillsWrap.style.display = 'none';
+  /* ── Init from server-rendered data ── */
+  (function init() {
+    if (<%= apiError %>) { lucide.createIcons(); return; }
 
-    fetch('<%= coursesApiUrl %>/api/public/courses', { cache: 'no-store' })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        loading.style.display = 'none';
+    if (!allCourses.length) {
+      empty.style.display = 'block';
+      lucide.createIcons();
+      return;
+    }
 
-        var list = Array.isArray(data) ? data
-          : Array.isArray(data.courses) ? data.courses
-          : Array.isArray(data.data)    ? data.data
-          : [];
-
-        if (!list.length) {
-          empty.style.display = 'block';
-          lucide.createIcons();
-          return;
-        }
-
-        allCourses = list;
-        buildPills();
-        grid.style.display = 'grid';
-        renderCards(allCourses);
-      })
-      .catch(function (err) {
-        console.error('[Courses API]', err);
-        loading.style.display = 'none';
-        errBox.style.display  = 'block';
-        lucide.createIcons();
-      });
-  };
-
-  loadCourses();
+    buildPills();
+    grid.style.display = 'grid';
+    renderCards(allCourses);
+  }());
 }());
 </script>
