@@ -1,12 +1,13 @@
 const router  = require('express').Router();
 const apiAuth = require('../middleware/apiAuth');
 
-const auth        = require('../controllers/apiControllers/authController');
-const products    = require('../controllers/apiControllers/productController');
-const checkout    = require('../controllers/apiControllers/checkoutController');
-const wallet      = require('../controllers/apiControllers/walletController');
-const transaction = require('../controllers/apiControllers/transactionController');
-const profile     = require('../controllers/apiControllers/profileController');
+const auth          = require('../controllers/apiControllers/authController');
+const products      = require('../controllers/apiControllers/productController');
+const checkout      = require('../controllers/apiControllers/checkoutController');
+const wallet        = require('../controllers/apiControllers/walletController');
+const transaction   = require('../controllers/apiControllers/transactionController');
+const profile       = require('../controllers/apiControllers/profileController');
+const publicCourses = require('../controllers/apiControllers/publicCoursesController');
 
 // ── Auth (public) ──────────────────────────────────────────
 router.post('/auth/login',          auth.login);
@@ -46,5 +47,8 @@ router.post('/transactions/:id/retry', apiAuth, transaction.retryTransaction);
 // ── Profile (auth required) ────────────────────────────────
 router.get('/profile', apiAuth, profile.getProfile);
 router.put('/profile', apiAuth, profile.updateProfile);
+
+// ── Course access (public — used by external course website) ──
+router.get('/public/course-access', publicCourses.courseAccess);
 
 module.exports = router;

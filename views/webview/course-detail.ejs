@@ -6,12 +6,14 @@
         : coursesApiUrl.replace(/\/$/, '') + '/' + course.thumbnail.replace(/^\//, ''))
     : null;
 
-  var price = course.price
-    ? '₦' + Number(course.price).toLocaleString()
-    : 'Free';
+  var coursePrice = Number(course.price) || 0;
+  var isPaid      = coursePrice > 0;
+  var price       = isPaid ? '₦' + coursePrice.toLocaleString() : 'Free';
 
   var diffColor = { Beginner: '#15a844', Intermediate: '#f97316', Advanced: '#e53e3e' };
   var diffBg    = { Beginner: '#e8f5ee', Intermediate: '#fff3e0', Advanced: '#fdecea' };
+
+  var courseIdStr = String(course.id || course._id || '');
 %>
 
 <style>
@@ -152,6 +154,10 @@
 .cd-price-card__enroll:hover { opacity: .9; color: #fff; }
 .cd-price-card__enroll svg { width: 17px; height: 17px; }
 
+.cd-price-card__enroll--access {
+  background: #15a844;
+}
+
 .cd-price-card__perks {
   list-style: none; margin-top: 18px;
   display: flex; flex-direction: column; gap: 8px;
@@ -182,6 +188,17 @@
   transition: opacity .15s; text-decoration: none;
 }
 .cd-mobile-price__btn:hover { opacity: .9; color: #fff; }
+.cd-mobile-price__btn--access { background: #15a844; }
+
+/* ── Wallet balance in modal ─────────────────────────────── */
+.pay-modal-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px;
+}
+.pay-modal-row:last-child { border-bottom: none; }
+.pay-modal-row__label { color: #666; }
+.pay-modal-row__val { font-weight: 700; color: #111; }
+.pay-modal-insufficient { color: #e53e3e; font-size: 13px; margin-top: 8px; }
 </style>
 
 <section class="cd-page">
@@ -274,10 +291,24 @@
       <div class="cd-sidebar">
         <div class="cd-price-card">
           <div class="cd-price-card__amount"><%= price %></div>
-          <a href="#" class="cd-price-card__enroll">
-            <i data-lucide="zap"></i>
-            Enroll Now
+
+          <% if (alreadyPurchased) { %>
+          <a href="#" class="cd-price-card__enroll cd-price-card__enroll--access">
+            <i data-lucide="check-circle"></i>
+            You Have Access
           </a>
+          <% } else if (isPaid) { %>
+          <button type="button" class="cd-price-card__enroll" onclick="handleBuy()">
+            <i data-lucide="shopping-cart"></i>
+            Buy Now
+          </button>
+          <% } else { %>
+          <button type="button" class="cd-price-card__enroll" onclick="handleEnrollFree()">
+            <i data-lucide="zap"></i>
+            Enroll for Free
+          </button>
+          <% } %>
+
           <ul class="cd-price-card__perks">
             <% if (course.lessonCount) { %>
             <li><i data-lucide="play-circle"></i> <%= course.lessonCount %> lessons</li>
@@ -297,5 +328,101 @@
 <!-- Mobile sticky price bar -->
 <div class="cd-mobile-price">
   <div class="cd-mobile-price__amount"><%= price %></div>
-  <a href="#" class="cd-mobile-price__btn">Enroll Now</a>
+  <% if (alreadyPurchased) { %>
+  <a href="#" class="cd-mobile-price__btn cd-mobile-price__btn--access">You Have Access</a>
+  <% } else if (isPaid) { %>
+  <button type="button" class="cd-mobile-price__btn" onclick="handleBuy()">Buy Now</button>
+  <% } else { %>
+  <button type="button" class="cd-mobile-price__btn" onclick="handleEnrollFree()">Enroll for Free</button>
+  <% } %>
 </div>
+
+<!-- Hidden form for purchase submission -->
+<form id="cd-buy-form" method="POST" action="/category/course/<%= courseIdStr %>/buy" style="display:none">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+</form>
+
+<script>
+(function () {
+  var isLoggedIn          = <%= user ? 'true' : 'false' %>;
+  var walletBal           = <%= (walletBalance !== null && walletBalance !== undefined) ? Number(walletBalance) : 'null' %>;
+  var courseTitle         = '<%= (course.title || "").replace(/'/g, "\\'") %>';
+  var coursePrice         = <%= coursePrice %>;
+  var courseId            = '<%= courseIdStr %>';
+  var cskillshubLoginUrl  = '<%= cskillshubLoginUrl %>';
+
+  function redirectToLogin() {
+    window.location.href = '/user/login?redirect=' + encodeURIComponent('/category/course/' + courseId);
+  }
+
+  window.handleBuy = function () {
+    if (!isLoggedIn) { redirectToLogin(); return; }
+
+    var hasFunds = walletBal !== null && walletBal >= coursePrice;
+    var balHtml  = walletBal !== null
+      ? '&#8358;' + Number(walletBal).toLocaleString()
+      : '<em>unavailable</em>';
+
+    Swal.fire({
+      title: 'Confirm Purchase',
+      html:
+        '<div class="pay-modal-row"><span class="pay-modal-row__label">Course</span><span class="pay-modal-row__val">' + courseTitle + '</span></div>' +
+        '<div class="pay-modal-row"><span class="pay-modal-row__label">Price</span><span class="pay-modal-row__val">&#8358;' + Number(coursePrice).toLocaleString() + '</span></div>' +
+        '<div class="pay-modal-row"><span class="pay-modal-row__label">Wallet Balance</span><span class="pay-modal-row__val">' + balHtml + '</span></div>' +
+        (!hasFunds ? '<p class="pay-modal-insufficient">Insufficient wallet balance. Please top up first.</p>' : ''),
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Pay Now',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: 'var(--primary)',
+      showConfirmButton: hasFunds,
+    }).then(function (result) {
+      if (result.isConfirmed) {
+        document.getElementById('cd-buy-form').submit();
+      }
+    });
+  };
+
+  window.handleEnrollFree = function () {
+    if (!isLoggedIn) { redirectToLogin(); return; }
+
+    Swal.fire({
+      title: 'Enroll for Free?',
+      text: courseTitle,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Enroll',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: 'var(--primary)',
+    }).then(function (result) {
+      if (result.isConfirmed) {
+        document.getElementById('cd-buy-form').submit();
+      }
+    });
+  };
+
+  /* ── Handle redirect status messages ── */
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('enrolled') === '1') {
+    Swal.fire({
+      title: 'Enrolment Successful!',
+      html:
+        'You now have full access to <strong>"' + courseTitle + '"</strong>.<br><br>' +
+        'Head over to CSkillsHub and log in with your registered email address to begin your learning journey.',
+      icon: 'success',
+      confirmButtonText: 'Start Learning Now',
+      confirmButtonColor: 'var(--primary)',
+      showCancelButton: true,
+      cancelButtonText: 'Later',
+    }).then(function (result) {
+      if (result.isConfirmed) window.open(cskillshubLoginUrl, '_blank');
+    });
+  } else if (params.get('already') === '1') {
+    Swal.fire({ title: 'Already Enrolled', text: 'You already have access to this course.', icon: 'info', confirmButtonColor: 'var(--primary)' });
+  } else if (params.get('insufficient') === '1') {
+    Swal.fire({ title: 'Insufficient Balance', text: 'Your wallet balance is too low. Please top up to purchase this course.', icon: 'error', confirmButtonColor: 'var(--primary)' });
+  } else if (params.get('error') === '1') {
+    Swal.fire({ title: 'Something went wrong', text: 'Please try again.', icon: 'error', confirmButtonColor: 'var(--primary)' });
+  }
+})();
+</script>

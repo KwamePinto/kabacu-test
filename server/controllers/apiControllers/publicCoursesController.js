@@ -1,4 +1,5 @@
 const Product = require('../../models/ProductsModal');
+const CoursePurchase = require('../../models/CoursePurchaseModel');
 
 exports.getCourses = async (req, res) => {
   try {
@@ -55,6 +56,29 @@ exports.getCourse = async (req, res) => {
         lessonCount:       d.lessonCount || 0,
         estimatedDuration: d.estimatedDuration || '',
       }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.courseAccess = async (req, res) => {
+  try {
+    const email = (req.query.email || '').toLowerCase().trim();
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'email query parameter is required' });
+    }
+    const purchases = await CoursePurchase.find({ email }).sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      email,
+      courses: purchases.map(p => ({
+        courseId:    p.courseId,
+        courseTitle: p.courseTitle,
+        purchasedAt: p.createdAt,
+        free:        p.free,
+      })),
     });
   } catch (err) {
     console.error(err);
