@@ -114,33 +114,28 @@
       <form action="/edit-user-profile" method="post" class="profile-form">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
+        <input type="hidden" name="email" value="<%= user.email %>">
+
         <div class="form-group">
           <label class="form-label">Full Name</label>
           <div class="input-wrapper">
             <i data-lucide="user"></i>
-            <input type="text" name="username" value="<%= user.username %>" class="form-input" required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Email address</label>
-          <div class="input-wrapper">
-            <i data-lucide="mail"></i>
-            <input type="email" name="email" value="<%= user.email %>" class="form-input" readonly>
+            <input type="text" id="usernameInput" name="username" value="<%= user.username %>" class="form-input"
+              pattern="[A-Za-z\s]+" title="Full name can only contain letters and spaces" required>
           </div>
         </div>
 
         
 
-         <!-- <div class="form-group">
-          <label class="form-label">Miner ID</label>
+        <div class="form-group">
+          <label class="form-label">Miner ID <span style="font-weight:400;color:var(--color-muted);">(optional)</span></label>
           <div class="input-wrapper">
             <i data-lucide="cpu"></i>
-            <input type="text" name="minerId" value="<%= user.minerId %>" class="form-input" placeholder="Your miner ID" pattern="[0-9]{0,11}" title="Miner ID must be a number with a maximum of 11 digits" maxlength="11" inputmode="numeric">
+            <input type="text" name="minerId" value="<%= user.minerId || '' %>" class="form-input" placeholder="10 or 11 digit miner ID" pattern="[0-9]{10,11}" title="Miner ID must be exactly 10 or 11 digits" maxlength="11" minlength="10" inputmode="numeric">
           </div>
-        </div> -->
+        </div>
 
-    
+
 
 
 
@@ -180,3 +175,23 @@
 
 </div>
 </div>
+
+<script>
+(function() {
+  var input = document.getElementById('usernameInput');
+  if (!input) return;
+  input.addEventListener('input', function() {
+    var pos = this.selectionStart;
+    var cleaned = this.value.replace(/[^A-Za-z\s]/g, '');
+    if (cleaned !== this.value) {
+      this.value = cleaned;
+      this.setSelectionRange(pos - 1, pos - 1);
+    }
+  });
+  input.addEventListener('keydown', function(e) {
+    if (e.key.length === 1 && /[^A-Za-z\s]/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+})();
+</script>

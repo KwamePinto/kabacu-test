@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt')
+﻿const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const validator = require('validator')
 const countries = require("i18n-iso-countries");
@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
     const x = op.x !== undefined ? op.x : a;
     const y = op.y !== undefined ? op.y : b;
     req.session.mathCaptchaAnswer = op.answer;
-    res.render('webview/login', { hideHeader: true, mathQuestion: `${x} ${op.sym} ${y}` });
+    res.render('webview/login', { hideHeader: true, hideFooter: true, mathQuestion: `${x} ${op.sym} ${y}` });
 }
 
 exports.loginPost = async (req,res)=>{
@@ -239,7 +239,7 @@ const countryNames = countries.getNames("en");
     const y = op.y !== undefined ? op.y : b;
     req.session.signupMathCaptcha = op.answer;
 
-    res.render('webview/register', { countryNames, hideHeader: true, mathQuestion: `${x} ${op.sym} ${y}` })
+    res.render('webview/register', { countryNames, hideHeader: true, hideFooter: true, mathQuestion: `${x} ${op.sym} ${y}` })
 
 }
 
@@ -617,6 +617,28 @@ exports.logout = (req, res) => {
     res.clearCookie('user_token')
     res.redirect('/')
 }
+
+exports.refreshCaptcha = (req, res) => {
+    const { type } = req.query;
+    const a = Math.floor(Math.random() * 9) + 1;
+    const b = Math.floor(Math.random() * 9) + 1;
+    const ops = [
+        { sym: '+', answer: a + b },
+        { sym: '−', answer: Math.max(a, b) - Math.min(a, b), x: Math.max(a, b), y: Math.min(a, b) },
+        { sym: '×', answer: a * b }
+    ];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    const x = op.x !== undefined ? op.x : a;
+    const y = op.y !== undefined ? op.y : b;
+
+    if (type === 'signup') {
+        req.session.signupMathCaptcha = op.answer;
+    } else {
+        req.session.mathCaptchaAnswer = op.answer;
+    }
+
+    res.json({ question: `${x} ${op.sym} ${y}` });
+};
 
 exports.resetPassword = async (req, res) => {
   res.render('webview/reset-password', { hideHeader: true });
@@ -1283,3 +1305,4 @@ exports.profileChangePasswordNewPost = async (req, res) => {
     return res.redirect('/user/profile-change-password-new');
   }
 };
+

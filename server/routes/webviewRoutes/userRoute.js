@@ -56,6 +56,7 @@ router.get('/signup', getUser.signup);
 router.post('/signup', signupLimiter, getUser.signupPost);
 
 router.get('/logout', getUser.logout);
+router.get('/refresh-captcha', getUser.refreshCaptcha);
 
 router.get('/reset-password', getUser.resetPassword);
 router.post('/reset-password', passwordLimiter, getUser.resetPasswordPost);

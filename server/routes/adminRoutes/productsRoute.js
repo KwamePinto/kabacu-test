@@ -19,6 +19,9 @@ router.get('/view-transactions',getProducts.viewTransactions)
 
 router.get('/view-topUps',getProducts.viewTopUps)
 
-
+router.get('/payment-methods', getProducts.viewPaymentMethods);
+router.post('/payment-methods/add', getProducts.addPaymentMethod);
+router.get('/payment-methods/toggle/:id', getProducts.togglePaymentMethod);
+router.get('/payment-methods/delete/:id', getProducts.deletePaymentMethod);
 
 module.exports = router;

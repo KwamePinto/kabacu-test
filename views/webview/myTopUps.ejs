@@ -1,6 +1,13 @@
 <section class="history-page">
   <div class="container">
 
+    <div style="margin-top:24px;">
+      <a href="/user-profile" class="btn btn--outline">
+        <i data-lucide="arrow-left"></i>
+        Back to Profile
+      </a>
+    </div>
+
     <div class="page-hero">
       <h1 class="page-hero__title">
         <i data-lucide="wallet"></i>
@@ -23,6 +30,7 @@
             <th>Amount</th>
             <!-- <th>Method</th> -->
             <th>Status</th>
+            <th>Time</th>
             <th>Date</th>
           </tr>
         </thead>
@@ -98,9 +106,15 @@
 
                 </td>
 
+                   <td data-label="Time">
+                  <%= new Date(topup.createdAt).toLocaleTimeString() %>
+                </td>
+
                 <td data-label="Date">
                   <%= new Date(topup.createdAt).toLocaleDateString() %>
                 </td>
+
+             
 
               </tr>
 
@@ -119,7 +133,7 @@
                   </p>
 
                   <a
-                    href="/wallet"
+                    href="/my-wallet"
                     class="btn btn--primary btn--sm">
                     Fund Wallet
                   </a>

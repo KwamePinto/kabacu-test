@@ -5,6 +5,7 @@ const TopUp = require('../../models/TopUpModal')
 const Category = require('../../models/CategoryModal');
 const Product =  require('../../models/ProductsModal');
 const User = require('../../models/UserModel')
+const PaymentMethod = require('../../models/PaymentMethodModel')
 
 const { authenticateAdminUser } = require('../../config/authMiddleware');
 
@@ -209,6 +210,7 @@ exports.viewTransactions =[authenticateAdminUser, async(req,res)=>{
     const transactions = await Transaction.find()
   .populate('user')
   .populate('product')
+  .populate('products.product')
   .sort({ createdAt: -1 });
     res.render('adminview/tables/transactions',{
        layout:adminLayouts,
@@ -226,14 +228,70 @@ exports.viewTopUps =[authenticateAdminUser, async(req,res)=>{
     const topups = await TopUp.find()
   .populate('user')
   .sort({ createdAt: -1 });
-  
+
     res.render('adminview/tables/topUps',{
        layout:adminLayouts,
        topups
-    
+
     })
 
   }catch(err){
     console.log(err)
   }
 }]
+
+exports.viewPaymentMethods = [authenticateAdminUser, async (req, res) => {
+  try {
+    const methods = await PaymentMethod.find().sort({ createdAt: -1 });
+    res.render('adminview/payment-methods', { layout: adminLayouts, methods });
+  } catch (err) {
+    console.log(err);
+  }
+}];
+
+exports.addPaymentMethod = [authenticateAdminUser, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+      req.flash('error', 'Payment method name is required');
+      return res.redirect('/admin/product/payment-methods');
+    }
+    const exists = await PaymentMethod.findOne({ name: name.trim() });
+    if (exists) {
+      req.flash('error', 'A payment method with that name already exists');
+      return res.redirect('/admin/product/payment-methods');
+    }
+    await PaymentMethod.create({ name: name.trim() });
+    req.flash('success', 'Payment method added');
+    res.redirect('/admin/product/payment-methods');
+  } catch (err) {
+    console.log(err);
+    req.flash('error', 'Something went wrong');
+    res.redirect('/admin/product/payment-methods');
+  }
+}];
+
+exports.togglePaymentMethod = [authenticateAdminUser, async (req, res) => {
+  try {
+    const method = await PaymentMethod.findById(req.params.id);
+    if (method) {
+      method.isActive = !method.isActive;
+      await method.save();
+    }
+    res.redirect('/admin/product/payment-methods');
+  } catch (err) {
+    console.log(err);
+    res.redirect('/admin/product/payment-methods');
+  }
+}];
+
+exports.deletePaymentMethod = [authenticateAdminUser, async (req, res) => {
+  try {
+    await PaymentMethod.findByIdAndDelete(req.params.id);
+    req.flash('success', 'Payment method deleted');
+    res.redirect('/admin/product/payment-methods');
+  } catch (err) {
+    console.log(err);
+    res.redirect('/admin/product/payment-methods');
+  }
+}];

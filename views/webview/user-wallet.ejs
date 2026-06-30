@@ -8,6 +8,12 @@
 <section class="wallet-page">
   <div class="container">
 
+    <!-- Back button -->
+    <a href="/user-profile" class="back-btn">
+      <i data-lucide="arrow-left"></i>
+      Back to Profile
+    </a>
+
     <!-- Page hero -->
     <div class="page-hero">
       <h1 class="page-hero__title">
@@ -66,7 +72,7 @@
           <i data-lucide="arrow-up-circle"></i>
           Top-Up Wallet
         </h3>
-        <p class="action-card__desc">Fund BTT, RP, or USDT via BitToken OTP</p>
+        <p class="action-card__desc">Fund BTT, or USDT via BitToken OTP</p>
 
         <div class="form-group">
           <label class="form-label">Wallet Type</label>
@@ -75,7 +81,7 @@
             <select id="walletType" class="form-input form-select">
               <option value="">Select wallet type</option>
               <option value="BTT">BTT</option>
-              <option value="RP">RP</option>
+              <!-- <option value="RP">RP</option> -->
               <option value="USDT">USDT</option>
             </select>
           </div>
@@ -85,7 +91,7 @@
           <label class="form-label">Amount</label>
           <div class="input-wrapper">
             <i data-lucide="hash"></i>
-            <input type="number" id="amount" class="form-input" placeholder="Enter amount">
+            <input type="number" id="amount" class="form-input" placeholder="Enter amount" step="0.01">
           </div>
         </div>
 
@@ -146,29 +152,32 @@
           </div>
         </div>
 
-        <div class="conversion-preview" id="conversionPreview" style="display:none;">
-          <span id="conversionRate"></span>
-        </div>
-
         <button id="convertBtn" class="btn btn--primary btn--full">
           <i data-lucide="arrow-right"></i>
           Convert Now
         </button>
       </div>
 
-      <!-- PalmPay fund Naira wallet -->
+      <!-- Fund Naira Wallet -->
       <div class="action-card">
         <h3 class="action-card__title">
           <i data-lucide="credit-card"></i>
           Fund Naira Wallet
         </h3>
-        <p class="action-card__desc">Pay securely via PalmPay</p>
+        <p class="action-card__desc">Choose a payment method and fund your Naira balance</p>
 
         <div class="form-group">
           <label class="form-label">Payment Method</label>
           <div class="input-wrapper">
             <i data-lucide="credit-card"></i>
-            <input type="text" value="PalmPay" class="form-input" disabled>
+            <select id="paymentMethod" class="form-input form-select">
+              <option value="">Select payment method</option>
+              <% if (paymentMethods && paymentMethods.length > 0) { %>
+                <% paymentMethods.forEach(function(m) { %>
+                  <option value="<%= m.name %>"><%= m.name %></option>
+                <% }) %>
+              <% } %>
+            </select>
           </div>
         </div>
 
@@ -180,14 +189,14 @@
           </div>
         </div>
 
-        <button id="palmpayBtn" class="btn btn--primary btn--full">
+        <button id="palmpayBtn" class="btn btn--primary btn--full" disabled>
           <i data-lucide="external-link"></i>
-          Pay with PalmPay
+          <span id="palmpayBtnText">Select a payment method</span>
         </button>
 
         <p class="action-note">
           <i data-lucide="info"></i>
-          You will be redirected to PalmPay secure checkout
+          You will be redirected to the secure payment checkout
         </p>
       </div>
 
@@ -198,22 +207,80 @@
 <script>
   let topupId = null;
 
+  const USDT_MIN = 0.50;
+
+  // ── Wallet type selector: update amount constraints ─────
+  document.getElementById('walletType').addEventListener('change', function () {
+    const amountInput = document.getElementById('amount');
+    if (this.value === 'USDT') {
+      amountInput.min = USDT_MIN;
+      amountInput.placeholder = 'Minimum 0.50 USDT';
+    } else {
+      amountInput.removeAttribute('min');
+      amountInput.placeholder = 'Enter amount';
+    }
+    amountInput.value = '';
+    amountInput.setCustomValidity('');
+  });
+
+  // ── Real-time USDT minimum enforcement ──────────────────
+  document.getElementById('amount').addEventListener('input', function () {
+    const balanceType = document.getElementById('walletType').value;
+    if (balanceType !== 'USDT') return;
+    const val = parseFloat(this.value);
+    if (!isNaN(val) && val < USDT_MIN) {
+      this.setCustomValidity('Minimum USDT top-up is 0.50');
+      this.reportValidity();
+    } else {
+      this.setCustomValidity('');
+    }
+  });
+
   // ── BTT/RP/USDT Top-up ──────────────────────────────────
   document.getElementById('startTopup').addEventListener('click', async () => {
-    const amount = document.getElementById('amount').value;
+    const amountInput = document.getElementById('amount');
+    const amount = parseFloat(amountInput.value);
     const balanceType = document.getElementById('walletType').value;
-    const res = await fetch('/wallet/start-topup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
-      body: JSON.stringify({ amount, balanceType })
-    });
-    const data = await res.json();
-    if (data.success) {
-      topupId = data.topupId;
-      document.getElementById('otpBox').style.display = 'block';
-      Swal.fire({ icon: 'success', text: data.message });
-    } else {
-      Swal.fire({ icon: 'error', text: data.message });
+
+    if (!balanceType) {
+      return Swal.fire({ icon: 'warning', text: 'Please select a wallet type.' });
+    }
+
+    if (isNaN(amount) || amount <= 0) {
+      return Swal.fire({ icon: 'warning', text: 'Please enter a valid amount.' });
+    }
+
+    if (balanceType === 'USDT' && amount < USDT_MIN) {
+      return Swal.fire({ icon: 'error', title: 'Amount too low', text: 'Minimum USDT top-up is 0.50.' });
+    }
+
+    const btn = document.getElementById('startTopup');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader"></i> Sending OTP...';
+    if (window.lucide) lucide.createIcons();
+
+    try {
+      const res = await fetch('/wallet/start-topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
+        body: JSON.stringify({ amount, balanceType })
+      });
+      const data = await res.json();
+      if (data.success) {
+        topupId = data.topupId;
+        document.getElementById('otpBox').style.display = 'block';
+        Swal.fire({ icon: 'success', text: data.message });
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send"></i> Request OTP';
+        if (window.lucide) lucide.createIcons();
+        Swal.fire({ icon: 'error', text: data.message });
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="send"></i> Request OTP';
+      if (window.lucide) lucide.createIcons();
+      Swal.fire({ icon: 'error', text: 'Something went wrong. Please try again.' });
     }
   });
 
@@ -234,25 +301,33 @@
   });
 
   // ── USDT preview ──────────────────────────────────────────
+  let conversionController = null;
+
   document.getElementById('usdtAmount').addEventListener('input', async function () {
     const amount = this.value;
-    if (!amount || amount <= 0) {
+
+    if (conversionController) conversionController.abort();
+
+    if (!amount || parseFloat(amount) <= 0) {
       document.getElementById('nairaAmount').value = '';
-      document.getElementById('conversionPreview').style.display = 'none';
       return;
     }
+
+    conversionController = new AbortController();
     try {
       const res = await fetch('/wallet/preview-conversion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
-        body: JSON.stringify({ amount })
+        body: JSON.stringify({ amount }),
+        signal: conversionController.signal
       });
       const data = await res.json();
       if (data.success) {
         document.getElementById('nairaAmount').value = '₦' + Number(data.nairaAmount).toLocaleString();
-        document.getElementById('conversionPreview').style.display = 'block';
       }
-    } catch (err) { console.log(err); }
+    } catch (err) {
+      if (err.name !== 'AbortError') console.log(err);
+    }
   });
 
   // ── USDT convert ──────────────────────────────────────────
@@ -281,19 +356,37 @@
     }
   });
 
-  // ── PalmPay ───────────────────────────────────────────────
+  // ── Payment method selector ───────────────────────────────
+  document.getElementById('paymentMethod').addEventListener('change', function () {
+    var method = this.value;
+    var btn     = document.getElementById('palmpayBtn');
+    var btnText = document.getElementById('palmpayBtnText');
+    if (method) {
+      btn.disabled    = false;
+      btnText.textContent = 'Pay with ' + method;
+    } else {
+      btn.disabled    = true;
+      btnText.textContent = 'Select a payment method';
+    }
+  });
+
+  // ── Fund Naira Wallet ─────────────────────────────────────
   document.getElementById('palmpayBtn').addEventListener('click', async () => {
+    const method = document.getElementById('paymentMethod').value;
     const amount = document.getElementById('palmpayAmount').value;
-    //const conversion = amount * 100;
-    if (!amount) {
-      Swal.fire({ icon: 'warning', text: 'Enter amount' });
+    if (!method) {
+      Swal.fire({ icon: 'warning', text: 'Please select a payment method' });
+      return;
+    }
+    if (!amount || amount < 100) {
+      Swal.fire({ icon: 'warning', text: 'Enter a valid amount (minimum ₦100)' });
       return;
     }
     try {
       const response = await fetch('/palmpay/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
-        body: JSON.stringify({ amount })
+        body: JSON.stringify({ amount, paymentMethod: method })
       });
       const data = await response.json();
       if (data.success) {

@@ -21,7 +21,7 @@
         <label class="form-label">Full Name</label>
         <div class="input-wrapper">
           <i data-lucide="user"></i>
-          <input type="text" name="username" class="form-input" placeholder="Enter your full name" required>
+          <input type="text" id="fullName" name="username" class="form-input" placeholder="Enter your full name" required>
         </div>
       </div>
 
@@ -35,9 +35,75 @@
 
       <div class="form-group">
         <label class="form-label">Phone Number</label>
-        <div class="input-wrapper">
-          <i data-lucide="phone"></i>
-          <input type="text" name="phone_number" class="form-input" placeholder="024485632" required>
+        <div class="phone-field">
+          <select id="phoneCode" class="phone-field__code" aria-label="Country code">
+            <option value="+234">🇳🇬 +234</option>
+            <option value="+233">🇬🇭 +233</option>
+            <option value="+254">🇰🇪 +254</option>
+            <option value="+255">🇹🇿 +255</option>
+            <option value="+256">🇺🇬 +256</option>
+            <option value="+250">🇷🇼 +250</option>
+            <option value="+251">🇪🇹 +251</option>
+            <option value="+27">🇿🇦 +27</option>
+            <option value="+237">🇨🇲 +237</option>
+            <option value="+221">🇸🇳 +221</option>
+            <option value="+225">🇨🇮 +225</option>
+            <option value="+20">🇪🇬 +20</option>
+            <option value="+212">🇲🇦 +212</option>
+            <option value="+216">🇹🇳 +216</option>
+            <option value="+260">🇿🇲 +260</option>
+            <option value="+263">🇿🇼 +263</option>
+            <option value="+267">🇧🇼 +267</option>
+            <option value="+249">🇸🇩 +249</option>
+            <option value="+243">🇨🇩 +243</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+31">🇳🇱 +31</option>
+            <option value="+46">🇸🇪 +46</option>
+            <option value="+47">🇳🇴 +47</option>
+            <option value="+45">🇩🇰 +45</option>
+            <option value="+358">🇫🇮 +358</option>
+            <option value="+48">🇵🇱 +48</option>
+            <option value="+7">🇷🇺 +7</option>
+            <option value="+91">🇮🇳 +91</option>
+            <option value="+92">🇵🇰 +92</option>
+            <option value="+880">🇧🇩 +880</option>
+            <option value="+94">🇱🇰 +94</option>
+            <option value="+86">🇨🇳 +86</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+82">🇰🇷 +82</option>
+            <option value="+60">🇲🇾 +60</option>
+            <option value="+65">🇸🇬 +65</option>
+            <option value="+62">🇮🇩 +62</option>
+            <option value="+63">🇵🇭 +63</option>
+            <option value="+66">🇹🇭 +66</option>
+            <option value="+84">🇻🇳 +84</option>
+            <option value="+971">🇦🇪 +971</option>
+            <option value="+966">🇸🇦 +966</option>
+            <option value="+974">🇶🇦 +974</option>
+            <option value="+965">🇰🇼 +965</option>
+            <option value="+973">🇧🇭 +973</option>
+            <option value="+968">🇴🇲 +968</option>
+            <option value="+962">🇯🇴 +962</option>
+            <option value="+961">🇱🇧 +961</option>
+            <option value="+98">🇮🇷 +98</option>
+            <option value="+90">🇹🇷 +90</option>
+            <option value="+972">🇮🇱 +972</option>
+            <option value="+55">🇧🇷 +55</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+54">🇦🇷 +54</option>
+            <option value="+57">🇨🇴 +57</option>
+            <option value="+56">🇨🇱 +56</option>
+            <option value="+51">🇵🇪 +51</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+64">🇳🇿 +64</option>
+          </select>
+          <input type="text" id="phoneLocal" class="phone-field__num" placeholder="8012345678" inputmode="numeric" required>
+          <input type="hidden" name="phone_number" id="phoneNumber">
         </div>
       </div>
 
@@ -54,14 +120,6 @@
           
             
           </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Miner ID <span style="font-weight:400;color:var(--color-muted);">(optional)</span></label>
-        <div class="input-wrapper">
-          <i data-lucide="cpu"></i>
-          <input type="text" name="minerId" class="form-input" placeholder="Your miner ID" pattern="[0-9]{0,11}" title="Miner ID must be a number with a maximum of 11 digits" maxlength="11" inputmode="numeric">
         </div>
       </div>
 
@@ -100,12 +158,15 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" style="margin-bottom:8px;display:block;">
-          Human check &nbsp;<span style="background:#e8f5ee;color:#15a844;border:1.5px dashed #15a844;border-radius:8px;padding:4px 14px;font-size:1.1rem;font-weight:700;letter-spacing:2px;"><%= mathQuestion %> = ?</span>
+        <label class="form-label" style="margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+          Human check &nbsp;<span id="mathQuestion" style="background:#e8f5ee;color:#15a844;border:1.5px dashed #15a844;border-radius:8px;padding:4px 14px;font-size:1.1rem;font-weight:700;letter-spacing:2px;"><%= mathQuestion %> = ?</span>
+          <button type="button" id="refreshCaptcha" title="Get new question" style="background:none;border:none;cursor:pointer;color:#15a844;padding:2px;display:flex;align-items:center;">
+            <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i>
+          </button>
         </label>
         <div class="input-wrapper">
           <i data-lucide="calculator"></i>
-          <input type="number" name="mathAnswer" class="form-input" placeholder="Enter the answer" required inputmode="numeric" autocomplete="off">
+          <input type="number" id="mathAnswer" name="mathAnswer" class="form-input" placeholder="Enter the answer" required inputmode="numeric" autocomplete="off">
         </div>
       </div>
 
@@ -173,10 +234,81 @@
   });
 })();
 
+/* ── Math captcha: parse equation and return expected answer ── */
+function getMathAnswer() {
+  var text = document.getElementById('mathQuestion').textContent.replace('= ?', '').trim();
+  var m = text.match(/(\d+)\s*([+\-−×÷*\/])\s*(\d+)/);
+  if (!m) return NaN;
+  var a = parseInt(m[1], 10), op = m[2], b = parseInt(m[3], 10);
+  if (op === '+')                      return a + b;
+  if (op === '-' || op === '−')   return a - b;
+  if (op === '*' || op === '×')        return a * b;
+  if (op === '/' || op === '÷')        return a / b;
+  return NaN;
+}
+
+/* ── Real-time border feedback on math answer ────────────── */
+document.getElementById('mathAnswer').addEventListener('input', function() {
+  if (this.value === '') { this.style.outline = ''; this.style.borderColor = ''; return; }
+  var correct = parseInt(this.value, 10) === getMathAnswer();
+  this.style.outline     = '2px solid ' + (correct ? '#15a844' : '#dc3545');
+  this.style.borderColor =                (correct ? '#15a844' : '#dc3545');
+});
+
+/* ── Refresh math captcha ─────────────────────────────── */
+document.getElementById('refreshCaptcha').addEventListener('click', async function() {
+  var btn = this;
+  btn.style.opacity = '0.4';
+  btn.style.pointerEvents = 'none';
+  try {
+    var res  = await fetch('/user/refresh-captcha?type=signup');
+    var data = await res.json();
+    document.getElementById('mathQuestion').textContent = data.question + ' = ?';
+    var inp = document.getElementById('mathAnswer');
+    inp.value = '';
+    inp.style.outline = '';
+    inp.style.borderColor = '';
+  } catch (e) { /* silently ignore */ }
+  btn.style.opacity = '';
+  btn.style.pointerEvents = '';
+});
+
+/* ── Full name: letters and spaces only ───────────────── */
+document.getElementById('fullName').addEventListener('input', function() {
+  this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+  var valid = this.value.trim().length > 0 && /^[a-zA-Z\s]+$/.test(this.value.trim());
+  this.style.outline     = this.value === '' ? '' : '2px solid ' + (valid ? '#15a844' : '#dc3545');
+  this.style.borderColor = this.value === '' ? '' :                (valid ? '#15a844' : '#dc3545');
+});
+
+/* ── Phone number: digits only ────────────────────────── */
+document.getElementById('phoneLocal').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g, '');
+  this.style.outline     = this.value === '' ? '' : '2px solid #15a844';
+  this.style.borderColor = this.value === '' ? '' : '#15a844';
+});
+
 /* ── Form submit validation ───────────────────────────── */
 document.getElementById('signupForm').addEventListener('submit', function(e) {
+  var username        = document.querySelector('input[name="username"]').value.trim();
   var password        = document.getElementById('password').value;
   var confirmPassword = document.getElementById('confirm_password').value;
+  var phoneCode       = document.getElementById('phoneCode').value;
+  var phoneLocal      = document.getElementById('phoneLocal').value.trim();
+
+  if (/\d/.test(username)) {
+    e.preventDefault();
+    Swal.fire({ icon: 'error', text: 'Full Name cannot contain numbers.' });
+    return;
+  }
+
+  if (!phoneLocal) {
+    e.preventDefault();
+    Swal.fire({ icon: 'error', text: 'Please enter your phone number.' });
+    return;
+  }
+
+  document.getElementById('phoneNumber').value = phoneCode + phoneLocal;
 
   if (password.length < 8) {
     e.preventDefault();
