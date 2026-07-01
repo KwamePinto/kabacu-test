@@ -2039,4 +2039,8 @@ exports.conversionHistory = async (req, res) => {
   }
 };
 
+exports.faqPage = (req, res) => {
+  res.render('webview/faq');
+};
+
 
