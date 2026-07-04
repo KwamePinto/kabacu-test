@@ -1,4 +1,5 @@
 const { verifyUserToken, verifyUserAdminToken } = require('./authUtils');
+const UserAdminModel = require('../models/UserAdminModel');
 
 function authenticateUser(req, res, next) {
   const token = req.cookies.user_token;
@@ -34,7 +35,7 @@ function authenticateAdminUser(req, res, next) {
 
   if (!token) {
     console.log("You must be logged in.");
-    return res.redirect('/admin/user/login'); // ✅ NOT "/"
+    return res.redirect('/admin/user/login');
   }
 
   try {
@@ -48,12 +49,21 @@ function authenticateAdminUser(req, res, next) {
 
     res.locals.user = req.user;
 
-    next();
+    // Async check: if account has been deactivated since token was issued, kick them out
+    UserAdminModel.findById(decoded.userId).select('isActive').lean()
+      .then(function (admin) {
+        if (!admin || admin.isActive === false) {
+          res.clearCookie('admin_token');
+          return res.redirect('/admin/user/login');
+        }
+        next();
+      })
+      .catch(function () { next(); }); // on DB error, allow through to avoid locking everyone out
 
   } catch (error) {
     console.log("Invalid token:", error.message);
-    res.clearCookie('user_token');
-    return res.redirect('/admin/user/login'); // ✅ NOT "/"
+    res.clearCookie('admin_token');
+    return res.redirect('/admin/user/login');
   }
 }
 

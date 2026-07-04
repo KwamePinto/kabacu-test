@@ -30,7 +30,7 @@
                 <h4>All Administrators</h4>
                 <div class="card-header-action">
                   <% if (user && (user.role === 'super_admin' || user.role === 'senior_admin')) { %>
-                  <a href="/admin/user/admins/add" class="btn btn-primary">
+                  <a href="/admin/user/admins/add" class="btn btn-primary btn-sm">
                     <i data-feather="user-plus" style="width:14px;height:14px;margin-right:4px;"></i> Add Admin
                   </a>
                   <% } %>
@@ -48,17 +48,18 @@
                         <th>Department</th>
                         <th>Added By</th>
                         <th>Joined</th>
-                        <th>Profile</th>
+                        <th>Status</th>
+                        <% if (user && user.role === 'super_admin') { %><th>Actions</th><% } %>
                       </tr>
                     </thead>
                     <tbody>
                       <% if (admins && admins.length) { %>
                         <% admins.forEach(function(admin, i) { %>
-                        <tr>
+                        <tr id="row-<%= admin._id %>">
                           <td><%= i + 1 %></td>
                           <td>
                             <div style="display:flex;align-items:center;gap:8px;">
-                              <div style="width:32px;height:32px;border-radius:50%;background:#47c363;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;">
+                              <div style="width:32px;height:32px;border-radius:50%;background:<%= admin.isActive !== false ? '#47c363' : '#9ca3af' %>;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;">
                                 <%= admin.username.charAt(0).toUpperCase() %>
                               </div>
                               <span><%= admin.username %></span>
@@ -71,29 +72,47 @@
                               <%= admin.role.replace(/_/g, ' ') %>
                             </span>
                           </td>
-                          <td><%= admin.department || '<span class="text-muted">—</span>' %></td>
+                          <td><%= admin.department || '—' %></td>
                           <td>
-                            <% if (admin.addedBy) { %>
-                              <%= admin.addedBy.username %>
-                            <% } else { %>
-                              <span class="text-muted">—</span>
-                            <% } %>
+                            <%= admin.addedBy ? admin.addedBy.username : '<span class="text-muted">—</span>' %>
                           </td>
                           <td style="font-size:12px;color:#6b7280;">
                             <%= admin.createdAt ? new Date(admin.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—' %>
                           </td>
-                          <td>
-                            <% if (admin.profileCompleted) { %>
-                              <span class="badge badge-success" style="font-size:11px;">Complete</span>
+                          <td id="status-<%= admin._id %>">
+                            <% if (admin.isActive !== false) { %>
+                              <span class="badge badge-success" style="font-size:11px;padding:4px 8px;">Active</span>
                             <% } else { %>
-                              <span class="badge badge-secondary" style="font-size:11px;">Pending</span>
+                              <span class="badge badge-secondary" style="font-size:11px;padding:4px 8px;">Inactive</span>
                             <% } %>
                           </td>
+                          <% if (user && user.role === 'super_admin') { %>
+                          <td>
+                            <% const isSelf = user.id && admin._id.toString() === user.id.toString(); %>
+                            <% if (!isSelf) { %>
+                              <button
+                                class="btn btn-sm toggle-status-btn"
+                                style="font-size:12px;"
+                                data-id="<%= admin._id %>"
+                                data-name="<%= admin.username %>"
+                                data-active="<%= admin.isActive !== false ? '1' : '0' %>"
+                                id="btn-<%= admin._id %>">
+                                <% if (admin.isActive !== false) { %>
+                                  <i data-feather="user-x" style="width:13px;height:13px;margin-right:3px;"></i>Deactivate
+                                <% } else { %>
+                                  <i data-feather="user-check" style="width:13px;height:13px;margin-right:3px;"></i>Reactivate
+                                <% } %>
+                              </button>
+                            <% } else { %>
+                              <span class="text-muted" style="font-size:12px;">You</span>
+                            <% } %>
+                          </td>
+                          <% } %>
                         </tr>
                         <% }) %>
                       <% } else { %>
                         <tr>
-                          <td colspan="8" class="text-center py-4 text-muted">No admins found.</td>
+                          <td colspan="9" class="text-center py-4 text-muted">No admins found.</td>
                         </tr>
                       <% } %>
                     </tbody>
@@ -114,3 +133,140 @@
       </footer>
     </div>
   </div>
+
+<!-- ── Password confirmation modal ── -->
+<% if (user && user.role === 'super_admin') { %>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">Confirm Action</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalText" style="font-size:14px;margin-bottom:16px;"></p>
+        <div class="form-group mb-0">
+          <label style="font-size:13px;font-weight:600;">Your Password <span class="text-danger">*</span></label>
+          <input type="password" id="confirmPassword" class="form-control" placeholder="Enter your password to confirm" autocomplete="current-password">
+          <div id="confirmError" class="text-danger mt-2" style="font-size:12px;display:none;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmSubmitBtn">
+          <span id="confirmBtnLabel">Confirm</span>
+          <span id="confirmBtnSpinner" style="display:none;">
+            <span class="spinner-border spinner-border-sm mr-1" role="status"></span> Please wait…
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var csrfToken   = '<%= csrfToken %>';
+  var pendingId   = null;
+  var pendingActive = null;
+
+  document.querySelectorAll('.toggle-status-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      pendingId     = this.dataset.id;
+      pendingActive = this.dataset.active === '1';
+      var name      = this.dataset.name;
+
+      document.getElementById('confirmModalText').innerHTML =
+        pendingActive
+          ? 'You are about to <strong>deactivate</strong> <strong>' + name + '\'s</strong> account. They will no longer be able to log in. Enter your password to confirm.'
+          : 'You are about to <strong>reactivate</strong> <strong>' + name + '\'s</strong> account. They will be able to log in again. Enter your password to confirm.';
+
+      var confirmBtn = document.getElementById('confirmSubmitBtn');
+      confirmBtn.className = pendingActive
+        ? 'btn btn-danger'
+        : 'btn btn-success';
+      document.getElementById('confirmBtnLabel').textContent = pendingActive ? 'Deactivate' : 'Reactivate';
+
+      document.getElementById('confirmPassword').value = '';
+      document.getElementById('confirmError').style.display = 'none';
+
+      $('#confirmModal').modal('show');
+    });
+  });
+
+  document.getElementById('confirmSubmitBtn').addEventListener('click', function () {
+    var password = document.getElementById('confirmPassword').value.trim();
+    var errorBox = document.getElementById('confirmError');
+
+    if (!password) {
+      errorBox.textContent = 'Password is required.';
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    errorBox.style.display = 'none';
+    document.getElementById('confirmBtnLabel').style.display = 'none';
+    document.getElementById('confirmBtnSpinner').style.display = 'inline';
+    this.disabled = true;
+
+    var body = new URLSearchParams({ adminId: pendingId, password: password, _csrf: csrfToken }).toString();
+
+    fetch('/admin/user/admins/toggle-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body,
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          // Update status badge
+          var statusCell = document.getElementById('status-' + pendingId);
+          statusCell.innerHTML = data.isActive
+            ? '<span class="badge badge-success" style="font-size:11px;padding:4px 8px;">Active</span>'
+            : '<span class="badge badge-secondary" style="font-size:11px;padding:4px 8px;">Inactive</span>';
+
+          // Update avatar colour
+          var row = document.getElementById('row-' + pendingId);
+          if (row) {
+            var avatar = row.querySelector('[style*="border-radius:50%"]');
+            if (avatar) avatar.style.background = data.isActive ? '#47c363' : '#9ca3af';
+          }
+
+          // Flip the button
+          var actionBtn = document.getElementById('btn-' + pendingId);
+          if (actionBtn) {
+            actionBtn.dataset.active = data.isActive ? '1' : '0';
+            actionBtn.className = 'btn btn-sm toggle-status-btn';
+            actionBtn.innerHTML = data.isActive
+              ? '<i data-feather="user-x" style="width:13px;height:13px;margin-right:3px;"></i>Deactivate'
+              : '<i data-feather="user-check" style="width:13px;height:13px;margin-right:3px;"></i>Reactivate';
+            if (typeof feather !== 'undefined') feather.replace();
+          }
+
+          $('#confirmModal').modal('hide');
+        } else {
+          errorBox.textContent = data.error || 'An error occurred. Please try again.';
+          errorBox.style.display = 'block';
+        }
+      })
+      .catch(function () {
+        errorBox.textContent = 'Network error. Please try again.';
+        errorBox.style.display = 'block';
+      })
+      .finally(function () {
+        document.getElementById('confirmBtnLabel').style.display = 'inline';
+        document.getElementById('confirmBtnSpinner').style.display = 'none';
+        document.getElementById('confirmSubmitBtn').disabled = false;
+      });
+  });
+
+  // Clear error on close
+  document.getElementById('confirmModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('confirmError').style.display = 'none';
+    document.getElementById('confirmPassword').value = '';
+  });
+}());
+</script>
+<% } %>

@@ -11,6 +11,7 @@ const userAdminSchema = new Schema({
   bio:              { type: String, default: '' },
   department:       { type: String, default: '' },
   profileCompleted: { type: Boolean, default: false },
+  isActive:         { type: Boolean, default: true },
   addedBy:          { type: mongoose.Schema.Types.ObjectId, ref: 'userAdmin', default: null },
 }, { timestamps: true });
 

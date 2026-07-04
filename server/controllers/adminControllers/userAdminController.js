@@ -122,6 +122,8 @@ exports.loginAdminPost = async (req, res) => {
 
     if (user.role !== role) return res.status(401).json({ error: 'Incorrect role selected' });
 
+    if (user.isActive === false) return res.status(403).json({ error: 'Your account has been deactivated. Contact a super admin.' });
+
     const token = generateUserAdminToken(user);
     res.cookie('admin_token', token, {
       httpOnly: true,
@@ -197,6 +199,47 @@ exports.addAdminPost = [authenticateAdminUser, async (req, res) => {
     res.redirect('/admin/user/admins?success=1');
   } catch (error) {
     console.log('ADD ADMIN ERROR:', error);
+    res.status(500).json({ error: error.message });
+  }
+}];
+
+/* ── Toggle admin active state ──────────────────────────── */
+exports.toggleAdminStatus = [authenticateAdminUser, async (req, res) => {
+  try {
+    if (req.user.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only super admins can perform this action.' });
+    }
+
+    const { adminId, password } = req.body;
+
+    if (!adminId || !password) {
+      return res.status(400).json({ error: 'Admin ID and password are required.' });
+    }
+
+    // Verify the super admin's own password
+    const self = await UserAdminModel.findById(req.user.id);
+    if (!self) return res.status(401).json({ error: 'Session invalid. Please log in again.' });
+
+    const passwordValid = await bcrypt.compare(password, self.password);
+    if (!passwordValid) return res.status(401).json({ error: 'Incorrect password. Action cancelled.' });
+
+    const target = await UserAdminModel.findById(adminId);
+    if (!target) return res.status(404).json({ error: 'Admin account not found.' });
+
+    if (target._id.toString() === req.user.id) {
+      return res.status(400).json({ error: 'You cannot deactivate your own account.' });
+    }
+
+    target.isActive = !target.isActive;
+    await target.save();
+
+    res.json({
+      success: true,
+      isActive: target.isActive,
+      message: `${target.username}'s account has been ${target.isActive ? 'reactivated' : 'deactivated'}.`,
+    });
+  } catch (error) {
+    console.log('TOGGLE ADMIN STATUS ERROR:', error);
     res.status(500).json({ error: error.message });
   }
 }];
