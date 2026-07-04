@@ -1,0 +1,141 @@
+
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      <%- include('../partials/headerAdmin.ejs') %>
+      <%- include('../partials/sideMenuAdmin.ejs') %>
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header">
+            <h1>My Profile</h1>
+            <div class="section-header-breadcrumb">
+              <div class="breadcrumb-item"><a href="/admin/main/dashboard">Dashboard</a></div>
+              <div class="breadcrumb-item active">My Profile</div>
+            </div>
+          </div>
+
+          <div class="section-body">
+
+            <% if (firstLogin) { %>
+            <div class="alert alert-warning mb-4" style="font-size:14px;">
+              <strong><i data-feather="alert-circle" style="width:15px;height:15px;margin-right:4px;vertical-align:middle;"></i> Welcome!</strong>
+              Please complete your profile before accessing the dashboard. Fill in the details below and click <strong>Save Profile</strong>.
+            </div>
+            <% } %>
+
+            <% if (typeof query !== 'undefined' && query.saved == '1') { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              Profile saved successfully.
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            <% } %>
+
+            <% if (typeof query !== 'undefined' && query.error == '1') { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              Something went wrong. Please try again.
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            <% } %>
+
+            <div class="row">
+              <div class="col-12 col-lg-8 mx-auto">
+
+                <!-- Account info (read-only) -->
+                <div class="card mb-4">
+                  <div class="card-header">
+                    <h4>Account Information</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-2 text-center mb-3 mb-md-0">
+                        <div style="width:64px;height:64px;border-radius:50%;background:#47c363;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:700;margin:0 auto;">
+                          <%= admin && admin.username ? admin.username.charAt(0).toUpperCase() : 'A' %>
+                        </div>
+                      </div>
+                      <div class="col-md-10">
+                        <table class="table table-sm mb-0" style="font-size:14px;">
+                          <tr>
+                            <td style="width:120px;color:#6b7280;font-weight:500;">Name</td>
+                            <td><strong><%= admin ? admin.username : '—' %></strong></td>
+                          </tr>
+                          <tr>
+                            <td style="color:#6b7280;font-weight:500;">Email</td>
+                            <td><%= admin ? admin.email : '—' %></td>
+                          </tr>
+                          <tr>
+                            <td style="color:#6b7280;font-weight:500;">Role</td>
+                            <td>
+                              <% const roleColors = { super_admin: 'badge-danger', senior_admin: 'badge-warning', junior_admin: 'badge-info' }; %>
+                              <span class="badge <%= admin ? (roleColors[admin.role] || 'badge-secondary') : 'badge-secondary' %>" style="font-size:11px;padding:4px 8px;">
+                                <%= admin ? admin.role.replace(/_/g, ' ') : '—' %>
+                              </span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="color:#6b7280;font-weight:500;">Joined</td>
+                            <td style="font-size:12px;color:#6b7280;">
+                              <%= admin && admin.createdAt ? new Date(admin.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' }) : '—' %>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Editable profile -->
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Profile Details</h4>
+                  </div>
+                  <div class="card-body">
+                    <form method="post" action="/admin/user/profile">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                      <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" name="phone" class="form-control"
+                          placeholder="+234 800 000 0000"
+                          value="<%= admin && admin.phone ? admin.phone : '' %>">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Department</label>
+                        <input type="text" name="department" class="form-control"
+                          placeholder="e.g. Operations, Finance, Technology"
+                          value="<%= admin && admin.department ? admin.department : '' %>">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Bio</label>
+                        <textarea name="bio" class="form-control" rows="3"
+                          placeholder="A brief description about yourself…"><%= admin && admin.bio ? admin.bio : '' %></textarea>
+                      </div>
+
+                      <div class="card-footer text-right px-0 pb-0 mt-2" style="border-top:none;">
+                        <% if (!firstLogin) { %>
+                        <a href="/admin/main/dashboard" class="btn btn-secondary mr-2">Cancel</a>
+                        <% } %>
+                        <button type="submit" class="btn btn-primary">Save Profile</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">
+          &copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.
+        </div>
+        <div class="footer-right"></div>
+      </footer>
+    </div>
+  </div>

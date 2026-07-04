@@ -1,18 +1,22 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router  = express.Router();
+const getAdminUsers = require('../../controllers/adminControllers/userAdminController');
 
+// ── Auth ───────────────────────────────────────────────────
+router.get('/login',  getAdminUsers.loginAdmin);
+router.post('/login', getAdminUsers.loginAdminPost);
+router.get('/logout', getAdminUsers.logout);
 
-const getAdminUsers = require('../../controllers/adminControllers/userAdminController')
+// ── Profile ────────────────────────────────────────────────
+router.get('/profile',  getAdminUsers.adminProfile);
+router.post('/profile', getAdminUsers.adminProfilePost);
 
-router.get('/register',getAdminUsers.registerAdmin)
+// ── Admin management (super_admin only) ───────────────────
+router.get('/admins',      getAdminUsers.viewAdmins);
+router.get('/admins/add',  getAdminUsers.addAdminForm);
+router.post('/admins/add', getAdminUsers.addAdminPost);
 
-router.post('/register',getAdminUsers.registerPost)
+// ── Notifications JSON ─────────────────────────────────────
+router.get('/notifications', getAdminUsers.getNotifications);
 
-router.get('/login',getAdminUsers.loginAdmin)
-
-router.post('/login',getAdminUsers.loginAdminPost)
-
-router.get('/logout',getAdminUsers.logout)
-
-
-module.exports = router
+module.exports = router;

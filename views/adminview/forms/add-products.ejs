@@ -13,7 +13,7 @@
         <section class="section">
           <div class="section-body">
             <div class="row">
-              <div class="col-12 col-md-6 col-lg-8">
+              <div class="col-12 col-lg-10 mx-auto">
                 <div class="card">
                   <div class="card-header">
                     <h4>Add Product</h4>
@@ -175,34 +175,6 @@
 
 
 
-                     <!-- COURSES -->
-                     <div id="courseFields" style="display:none;">
-
-                      <div class="form-group">
-                        <label>Course Title</label>
-                        <input type="text" name="title" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Instructor</label>
-                        <input type="text" name="instructor" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Course Description</label>
-                        <input type="text" name="course_description" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Price</label>
-                        <input type="number" name="course_price" class="form-control">
-                      </div>
-
-                      
-
-                    
-
-                    </div>
 
 
                     
@@ -337,7 +309,7 @@
       </div>
       <footer class="main-footer">
         <div class="footer-left">
-          <a href="templateshub.net">Templateshub</a></a>
+          &copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.
         </div>
         <div class="footer-right">
         </div>
@@ -352,32 +324,22 @@ const normalFields = document.getElementById('normalFields');
 const dataFields = document.getElementById('dataFields');
 const automobileFields = document.getElementById('automobileFields');
 const electronicsFields = document.getElementById('electronicsFields');
-const courseFields = document.getElementById('courseFields');
 
 categorySelect.addEventListener('change', function() {
-
-  // Reset all
   normalFields.style.display = 'none';
   dataFields.style.display = 'none';
   automobileFields.style.display = 'none';
-   electronicsFields.style.display = 'none';
+  electronicsFields.style.display = 'none';
 
   if (this.value === 'DATA') {
     dataFields.style.display = 'block';
-  } 
-  else if (this.value === 'AUTOMOBILE') {
+  } else if (this.value === 'AUTOMOBILE') {
     automobileFields.style.display = 'block';
-  } 
-   else if (this.value === 'ELECTRONICS') {
+  } else if (this.value === 'ELECTRONICS') {
     electronicsFields.style.display = 'block';
-  }
-   else if (this.value === 'COURSES') {
-    courseFields.style.display = 'block';
-  }
-  else {
+  } else {
     normalFields.style.display = 'block';
   }
-
 });
 
 
