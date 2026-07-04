@@ -2,6 +2,7 @@ const Product = require('../../models/ProductsModal')
 const Checkout = require('../../models/CheckoutModal')
 const User = require('../../models/UserModel')
 const Cart = require('../../models/CartModal')
+const Wallet = require('../../models/WalletModal')
 const Transaction = require('../../models/TransactionModel')
 const CoursePurchase = require('../../models/CoursePurchaseModel')
 const axios = require('axios')
@@ -121,8 +122,11 @@ exports.courseDetail = async (req, res) => {
     let alreadyPurchased = false;
 
     if (req.user) {
-      const user = await User.findById(req.user.id).populate('wallet');
-      if (user?.wallet) walletBalance = user.wallet.balances?.NAIRA || 0;
+      const [user, wallet] = await Promise.all([
+        User.findById(req.user.id),
+        Wallet.findOne({ user: req.user.id }),
+      ]);
+      if (wallet) walletBalance = wallet.balances?.NAIRA || 0;
       const email = user?.email?.toLowerCase().trim();
       if (email) {
         const existing = await CoursePurchase.findOne({ email, courseId: String(req.params.id) });
@@ -157,7 +161,10 @@ exports.coursePurchase = async (req, res) => {
     const course = data.course || data.data || (typeof data === 'object' && !Array.isArray(data) ? data : null);
     if (!course) return res.redirect('/category/course-category');
 
-    const user = await User.findById(req.user.id).populate('wallet');
+    const [user, wallet] = await Promise.all([
+      User.findById(req.user.id),
+      Wallet.findOne({ user: req.user.id }),
+    ]);
     if (!user) return res.redirect('/user/login');
 
     const email = user.email.toLowerCase().trim();
@@ -180,7 +187,6 @@ exports.coursePurchase = async (req, res) => {
     }
 
     // Paid — wallet deduction
-    const wallet = user.wallet;
     if (!wallet || (wallet.balances?.NAIRA || 0) < price) {
       return res.redirect(`${redirectBase}?insufficient=1`);
     }
