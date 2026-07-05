@@ -102,12 +102,12 @@ function adminCredentialsEmail({ username, email, password, role, loginUrl }) {
 }
 
 /* ── Login ──────────────────────────────────────────────── */
+function renderLogin(res, error = null) {
+  res.render('adminview/users/auth-login', { layout: adminLayouts, error });
+}
+
 exports.loginAdmin = (req, res) => {
-  try {
-    res.render('adminview/users/auth-login', { layout: adminLayouts });
-  } catch (error) {
-    console.log(error);
-  }
+  renderLogin(res);
 };
 
 exports.loginAdminPost = async (req, res) => {
@@ -115,14 +115,14 @@ exports.loginAdminPost = async (req, res) => {
     const { email, password, role } = req.body;
 
     const user = await UserAdminModel.findOne({ email });
-    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    if (!user) return renderLogin(res, 'Invalid email or password.');
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.status(401).json({ error: 'Invalid credentials' });
+    if (!isPasswordValid) return renderLogin(res, 'Invalid email or password.');
 
-    if (user.role !== role) return res.status(401).json({ error: 'Incorrect role selected' });
+    if (user.role !== role) return renderLogin(res, 'Incorrect role selected for this account.');
 
-    if (user.isActive === false) return res.status(403).json({ error: 'Your account has been deactivated. Contact a super admin.' });
+    if (user.isActive === false) return renderLogin(res, 'Your account has been deactivated. Contact a super admin.');
 
     const token = generateUserAdminToken(user);
     res.cookie('admin_token', token, {
@@ -133,7 +133,6 @@ exports.loginAdminPost = async (req, res) => {
 
     req.session.info = { role: user.role };
 
-    // Redirect to profile completion on first login
     if (!user.profileCompleted) {
       return res.redirect('/admin/user/profile?firstLogin=1');
     }
@@ -141,7 +140,7 @@ exports.loginAdminPost = async (req, res) => {
     res.redirect('/admin/main/dashboard');
   } catch (error) {
     console.log('Login error:', error);
-    return res.status(500).json({ error: error.message });
+    return renderLogin(res, 'Something went wrong. Please try again.');
   }
 };
 

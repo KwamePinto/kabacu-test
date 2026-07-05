@@ -124,6 +124,17 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// ── 404 handler ───────────────────────────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).render('errors/404', { layout: false });
+});
+
+// ── 500 handler ───────────────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).render('errors/404', { layout: false });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

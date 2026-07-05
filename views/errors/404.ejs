@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page Not Found — Kabacu</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      color: #111827;
+    }
+    .wrap { text-align: center; max-width: 480px; width: 100%; }
+    .logo { margin-bottom: 40px; }
+    .logo img { height: 44px; width: auto; }
+    .code {
+      font-size: 96px;
+      font-weight: 800;
+      color: #47c363;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+    .message {
+      font-size: 15px;
+      color: #6b7280;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #47c363; color: #fff; }
+    .btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; }
+    .footer-note {
+      margin-top: 48px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .footer-note a { color: #47c363; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <a href="/"><img src="/assets/images/new.PNG" alt="Kabacu"></a>
+    </div>
+    <div class="code">404</div>
+    <h1 class="title">Page Not Found</h1>
+    <p class="message">
+      The page you're looking for doesn't exist or may have been moved.<br>
+      Check the URL or head back home.
+    </p>
+    <div class="actions">
+      <a href="/" class="btn btn-primary">Go to Homepage</a>
+      <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+    </div>
+    <p class="footer-note">
+      Need help? <a href="mailto:support@kabacu.com">support@kabacu.com</a>
+    </p>
+  </div>
+</body>
+</html>
