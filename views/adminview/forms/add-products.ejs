@@ -29,10 +29,11 @@
                       <option value="AUTOMOBILE">AUTOMOBILE</option> -->
                        <option value="">Select Category</option>
                       <% category.forEach(function(cat){ %>
-                       
+                        <% if (cat.category_name !== 'COURSES') { %>
                         <option value="<%= cat.category_name %>">
                           <%= cat.category_name %>
                         </option>
+                        <% } %>
                       <% }) %>
                     </select>
                     </div>
