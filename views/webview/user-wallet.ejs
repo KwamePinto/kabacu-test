@@ -200,6 +200,48 @@
         </p>
       </div>
 
+      <!-- Transfer RP to BitToken -->
+      <div class="action-card">
+        <h3 class="action-card__title">
+          <i data-lucide="send"></i>
+          Transfer RP to BitToken
+        </h3>
+        <p class="action-card__desc">Send your Reward Points to your BitToken account</p>
+
+        <% if (user && !user.minerId) { %>
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+          <i data-lucide="alert-triangle" style="color:#f97316;flex-shrink:0;margin-top:2px;"></i>
+          <div style="font-size:13px;color:#7c2d12;line-height:1.5;">
+            <strong>Miner ID not set.</strong> You need to add your BitToken Miner ID to your profile before you can transfer RP.
+            <br><a href="/user-profile" style="color:#f97316;font-weight:600;text-decoration:underline;">Go to Profile →</a>
+          </div>
+        </div>
+        <% } %>
+
+        <div class="form-group">
+          <label class="form-label">RP Amount</label>
+          <div class="input-wrapper">
+            <i data-lucide="star"></i>
+            <input type="number" id="rpTransferAmount" class="form-input" placeholder="Enter RP amount" min="1" step="1"
+              <%= user && !user.minerId ? 'disabled' : '' %>>
+          </div>
+        </div>
+
+        <p style="font-size:12px;color:#6b7280;margin:-8px 0 14px;">
+          Available: <strong><%= wallet && wallet.balances ? wallet.balances.RP.toFixed(2) : '0.00' %> RP</strong>
+        </p>
+
+        <button id="transferRpBtn" class="btn btn--primary btn--full" <%= user && !user.minerId ? 'disabled' : '' %>>
+          <i data-lucide="send"></i>
+          Transfer to BitToken
+        </button>
+
+        <p class="action-note">
+          <i data-lucide="info"></i>
+          RP will be deducted from your wallet and credited to your BitToken account
+        </p>
+      </div>
+
     </div>
   </div>
 </section>
@@ -367,6 +409,65 @@
     } else {
       btn.disabled    = true;
       btnText.textContent = 'Select a payment method';
+    }
+  });
+
+  // ── Transfer RP to BitToken ───────────────────────────────
+  document.getElementById('transferRpBtn').addEventListener('click', async () => {
+    const amount = parseFloat(document.getElementById('rpTransferAmount').value);
+    if (isNaN(amount) || amount <= 0) {
+      return Swal.fire({ icon: 'warning', text: 'Enter a valid RP amount.' });
+    }
+
+    const { isConfirmed } = await Swal.fire({
+      title: 'Confirm Transfer',
+      html: `Transfer <strong>${amount} RP</strong> to your BitToken account?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Transfer',
+      confirmButtonColor: '#47c363',
+      cancelButtonText: 'Cancel',
+    });
+    if (!isConfirmed) return;
+
+    const btn = document.getElementById('transferRpBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader"></i> Transferring...';
+    if (window.lucide) lucide.createIcons();
+
+    try {
+      const res = await fetch('/wallet/transfer-rp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
+        body: JSON.stringify({ rpAmount: amount }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        await Swal.fire({ icon: 'success', text: data.message });
+        location.reload();
+      } else if (data.noMinerId) {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send"></i> Transfer to BitToken';
+        if (window.lucide) lucide.createIcons();
+        Swal.fire({
+          icon: 'warning',
+          title: 'Miner ID Required',
+          text: data.message,
+          confirmButtonText: 'Go to Profile',
+          confirmButtonColor: '#47c363',
+        }).then(r => { if (r.isConfirmed) window.location.href = '/user-profile'; });
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send"></i> Transfer to BitToken';
+        if (window.lucide) lucide.createIcons();
+        Swal.fire({ icon: 'error', text: data.message });
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="send"></i> Transfer to BitToken';
+      if (window.lucide) lucide.createIcons();
+      Swal.fire({ icon: 'error', text: 'Something went wrong. Please try again.' });
     }
   });
 

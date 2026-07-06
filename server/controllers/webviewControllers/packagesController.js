@@ -15,6 +15,7 @@ const mongoose = require('mongoose');
 
 
 const {generateSignature,verifySignature} = require('../../utils/palmpay');
+const { transferRPToBittoken } = require('../../services/bittokenService');
 
 
   
@@ -2049,6 +2050,81 @@ exports.privacyPolicy = (req, res) => {
 
 exports.termsOfUse = (req, res) => {
   res.render('webview/terms');
+};
+
+exports.transferRPToBittokenHandler = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const rpAmount = Number(req.body.rpAmount);
+
+    if (isNaN(rpAmount) || rpAmount <= 0) {
+      return res.json({ success: false, message: 'Enter a valid RP amount greater than 0.' });
+    }
+
+    const user = await User.findById(userId).select('email minerId');
+    if (!user) {
+      return res.json({ success: false, message: 'User not found.' });
+    }
+
+    if (!user.minerId) {
+      return res.json({
+        success: false,
+        noMinerId: true,
+        message: 'You have not set up your BitToken Miner ID. Please add it in your profile before transferring Reward Points.',
+      });
+    }
+
+    const wallet = await Wallet.findOne({ user: userId });
+    const currentRP = (wallet && wallet.balances && wallet.balances.RP) ? wallet.balances.RP : 0;
+
+    if (currentRP < rpAmount) {
+      return res.json({ success: false, message: 'Insufficient Reward Points balance.' });
+    }
+
+    // Deduct first
+    wallet.balances.RP -= rpAmount;
+    await wallet.save();
+
+    // Call BitToken API
+    let apiResult;
+    try {
+      apiResult = await transferRPToBittoken({
+        minerId: user.minerId,
+        email: user.email,
+        rpAmount,
+      });
+    } catch (apiErr) {
+      wallet.balances.RP += rpAmount;
+      await wallet.save();
+      const errMsg = (apiErr.response && apiErr.response.data && apiErr.response.data.message)
+        ? apiErr.response.data.message
+        : apiErr.message || 'BitToken API error';
+      return res.json({ success: false, message: `Transfer failed: ${errMsg}` });
+    }
+
+    const accepted = apiResult && (apiResult.status === true || apiResult.status === 200 || apiResult.success === true);
+    if (!accepted) {
+      wallet.balances.RP += rpAmount;
+      await wallet.save();
+      return res.json({ success: false, message: (apiResult && apiResult.message) || 'Transfer was not accepted by BitToken.' });
+    }
+
+    const ref = 'BTT-RP-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    await Transaction.create({
+      user: userId,
+      amount: rpAmount,
+      walletType: 'RP',
+      paymentMethod: 'BitToken Transfer',
+      status: 'success',
+      reference: ref,
+    });
+
+    res.json({ success: true, message: `${rpAmount} RP successfully transferred to your BitToken account.` });
+
+  } catch (error) {
+    console.error('[transferRPToBittokenHandler]', error);
+    res.json({ success: false, message: 'Something went wrong. Please try again.' });
+  }
 };
 
 

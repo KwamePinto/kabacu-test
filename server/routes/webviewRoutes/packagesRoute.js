@@ -58,6 +58,7 @@ router.post( '/palmpay/create', authenticateUser, getPackages.createPalmPayPayme
 router.post( '/palmpay/webhook', getPackages.palmPayWebhook);
 
 router.post( '/wallet/claim-rp', authenticateUser, getPackages.claimRP);
+router.post( '/wallet/transfer-rp', authenticateUser, getPackages.transferRPToBittokenHandler);
 
 router.get('/conversion-history', authenticateUser, getPackages.conversionHistory);
 
