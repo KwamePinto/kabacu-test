@@ -2043,4 +2043,12 @@ exports.faqPage = (req, res) => {
   res.render('webview/faq');
 };
 
+exports.privacyPolicy = (req, res) => {
+  res.render('webview/privacy-policy');
+};
+
+exports.termsOfUse = (req, res) => {
+  res.render('webview/terms');
+};
+
 

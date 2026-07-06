@@ -7,6 +7,8 @@ const getPackages = require('../../controllers/webviewControllers/packagesContro
 router.get('/',getPackages.packagesView)
 
 router.get('/faq', getPackages.faqPage)
+router.get('/privacy-policy', getPackages.privacyPolicy)
+router.get('/terms', getPackages.termsOfUse)
 
 router.post('/checkout/initiate',authenticateUser,getPackages.initiateCheckout)
 
