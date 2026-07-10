@@ -16,6 +16,7 @@
       <p class="page-hero__sub">All your transactions in one place</p>
     </div>
 
+    <h2 style="font-size:16px;font-weight:700;color:var(--color-text);margin:32px 0 12px;">Purchases &amp; Orders</h2>
     <div class="tx-table-wrap">
       <table class="tx-table">
   <thead>
@@ -126,6 +127,66 @@
     <% } %>
   </tbody>
 </table>
+    </div>
+
+    <!-- Course Enrolments -->
+    <h2 style="font-size:16px;font-weight:700;color:var(--color-text);margin:40px 0 12px;">
+      <i data-lucide="book-open" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px;"></i>
+      Course Enrolments
+    </h2>
+    <div class="tx-table-wrap">
+      <table class="tx-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (coursePurchases && coursePurchases.length > 0) { %>
+            <% coursePurchases.forEach(function(cp) { %>
+              <tr>
+                <td data-label="Course">
+                  <strong><%= cp.courseTitle || 'Course' %></strong>
+                </td>
+                <td data-label="Amount">
+                  <% if (cp.free) { %>
+                    <span style="color:var(--color-primary);font-weight:600;">Free</span>
+                  <% } else { %>
+                    ₦<%= Number(cp.price || 0).toLocaleString() %>
+                  <% } %>
+                </td>
+                <td data-label="Type">
+                  <% if (cp.free) { %>
+                    <span class="badge badge--success">Free Enrolment</span>
+                  <% } else { %>
+                    <span class="badge badge--success">Paid</span>
+                  <% } %>
+                </td>
+                <td data-label="Date">
+                  <small>
+                    <%= new Date(cp.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) %>
+                    <br>
+                    <%= new Date(cp.createdAt).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }) %>
+                  </small>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="4">
+                <div class="empty-state">
+                  <i data-lucide="book-open"></i>
+                  <p>No course enrolments yet</p>
+                  <a href="/category/course-category" class="btn btn--primary btn--sm">Browse Courses</a>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
     </div>
 
   </div>

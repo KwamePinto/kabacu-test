@@ -8,6 +8,7 @@ const Wallet = require('../../models/WalletModal')
 const TopUp = require('../../models/TopUpModal')
 const Transaction = require('../../models/TransactionModel')
 const Conversion = require('../../models/ConversionModal')
+const CoursePurchase = require('../../models/CoursePurchaseModel')
 const PaymentMethod = require('../../models/PaymentMethodModel')
 const axios = require('axios');
 const crypto = require('crypto');
@@ -273,15 +274,16 @@ exports.history = async (req, res) => {
 
     const userId = req.user.id;
 
-    const [user, transactions] = await Promise.all([
+    const [user, transactions, coursePurchases] = await Promise.all([
       User.findById(userId),
       Transaction.find({ user: userId })
         .populate('product')
         .populate('products.product')
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1 }),
+      CoursePurchase.find({ user: userId }).sort({ createdAt: -1 })
     ]);
 
-    res.render('webview/history', { user, transactions });
+    res.render('webview/history', { user, transactions, coursePurchases });
 
   } catch (error) {
 
@@ -1635,12 +1637,17 @@ exports.convertUSDTtoNaira = async (req, res) => {
 
     await wallet.save();
 
+    const rateSpread = Math.abs(coinGeckoRate - coinbaseRate);
+
     await Conversion.create({
       user: userId,
       usdtAmount: amount,
       nairaAmount,
       finalRate,
       bestRate,
+      providerARate: coinGeckoRate,
+      providerBRate: coinbaseRate,
+      rateSpread,
       status: 'COMPLETED'
     });
 

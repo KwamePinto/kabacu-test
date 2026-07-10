@@ -21,6 +21,18 @@ const conversionSchema = new mongoose.Schema({
   bestRate: {
     type: Number
   },
+  providerARate: {
+    type: Number,
+    default: 0
+  },
+  providerBRate: {
+    type: Number,
+    default: 0
+  },
+  rateSpread: {
+    type: Number,
+    default: 0
+  },
   status: {
     type: String,
     enum: ['COMPLETED', 'FAILED'],
