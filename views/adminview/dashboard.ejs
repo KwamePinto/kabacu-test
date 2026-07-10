@@ -164,6 +164,42 @@
             </div>
           </div>
 
+          <!-- ── Analytics ───────────────────────────────────────────── -->
+          <div class="row">
+            <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
+              <div class="card w-100">
+                <div class="card-header">
+                  <h4>User Verification</h4>
+                </div>
+                <div class="card-body">
+                  <div id="chart-user-verification"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
+              <div class="card w-100">
+                <div class="card-header">
+                  <h4>Top-Up Status</h4>
+                </div>
+                <div class="card-body">
+                  <div id="chart-topup-status"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
+              <div class="card w-100">
+                <div class="card-header">
+                  <h4>Revenue by Period</h4>
+                </div>
+                <div class="card-body">
+                  <div id="chart-revenue-period"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- ── Revenue summary ─────────────────────────────────────── -->
           <div class="row">
             <div class="col-12">
@@ -282,3 +318,17 @@
       <%- include('../partials/footerAdmin.ejs') %>
     </div>
   </div>
+
+  <link rel="stylesheet" href="/admin/assets/bundles/apexcharts/apexcharts.css">
+  <div id="dashboard-chart-data"
+       data-verified-users="<%= verifiedUsers %>"
+       data-unverified-users="<%= totalUsers - verifiedUsers %>"
+       data-pending-topups="<%= pendingTopUps %>"
+       data-completed-topups="<%= completedTopUps %>"
+       data-today-revenue="<%= todayRevenue %>"
+       data-weekly-revenue="<%= weeklyRevenue %>"
+       data-monthly-revenue="<%= monthlyRevenue %>"
+       data-yearly-revenue="<%= yearlyRevenue %>"
+       style="display:none"></div>
+  <script src="/admin/assets/bundles/apexcharts/apexcharts.min.js"></script>
+  <script src="/admin/assets/js/page/dashboard-charts.js"></script>
