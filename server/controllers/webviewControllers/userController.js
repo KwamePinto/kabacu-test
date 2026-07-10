@@ -641,7 +641,7 @@ exports.refreshCaptcha = (req, res) => {
 };
 
 exports.resetPassword = async (req, res) => {
-  res.render('webview/reset-password', { hideHeader: true });
+  res.render('webview/reset-password', { hideHeader: true, hideFooter: true });
 };
 
 exports.resetPasswordPost = async (req, res) => {
@@ -704,7 +704,7 @@ exports.verifyOTP = async (req, res) => {
     req.flash('error', 'No pending verification. Please register first.');
     return res.redirect('/user/signup');
   }
-  res.render('webview/otp', { email, hideHeader: true });
+  res.render('webview/otp', { email, hideHeader: true, hideFooter: true });
 };
 
 exports.verifyOTPPost = async (req, res) => {
@@ -754,7 +754,7 @@ exports.verifyOTPPost = async (req, res) => {
 // =============================================
 
 exports.forgotPassword = (req, res) => {
-  res.render('webview/forgot-password', { hideHeader: true });
+  res.render('webview/forgot-password', { hideHeader: true, hideFooter: true });
 };
 
 exports.forgotPasswordPost = async (req, res) => {
@@ -875,7 +875,7 @@ exports.forgotPasswordOTP = (req, res) => {
     req.flash('error', 'Please start the password reset process again.');
     return res.redirect('/user/forgot-password');
   }
-  res.render('webview/forgot-password-otp', { email, hideHeader: true });
+  res.render('webview/forgot-password-otp', { email, hideHeader: true, hideFooter: true });
 };
 
 exports.forgotPasswordOTPPost = async (req, res) => {
@@ -924,7 +924,7 @@ exports.forgotPasswordReset = (req, res) => {
     req.flash('error', 'Please complete the password reset process from the beginning.');
     return res.redirect('/user/forgot-password');
   }
-  res.render('webview/forgot-password-reset', { hideHeader: true });
+  res.render('webview/forgot-password-reset', { hideHeader: true, hideFooter: true });
 };
 
 exports.forgotPasswordResetPost = async (req, res) => {
@@ -1092,6 +1092,7 @@ exports.resendOTP = async (req, res) => {
 exports.profileChangePassword = (req, res) => {
   res.render('webview/profile-change-password', {
     email: req.user.email,
+    hideFooter: true,
   });
 };
 
@@ -1206,6 +1207,7 @@ exports.profileChangePasswordOTP = (req, res) => {
   }
   res.render('webview/profile-change-password-otp', {
     email: req.session.profileChangePwEmail,
+    hideFooter: true,
   });
 };
 
@@ -1255,7 +1257,7 @@ exports.profileChangePasswordNew = (req, res) => {
     req.flash('error', 'Please complete the verification step first.');
     return res.redirect('/user/profile-change-password');
   }
-  res.render('webview/profile-change-password-new');
+  res.render('webview/profile-change-password-new', { hideFooter: true });
 };
 
 exports.profileChangePasswordNewPost = async (req, res) => {

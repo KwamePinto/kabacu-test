@@ -225,6 +225,7 @@ exports.courseDetail = async (req, res) => {
       walletBalance,
       alreadyPurchased,
       cskillshubLoginUrl: process.env.CSKILLSHUB_LOGIN_URL || 'http://localhost:3000/login',
+      hideFooter: true,
     });
   } catch (err) {
     console.error(err);

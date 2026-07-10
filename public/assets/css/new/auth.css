@@ -7,45 +7,45 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 16px;
+  padding: 16px;
 }
 
 .auth-card {
   background: var(--white);
   border-radius: var(--r-xl);
-  padding: 36px 28px 40px;
+  padding: 20px 20px 24px;
   width: 100%;
   max-width: 420px;
   box-shadow: var(--shadow-md);
 }
 
 @media (max-width: 480px) {
-  .auth-card { padding: 28px 20px 32px; }
+  .auth-card { padding: 16px 16px 20px; }
 }
 
 .auth-card__logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 28px;
+  margin-bottom: 10px;
 }
 
 .auth-card__logo img {
-  height: 48px;
+  height: 36px;
   width: auto;
   object-fit: contain;
 }
 
 .auth-card__title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--text);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .auth-card__sub {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
-  margin-bottom: 28px;
+  margin-bottom: 14px;
 }
 
 .auth-card__form,
@@ -75,7 +75,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 20px 0;
+  margin: 12px 0;
 }
 
 .auth-divider::before,
@@ -138,7 +138,7 @@
 /* ── Auth form compact overrides ────────────────────────── */
 .auth-form .form-group {
   gap: 3px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 /* ── Password strength meter ─────────────────────────────── */

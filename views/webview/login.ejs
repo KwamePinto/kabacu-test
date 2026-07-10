@@ -38,12 +38,13 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" style="margin-bottom:8px;display:flex;align-items:center;gap:8px;">
-          Human check &nbsp;<span id="mathQuestion" style="background:#e8f5ee;color:#15a844;border:1.5px dashed #15a844;border-radius:8px;padding:4px 14px;font-size:1.1rem;font-weight:700;letter-spacing:2px;"><%= mathQuestion %> = ?</span>
-          <button type="button" id="refreshCaptcha" title="Get new question" style="background:none;border:none;cursor:pointer;color:#15a844;padding:2px;display:flex;align-items:center;">
-            <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <label class="form-label" style="margin-bottom:0;">Human check</label>
+          <span id="mathQuestion" style="background:#e8f5ee;color:#15a844;border:1.5px dashed #15a844;border-radius:8px;padding:4px 14px;font-size:1.1rem;font-weight:700;letter-spacing:2px;"><%= mathQuestion %> = ?</span>
+          <button type="button" id="refreshCaptcha" title="Get new question" style="background:none;border:none;cursor:pointer;color:#15a844;padding:4px;display:flex;align-items:center;flex-shrink:0;">
+            <i data-lucide="refresh-cw" style="width:16px;height:16px;pointer-events:none;"></i>
           </button>
-        </label>
+        </div>
         <div class="input-wrapper">
           <i data-lucide="calculator"></i>
           <input type="number" id="mathAnswer" name="mathAnswer" class="form-input" placeholder="Enter the answer" required inputmode="numeric" autocomplete="off">
