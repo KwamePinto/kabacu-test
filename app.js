@@ -18,7 +18,7 @@ const loadWallt = require('./server/config/loadWallet');
 const { optionalUser } = require('./server/config/authMiddleware');
 
 const app = express();
-const PORT = process.env.PORT || 2000;
+const PORT = process.env.PORT;
 
 // Trust Render's (and any cloud host's) reverse proxy so req.ip returns
 // the real client IP — without this, all users share one rate-limit bucket.
@@ -84,11 +84,11 @@ app.use((req, res, next) => {
 
 // ── Shared locals (flash, auth state, CSRF token) ─────────────────────────────
 app.use((req, res, next) => {
-  res.locals.csrfToken       = req.csrfToken ? req.csrfToken() : '';
-  res.locals.session         = req.session;
+  res.locals.csrfToken = req.csrfToken ? req.csrfToken() : '';
+  res.locals.session = req.session;
   res.locals.isAuthenticated = !!req.user;
-  res.locals.success_msg     = req.flash('success');
-  res.locals.error_msg       = req.flash('error');
+  res.locals.success_msg = req.flash('success');
+  res.locals.error_msg = req.flash('error');
   next();
 });
 
