@@ -1,4 +1,5 @@
 const bcrypt       = require('bcrypt');
+const crypto       = require('crypto');
 const saltRounds   = 10;
 const UserAdminModel = require('../../models/UserAdminModel');
 const Transaction  = require('../../models/TransactionModel');
@@ -153,8 +154,11 @@ exports.logout = (req, res) => {
 /* ── Admin management ───────────────────────────────────── */
 exports.viewAdmins = [authenticateAdminUser, async (req, res) => {
   try {
-    const admins = await UserAdminModel.find().populate('addedBy', 'username email').sort({ createdAt: -1 });
-    res.render('adminview/users/view-admins', { admins, query: req.query, layout: adminLayouts });
+    const [admins, pendingResets] = await Promise.all([
+      UserAdminModel.find().populate('addedBy', 'username email').sort({ createdAt: -1 }),
+      UserAdminModel.find({ resetPasswordRequested: true }).select('username email role resetPasswordRequestedAt').sort({ resetPasswordRequestedAt: -1 }),
+    ]);
+    res.render('adminview/users/view-admins', { admins, pendingResets, query: req.query, layout: adminLayouts });
   } catch (error) {
     console.log('VIEW ADMINS ERROR:', error);
     res.redirect('/admin/main/dashboard');
@@ -270,6 +274,180 @@ exports.adminProfilePost = [authenticateAdminUser, async (req, res) => {
     res.redirect('/admin/user/profile?error=1');
   }
 }];
+
+/* ── Password reset email template ─────────────────────── */
+function adminPasswordResetEmail({ username, resetUrl }) {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+        <tr>
+          <td style="background:#47c363;padding:28px 32px;text-align:center;">
+            <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">Password Reset Approved</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px 32px 24px;">
+            <h2 style="margin:0 0 12px;font-size:18px;color:#111827;">Hi ${username},</h2>
+            <p style="margin:0 0 20px;color:#374151;line-height:1.7;font-size:14px;">
+              Your password reset request has been approved. Click the button below to set a new password.
+              This link is valid for <strong>1 hour</strong>.
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+              <tr>
+                <td align="center">
+                  <a href="${resetUrl}" style="display:inline-block;background:#47c363;color:#ffffff;font-size:14px;font-weight:700;padding:14px 36px;border-radius:6px;text-decoration:none;">
+                    Reset My Password
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fffbeb;border:1px solid #fcd34d;border-radius:6px;margin:0 0 20px;">
+              <tr>
+                <td style="padding:12px 16px;">
+                  <p style="margin:0;color:#92400e;font-size:13px;line-height:1.6;">
+                    <strong>Did not request this?</strong> Ignore this email. Your password will not change unless you follow the link above.
+                  </p>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0;color:#9ca3af;font-size:12px;">If the button does not work, copy and paste this URL into your browser:<br>
+              <span style="word-break:break-all;color:#47c363;">${resetUrl}</span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #e5e7eb;">
+            <p style="margin:0;color:#9ca3af;font-size:12px;">&copy; ${new Date().getFullYear()} Kabacu. All rights reserved.</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+/* ── Forgot password (request) ──────────────────────────── */
+exports.forgotPasswordGet = (req, res) => {
+  res.render('adminview/users/forgot-password', { layout: false, query: req.query });
+};
+
+exports.forgotPasswordPost = async (req, res) => {
+  try {
+    const email = (req.body.email || '').toLowerCase().trim();
+    const admin = await UserAdminModel.findOne({ email });
+
+    if (admin) {
+      admin.resetPasswordRequested   = true;
+      admin.resetPasswordRequestedAt = new Date();
+      await admin.save();
+    }
+
+    // Always redirect with ?sent=1 — don't reveal whether email exists
+    res.redirect('/admin/user/forgot-password?sent=1');
+  } catch (error) {
+    console.log('FORGOT PASSWORD ERROR:', error);
+    res.redirect('/admin/user/forgot-password?error=1');
+  }
+};
+
+/* ── Approve reset (super_admin only) ───────────────────── */
+exports.approveReset = [authenticateAdminUser, async (req, res) => {
+  try {
+    if (req.user.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only super admins can approve reset requests.' });
+    }
+
+    const admin = await UserAdminModel.findById(req.params.id);
+    if (!admin) return res.status(404).json({ error: 'Admin not found.' });
+    if (!admin.resetPasswordRequested) return res.status(400).json({ error: 'No pending reset request for this admin.' });
+
+    const rawToken    = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    admin.resetPasswordToken       = hashedToken;
+    admin.resetPasswordExpires     = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    admin.resetPasswordRequested   = false;
+    admin.resetPasswordRequestedAt = null;
+    await admin.save();
+
+    const resetUrl = `${req.protocol}://${req.get('host')}/admin/user/reset-password?token=${rawToken}`;
+
+    await sendEmail({
+      to:      admin.email,
+      subject: 'Kabacu Admin — Your Password Reset Link',
+      html:    adminPasswordResetEmail({ username: admin.username, resetUrl }),
+      text:    `Hi ${admin.username}, your password reset link: ${resetUrl} (valid 1 hour).`,
+    });
+
+    res.json({ success: true, message: `Reset link sent to ${admin.email}.` });
+  } catch (error) {
+    console.log('APPROVE RESET ERROR:', error);
+    res.status(500).json({ error: error.message });
+  }
+}];
+
+/* ── Reset password (from link) ─────────────────────────── */
+exports.resetPasswordGet = async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'Invalid or missing reset link.' });
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const admin = await UserAdminModel.findOne({
+      resetPasswordToken:   hashedToken,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!admin) {
+      return res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'This reset link is invalid or has expired. Please request a new one.' });
+    }
+
+    res.render('adminview/users/reset-password', { layout: false, tokenValid: true, token, error: null });
+  } catch (error) {
+    console.log('RESET PASSWORD GET ERROR:', error);
+    res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'Something went wrong. Please try again.' });
+  }
+};
+
+exports.resetPasswordPost = async (req, res) => {
+  try {
+    const { token, password, confirmPassword } = req.body;
+    if (!token) return res.redirect('/admin/user/forgot-password');
+
+    if (!password || password.length < 8) {
+      return res.render('adminview/users/reset-password', { layout: false, tokenValid: true, token, error: 'Password must be at least 8 characters.' });
+    }
+    if (password !== confirmPassword) {
+      return res.render('adminview/users/reset-password', { layout: false, tokenValid: true, token, error: 'Passwords do not match.' });
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const admin = await UserAdminModel.findOne({
+      resetPasswordToken:   hashedToken,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!admin) {
+      return res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'This reset link is invalid or has expired. Please request a new one.' });
+    }
+
+    admin.password             = await bcrypt.hash(password, saltRounds);
+    admin.resetPasswordToken   = null;
+    admin.resetPasswordExpires = null;
+    await admin.save();
+
+    res.redirect('/admin/user/login?passwordReset=1');
+  } catch (error) {
+    console.log('RESET PASSWORD POST ERROR:', error);
+    res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'Something went wrong. Please try again.' });
+  }
+};
 
 /* ── Notifications (JSON) ───────────────────────────────── */
 exports.getNotifications = [authenticateAdminUser, async (req, res) => {
