@@ -3,12 +3,9 @@
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
       <div class="navbar-bg"></div>
-                             <!--header-->
-<%- include('../../partials/headerAdmin.ejs')%>
+      <%- include('../../partials/headerAdmin.ejs')%>
+      <%- include('../../partials/sideMenuAdmin.ejs')%>
 
-<!--sidebar-->
-<%- include('../../partials/sideMenuAdmin.ejs')%>
-      <!-- Main Content -->
       <div class="main-content">
         <section class="section">
           <div class="section-body">
@@ -19,211 +16,151 @@
                     <h4>Add Product</h4>
                   </div>
                   <div class="card-body">
-                    <form method="post" action="/admin/product/add-product" enctype="multipart/form-data">
-                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-                      <div class="form-group">
-                      <label>Category</label>
-                     <select class="form-control" name="category" id="categorySelect">
-                      <!-- <option value="">Select Category</option>
-                      <option value="DATA">DATA</option>
-                      <option value="AUTOMOBILE">AUTOMOBILE</option> -->
-                       <option value="">Select Category</option>
-                      <% category.forEach(function(cat){ %>
-                        <% if (cat.category_name !== 'COURSES') { %>
-                        <option value="<%= cat.category_name %>">
-                          <%= cat.category_name %>
-                        </option>
-                        <% } %>
-                      <% }) %>
-                    </select>
+                    <% if (typeof query !== 'undefined' && query.success == '1') { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                      Product added successfully.
+                      <button type="button" class="close" data-dismiss="alert">&times;</button>
                     </div>
+                    <% } %>
 
-                    <!--Normal Item-->
-                    <div id="normalFields">
+                    <form method="post" action="/admin/product/add-product?_csrf=<%= csrfToken %>" enctype="multipart/form-data">
 
-                    <div class="form-group">
-                      <label>Item Name</label>
-                      <input type="text" name="item_name" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                      <label>Item Price</label>
-                      <input type="number" name="item_price" class="form-control">
-                    </div>
-
-                    
-
-                    
-
-                  </div>
-
-                  <!-- Data -->
-                  <div id="dataFields" style="display:none;">
-
+                      <!-- Category -->
                       <div class="form-group">
-                        <label>Plan ID</label>
-                        <input type="number" name="plan_id" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Network</label>
-                        <input type="text" name="network" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Plan Type</label>
-                        <input type="text" name="plan_type" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Plan Name</label>
-                        <input type="text" name="plan_name" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Amount</label>
-                        <input type="number" name="amount" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Old Price</label>
-                        <input type="number" name="oldPrice" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Validate Period</label>
-                        <input type="text" name="validate_period" class="form-control">
-                      </div>
-
-                    </div>
-
-
-
-                    <!-- AUTOMOBILE -->
-                     <div id="automobileFields" style="display:none;">
-
-                      <div class="form-group">
-                        <label>Brand</label>
-                        <input type="text" name="brand" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Model</label>
-                        <input type="text" name="model" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Year</label>
-                        <input type="number" name="year" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Fuel Type</label>
-                        <input type="text" name="fuel_type" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Transmission</label>
-                        <input type="text" name="transmission" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Condition</label>
-                        <select name="condition" class="form-control">
-                          <option value="new">New</option>
-                          <option value="used">Used</option>
+                        <label>Category</label>
+                        <select class="form-control" name="category" id="categorySelect" required>
+                          <option value="" disabled selected>Select Category</option>
+                          <% category.forEach(function(cat){ %>
+                            <% if (cat.category_name !== 'COURSES') { %>
+                            <option value="<%= cat.category_name %>"><%= cat.category_name %></option>
+                            <% } %>
+                          <% }) %>
                         </select>
                       </div>
 
-                      <div class="form-group">
-                        <label>Price</label>
-                        <input type="number" name="auto_price" class="form-control">
+                      <!-- DATA fields -->
+                      <div id="dataFields" style="display:none;">
+                        <div class="form-group">
+                          <label>Plan ID</label>
+                          <input type="number" name="plan_id" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Network</label>
+                          <input type="text" name="network" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Plan Type</label>
+                          <input type="text" name="plan_type" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Plan Name</label>
+                          <input type="text" name="plan_name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Amount</label>
+                          <input type="number" name="amount" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Old Price</label>
+                          <input type="number" name="oldPrice" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Validate Period</label>
+                          <input type="text" name="validate_period" class="form-control">
+                        </div>
                       </div>
 
-                    </div>
-
-
-
-
-                    <!-- ELECTRONICS -->
-                     <div id="electronicsFields" style="display:none;">
-
-                      <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="itemName" class="form-control">
+                      <!-- AUTOMOBILE fields -->
+                      <div id="automobileFields" style="display:none;">
+                        <div class="form-group">
+                          <label>Brand</label>
+                          <input type="text" name="brand" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Model</label>
+                          <input type="text" name="model" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Year</label>
+                          <input type="number" name="year" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Fuel Type</label>
+                          <input type="text" name="fuel_type" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Transmission</label>
+                          <input type="text" name="transmission" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Condition</label>
+                          <select name="condition" class="form-control">
+                            <option value="new">New</option>
+                            <option value="used">Used</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Price</label>
+                          <input type="number" name="auto_price" class="form-control">
+                        </div>
                       </div>
 
-                      <div class="form-group">
-                        <label>Brand</label>
-                        <input type="text" name="brandItem" class="form-control">
+                      <!-- ELECTRONICS fields -->
+                      <div id="electronicsFields" style="display:none;">
+                        <div class="form-group">
+                          <label>Name</label>
+                          <input type="text" name="itemName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Brand</label>
+                          <input type="text" name="brandItem" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Type</label>
+                          <input type="text" name="itemtype" class="form-control">
+                        </div>
+                        <div class="form-group">
+                          <label>Price</label>
+                          <input type="number" name="items_price" class="form-control">
+                        </div>
                       </div>
 
+                      <!-- Common fields -->
                       <div class="form-group">
-                        <label>Type</label>
-                        <input type="text" name="itemtype" class="form-control">
-                      </div>
-
-                      <div class="form-group">
-                        <label>Price</label>
-                        <input type="number" name="items_price" class="form-control">
-                      </div>
-
-                      
-
-                    
-
-                    </div>
-
-
-
-
-
-                    
-
-                     <div class="form-group">
                         <label>RP</label>
                         <input type="number" name="reward_point" class="form-control">
                       </div>
 
-                       <div class="form-group">
-                      <label>Item Descriptoin</label>
-                      <textarea  name="description" class="form-control">
-                      Enter Product Description.....
-                        </textarea>
-                    </div>
+                      <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" class="form-control" placeholder="Enter product description..."></textarea>
+                      </div>
 
-                    <div class="form-group">
-                  <label>Upload Images (Max 3)</label>
-                  <input type="file" id="imageInput" name="images" multiple accept="image/*" class="form-control">
-                </div>
+                      <div class="form-group">
+                        <label>Upload Images (Max 3)</label>
+                        <input type="file" id="imageInput" name="images" multiple accept="image/*" class="form-control">
+                      </div>
 
-                  <!--  PREVIEW AREA -->
-                  <div id="imagePreview" style="display:flex; gap:10px; margin-top:10px;"></div>
-                      
-                   
-                   
-                  <div class="card-footer text-right">
-                    <button class="btn btn-primary mr-1" type="submit">Submit</button>
-                   
+                      <div id="imagePreview" style="display:flex; gap:10px; margin-top:10px;"></div>
+
+                      <div class="card-footer text-right">
+                        <button class="btn btn-primary mr-1" type="submit">Submit</button>
+                      </div>
+                    </form>
+
                   </div>
-                  </form>
                 </div>
-
-
               </div>
-
-
             </div>
           </div>
         </section>
+
         <div class="settingSidebar">
-          <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
-          </a>
+          <a href="javascript:void(0)" class="settingPanelToggle"><i class="fa fa-spin fa-cog"></i></a>
           <div class="settingSidebar-body ps-container ps-theme-default">
-            <div class=" fade show active">
-              <div class="setting-panel-header">Setting Panel
-              </div>
+            <div class="fade show active">
+              <div class="setting-panel-header">Setting Panel</div>
               <div class="p-15 border-bottom">
                 <h6 class="font-medium m-b-10">Select Layout</h6>
                 <div class="selectgroup layout-color w-50">
@@ -242,13 +179,11 @@
                 <div class="selectgroup selectgroup-pills sidebar-color">
                   <label class="selectgroup-item">
                     <input type="radio" name="icon-input" value="1" class="selectgroup-input select-sidebar">
-                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                      data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
+                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip" data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
                   </label>
                   <label class="selectgroup-item">
                     <input type="radio" name="icon-input" value="2" class="selectgroup-input select-sidebar" checked>
-                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                      data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
+                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip" data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
                   </label>
                 </div>
               </div>
@@ -256,35 +191,20 @@
                 <h6 class="font-medium m-b-10">Color Theme</h6>
                 <div class="theme-setting-options">
                   <ul class="choose-theme list-unstyled mb-0">
-                    <li title="white" class="active">
-                      <div class="white"></div>
-                    </li>
-                    <li title="cyan">
-                      <div class="cyan"></div>
-                    </li>
-                    <li title="black">
-                      <div class="black"></div>
-                    </li>
-                    <li title="purple">
-                      <div class="purple"></div>
-                    </li>
-                    <li title="orange">
-                      <div class="orange"></div>
-                    </li>
-                    <li title="green">
-                      <div class="green"></div>
-                    </li>
-                    <li title="red">
-                      <div class="red"></div>
-                    </li>
+                    <li title="white" class="active"><div class="white"></div></li>
+                    <li title="cyan"><div class="cyan"></div></li>
+                    <li title="black"><div class="black"></div></li>
+                    <li title="purple"><div class="purple"></div></li>
+                    <li title="orange"><div class="orange"></div></li>
+                    <li title="green"><div class="green"></div></li>
+                    <li title="red"><div class="red"></div></li>
                   </ul>
                 </div>
               </div>
               <div class="p-15 border-bottom">
                 <div class="theme-setting-options">
                   <label class="m-b-0">
-                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                      id="mini_sidebar_setting">
+                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input" id="mini_sidebar_setting">
                     <span class="custom-switch-indicator"></span>
                     <span class="control-label p-l-10">Mini Sidebar</span>
                   </label>
@@ -293,8 +213,7 @@
               <div class="p-15 border-bottom">
                 <div class="theme-setting-options">
                   <label class="m-b-0">
-                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                      id="sticky_header_setting">
+                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input" id="sticky_header_setting">
                     <span class="custom-switch-indicator"></span>
                     <span class="control-label p-l-10">Sticky Header</span>
                   </label>
@@ -309,75 +228,53 @@
           </div>
         </div>
       </div>
+
       <footer class="main-footer">
-        <div class="footer-left">
-          &copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.
-        </div>
-        <div class="footer-right">
-        </div>
+        <div class="footer-left">&copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.</div>
+        <div class="footer-right"></div>
       </footer>
     </div>
   </div>
- 
+
   <script>
-const categorySelect = document.getElementById('categorySelect');
+  var categorySelect = document.getElementById('categorySelect');
+  var dataFields        = document.getElementById('dataFields');
+  var automobileFields  = document.getElementById('automobileFields');
+  var electronicsFields = document.getElementById('electronicsFields');
 
-const normalFields = document.getElementById('normalFields');
-const dataFields = document.getElementById('dataFields');
-const automobileFields = document.getElementById('automobileFields');
-const electronicsFields = document.getElementById('electronicsFields');
-
-categorySelect.addEventListener('change', function() {
-  normalFields.style.display = 'none';
-  dataFields.style.display = 'none';
-  automobileFields.style.display = 'none';
-  electronicsFields.style.display = 'none';
-
-  if (this.value === 'DATA') {
-    dataFields.style.display = 'block';
-  } else if (this.value === 'AUTOMOBILE') {
-    automobileFields.style.display = 'block';
-  } else if (this.value === 'ELECTRONICS') {
-    electronicsFields.style.display = 'block';
-  } else {
-    normalFields.style.display = 'block';
+  function hideAllFields() {
+    dataFields.style.display       = 'none';
+    automobileFields.style.display = 'none';
+    electronicsFields.style.display = 'none';
   }
-});
 
+  categorySelect.addEventListener('change', function () {
+    hideAllFields();
+    if (this.value === 'DATA')        dataFields.style.display        = 'block';
+    else if (this.value === 'AUTOMOBILE') automobileFields.style.display  = 'block';
+    else if (this.value === 'ELECTRONICS') electronicsFields.style.display = 'block';
+  });
 
+  var imageInput      = document.getElementById('imageInput');
+  var previewContainer = document.getElementById('imagePreview');
 
-const imageInput = document.getElementById('imageInput');
-const previewContainer = document.getElementById('imagePreview');
-
-imageInput.addEventListener('change', function () {
-
-    previewContainer.innerHTML = ''; // clear old preview
-
-    const files = Array.from(this.files);
-
-    // ❌ LIMIT TO 3
+  imageInput.addEventListener('change', function () {
+    previewContainer.innerHTML = '';
+    var files = Array.from(this.files);
     if (files.length > 3) {
-        alert('You can only upload maximum of 3 images');
-        this.value = '';
-        return;
+      alert('You can only upload a maximum of 3 images.');
+      this.value = '';
+      return;
     }
-
-    files.forEach(file => {
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.style.width = '100px';
-            img.style.height = '100px';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '6px';
-
-            previewContainer.appendChild(img);
-        };
-
-        reader.readAsDataURL(file);
+    files.forEach(function (file) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:6px;';
+        previewContainer.appendChild(img);
+      };
+      reader.readAsDataURL(file);
     });
-});
-
-</script>
+  });
+  </script>

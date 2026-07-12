@@ -149,16 +149,19 @@ exports.checkoutPage = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const [user, checkout] = await Promise.all([
+    const [user, checkout, wallet] = await Promise.all([
       User.findById(userId),
-      Checkout.findOne({ user: userId }).sort({ createdAt: -1 }).populate('product')
+      Checkout.findOne({ user: userId }).sort({ createdAt: -1 }).populate('product'),
+      Wallet.findOne({ user: userId }),
     ]);
 
+    const walletBalance = wallet?.balances?.NAIRA ?? 0;
+
     if (!checkout) {
-      return res.render('webview/checkout', { user, checkout: null });
+      return res.render('webview/checkout', { user, checkout: null, walletBalance });
     }
 
-    res.render('webview/checkout', { user, checkout });
+    res.render('webview/checkout', { user, checkout, walletBalance });
 
   } catch (error) {
     console.log("ERROR:", error);

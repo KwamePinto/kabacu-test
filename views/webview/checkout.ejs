@@ -76,9 +76,9 @@
     <div class="payment-modal-methods">
       <div class="payment-method-opt" id="walletBtn">
         <div class="payment-method-opt__icon"><i data-lucide="wallet"></i></div>
-        <div>
+        <div style="flex:1;">
           <div class="payment-method-opt__label">Pay with My Wallet</div>
-          <div class="payment-method-opt__sub">Use your Naira wallet balance</div>
+          <div class="payment-method-opt__sub">Balance: <strong>₦<%= (walletBalance || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></strong></div>
         </div>
       </div>
     </div>
