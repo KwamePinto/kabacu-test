@@ -105,7 +105,7 @@
             <label class="form-label">OTP Code</label>
             <div class="input-wrapper">
               <i data-lucide="shield"></i>
-              <input type="text" id="otp" class="form-input" placeholder="Enter OTP from Telegram">
+              <input type="text" id="otp" class="form-input" placeholder="Enter OTP code">
             </div>
           </div>
           <button id="confirmTopup" class="btn btn--primary btn--full">
@@ -114,7 +114,7 @@
           </button>
         </div>
 
-        <p class="action-note">
+        <p class="action-note" id="otpDeliveryNote">
           <i data-lucide="info"></i>
           OTP is sent to your Telegram wallet bot
         </p>
@@ -311,6 +311,11 @@
       if (data.success) {
         topupId = data.topupId;
         document.getElementById('otpBox').style.display = 'block';
+        if (data.message) {
+          const note = document.getElementById('otpDeliveryNote');
+          note.innerHTML = '<i data-lucide="info"></i> ' + data.message;
+          if (window.lucide) lucide.createIcons();
+        }
         Swal.fire({ icon: 'success', text: data.message });
       } else {
         btn.disabled = false;
