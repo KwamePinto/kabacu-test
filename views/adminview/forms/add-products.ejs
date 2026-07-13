@@ -31,8 +31,9 @@
                         <label>Category</label>
                         <select class="form-control" name="category" id="categorySelect" required>
                           <option value="" disabled selected>Select Category</option>
+                          <% var supported = ['DATA', 'AUTOMOBILE', 'ELECTRONICS']; %>
                           <% category.forEach(function(cat){ %>
-                            <% if (cat.category_name !== 'COURSES') { %>
+                            <% if (supported.includes(cat.category_name)) { %>
                             <option value="<%= cat.category_name %>"><%= cat.category_name %></option>
                             <% } %>
                           <% }) %>
