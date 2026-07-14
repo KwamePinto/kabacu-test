@@ -654,10 +654,10 @@ $(function () {
       $("body").removeClass();
       $("body").addClass("light");
       $("body").addClass("light-sidebar");
-      $("body").addClass("theme-white");
+      $("body").addClass("theme-green");
 
       $(".choose-theme li").removeClass("active");
-      $(".choose-theme li[title|='white']").addClass("active");
+      $(".choose-theme li[title|='green']").addClass("active");
       $(".selectgroup-input[value|='1']").prop("checked", true);
     } else {
       $("body").removeClass();
@@ -677,11 +677,11 @@ $(function () {
     $("body").removeClass();
     jQuery("body").addClass("light");
     jQuery("body").addClass("light-sidebar");
-    jQuery("body").addClass("theme-white");
+    jQuery("body").addClass("theme-green");
 
     // set default theme
     $(".choose-theme li").removeClass("active");
-    $(".choose-theme li[title|='white']").addClass("active");
+    $(".choose-theme li[title|='green']").addClass("active");
 
     $(".select-layout[value|='1']").prop("checked", true);
     $(".select-sidebar[value|='2']").prop("checked", true);
@@ -696,10 +696,10 @@ $(function () {
   //add default class on body tag
   jQuery("body").addClass("light");
   jQuery("body").addClass("light-sidebar");
-  jQuery("body").addClass("theme-white");
+  jQuery("body").addClass("theme-green");
   // set theme default color
   $(".choose-theme li").removeClass("active");
-  $(".choose-theme li[title|='white']").addClass("active");
+  $(".choose-theme li[title|='green']").addClass("active");
   //set default dark or light layout(1=light, 2=dark)
   $(".select-layout[value|='1']").prop("checked", true);
   //set default dark or light sidebar(1=light, 2=dark)
