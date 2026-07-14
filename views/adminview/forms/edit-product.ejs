@@ -27,8 +27,7 @@
                     </div>
                     <% } %>
 
-                    <form method="post" action="/admin/product/edit-product/<%= product._id %>" id="editProductForm">
-                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <form method="post" action="/admin/product/edit-product/<%= product._id %>?_csrf=<%= csrfToken %>" enctype="multipart/form-data" id="editProductForm">
 
                       <!-- Category (read-only) -->
                       <div class="form-group">
@@ -133,16 +132,22 @@
                         <textarea name="description" class="form-control" rows="3"><%= product.description || '' %></textarea>
                       </div>
 
-                      <!-- Current images (display only) -->
+                      <!-- Images -->
+                      <div class="form-group">
+                        <label>Replace Images <small class="text-muted">(leave blank to keep existing)</small></label>
+                        <input type="file" name="images" multiple accept="image/*" class="form-control" id="editImageInput">
+                        <div id="editImagePreview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;"></div>
+                      </div>
+
                       <% if (product.images && product.images.length > 0) { %>
                       <div class="form-group">
                         <label>Current Images</label>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
                           <% product.images.forEach(function(img) { %>
-                          <img src="<%= img %>" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;">
+                          <img src="<%= img %>" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;"
+                               onerror="this.style.opacity='0.3'; this.title='Not found'; this.onerror=null;">
                           <% }) %>
                         </div>
-                        <small class="text-muted">Images cannot be changed during edit.</small>
                       </div>
                       <% } %>
 
@@ -196,6 +201,29 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+var editImageInput   = document.getElementById('editImageInput');
+var editPreview      = document.getElementById('editImagePreview');
+
+editImageInput.addEventListener('change', function() {
+  editPreview.innerHTML = '';
+  var files = Array.from(this.files);
+  if (files.length > 3) {
+    Swal.fire({ icon: 'warning', title: 'Too many files', text: 'Maximum 3 images allowed.' });
+    this.value = '';
+    return;
+  }
+  files.forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;';
+      editPreview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
 document.getElementById('saveProductBtn').addEventListener('click', function() {
   Swal.fire({
     title: 'Save Changes?',

@@ -13,7 +13,7 @@ router.get('/view-transactions', getProducts.viewTransactions);
 router.get('/view-topUps',       getProducts.viewTopUps);
 
 router.get('/edit-product/:id',  getProducts.editProductGet);
-router.post('/edit-product/:id', getProducts.editProductPost);
+router.post('/edit-product/:id', upload.array('images', 3), getProducts.editProductPost);
 router.post('/delete-product/:id', getProducts.deleteProduct);
 
 router.get('/payment-methods',          getProducts.viewPaymentMethods);

@@ -12,7 +12,7 @@ const { authenticateAdminUser } = require('../../config/authMiddleware');
 
 exports.createProducts = [authenticateAdminUser, async (req, res) => {
   try {
-    const category = await Category.find({ is_deleted: 0 }).sort({ category_name: 1 });
+    const category = await Category.find({ is_deleted: { $ne: 1 } }).sort({ category_name: 1 });
     res.render('adminview/forms/add-products', {
       layout: adminLayouts,
       category,
@@ -27,7 +27,7 @@ exports.createProducts = [authenticateAdminUser, async (req, res) => {
 exports.addProduct = [authenticateAdminUser, async (req, res) => {
   try {
     const { category, reward_point, description } = req.body;
-    const imagePaths = req.files.map(file => '/uploads/' + file.filename);
+    const imagePaths = (req.files || []).map(file => '/uploads/' + file.filename);
 
     let productData = {
       category,
@@ -142,7 +142,7 @@ exports.editProductGet = [authenticateAdminUser, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.redirect('/admin/product/view-products');
-    const category = await Category.find({ is_deleted: 0 }).sort({ category_name: 1 });
+    const category = await Category.find({ is_deleted: { $ne: 1 } }).sort({ category_name: 1 });
     res.render('adminview/forms/edit-product', {
       layout: adminLayouts,
       product,
@@ -166,6 +166,11 @@ exports.editProductPost = [authenticateAdminUser, async (req, res) => {
       reward_point: reward_point !== undefined ? reward_point : product.reward_point,
       description:  description  || product.description,
     };
+
+    // Replace images only when the admin explicitly uploaded new ones
+    if (req.files && req.files.length > 0) {
+      update.images = req.files.map(file => '/uploads/' + file.filename);
+    }
 
     if (product.category === 'DATA') {
       update.dataDetails = {
