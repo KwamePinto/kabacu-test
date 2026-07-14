@@ -1,0 +1,214 @@
+
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      <%- include('../../partials/headerAdmin.ejs')%>
+      <%- include('../../partials/sideMenuAdmin.ejs')%>
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-body">
+            <div class="row">
+              <div class="col-12 col-lg-10 mx-auto">
+                <div class="card">
+                  <div class="card-header">
+                    <h4>Edit Product</h4>
+                    <a href="/admin/product/view-products" class="btn btn-secondary btn-sm float-right">
+                      <i class="fa fa-arrow-left mr-1"></i> Back to Products
+                    </a>
+                  </div>
+                  <div class="card-body">
+
+                    <% if (typeof query !== 'undefined' && query.error == '1') { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                      An error occurred. Please try again.
+                      <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                    <% } %>
+
+                    <form method="post" action="/admin/product/edit-product/<%= product._id %>" id="editProductForm">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                      <!-- Category (read-only) -->
+                      <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" class="form-control" value="<%= product.category %>" readonly style="background:#f9fafb;">
+                      </div>
+
+                      <!-- DATA fields -->
+                      <% if (product.category === 'DATA') { %>
+                      <div class="form-group">
+                        <label>Plan ID</label>
+                        <input type="number" name="plan_id" class="form-control" value="<%= product.dataDetails?.plan_id || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Network</label>
+                        <input type="text" name="network" class="form-control" value="<%= product.dataDetails?.network || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Plan Type</label>
+                        <input type="text" name="plan_type" class="form-control" value="<%= product.dataDetails?.plan_type || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Plan Name</label>
+                        <input type="text" name="plan_name" class="form-control" value="<%= product.dataDetails?.plan_name || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Amount (₦)</label>
+                        <input type="number" name="amount" class="form-control" value="<%= product.dataDetails?.amount || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Old Price (₦)</label>
+                        <input type="number" name="oldPrice" class="form-control" value="<%= product.dataDetails?.oldPrice || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Validate Period</label>
+                        <input type="text" name="validate_period" class="form-control" value="<%= product.dataDetails?.validate_period || '' %>">
+                      </div>
+                      <% } %>
+
+                      <!-- AUTOMOBILE fields -->
+                      <% if (product.category === 'AUTOMOBILE') { %>
+                      <div class="form-group">
+                        <label>Brand</label>
+                        <input type="text" name="brand" class="form-control" value="<%= product.automobileDetails?.brand || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Model</label>
+                        <input type="text" name="model" class="form-control" value="<%= product.automobileDetails?.model || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Year</label>
+                        <input type="number" name="year" class="form-control" value="<%= product.automobileDetails?.year || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Fuel Type</label>
+                        <input type="text" name="fuel_type" class="form-control" value="<%= product.automobileDetails?.fuel_type || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Transmission</label>
+                        <input type="text" name="transmission" class="form-control" value="<%= product.automobileDetails?.transmission || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Condition</label>
+                        <select name="condition" class="form-control">
+                          <option value="new" <%= product.automobileDetails?.condition === 'new' ? 'selected' : '' %>>New</option>
+                          <option value="used" <%= product.automobileDetails?.condition === 'used' ? 'selected' : '' %>>Used</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>Price (₦)</label>
+                        <input type="number" name="auto_price" class="form-control" value="<%= product.automobileDetails?.price || '' %>">
+                      </div>
+                      <% } %>
+
+                      <!-- ELECTRONICS fields -->
+                      <% if (product.category === 'ELECTRONICS') { %>
+                      <div class="form-group">
+                        <label>Item Name</label>
+                        <input type="text" name="itemName" class="form-control" value="<%= product.electronicDetails?.itemName || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Brand</label>
+                        <input type="text" name="brandItem" class="form-control" value="<%= product.electronicDetails?.brandItem || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Type</label>
+                        <input type="text" name="itemtype" class="form-control" value="<%= product.electronicDetails?.itemtype || '' %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Price (₦)</label>
+                        <input type="number" name="items_price" class="form-control" value="<%= product.electronicDetails?.items_price || '' %>">
+                      </div>
+                      <% } %>
+
+                      <!-- Common fields -->
+                      <div class="form-group">
+                        <label>Reward Points</label>
+                        <input type="number" name="reward_point" class="form-control" value="<%= product.reward_point || 0 %>">
+                      </div>
+                      <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" class="form-control" rows="3"><%= product.description || '' %></textarea>
+                      </div>
+
+                      <!-- Current images (display only) -->
+                      <% if (product.images && product.images.length > 0) { %>
+                      <div class="form-group">
+                        <label>Current Images</label>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+                          <% product.images.forEach(function(img) { %>
+                          <img src="<%= img %>" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;">
+                          <% }) %>
+                        </div>
+                        <small class="text-muted">Images cannot be changed during edit.</small>
+                      </div>
+                      <% } %>
+
+                      <div class="card-footer text-right">
+                        <a href="/admin/product/view-products" class="btn btn-secondary mr-2">Cancel</a>
+                        <button class="btn btn-primary" type="button" id="saveProductBtn">Save Changes</button>
+                      </div>
+                    </form>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="settingSidebar">
+          <a href="javascript:void(0)" class="settingPanelToggle"><i class="fa fa-spin fa-cog"></i></a>
+          <div class="settingSidebar-body ps-container ps-theme-default">
+            <div class="fade show active">
+              <div class="setting-panel-header">Setting Panel</div>
+              <div class="p-15 border-bottom">
+                <h6 class="font-medium m-b-10">Select Layout</h6>
+                <div class="selectgroup layout-color w-50">
+                  <label class="selectgroup-item">
+                    <input type="radio" name="value" value="1" class="selectgroup-input-radio select-layout" checked>
+                    <span class="selectgroup-button">Light</span>
+                  </label>
+                  <label class="selectgroup-item">
+                    <input type="radio" name="value" value="2" class="selectgroup-input-radio select-layout">
+                    <span class="selectgroup-button">Dark</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mt-4 mb-4 p-3 align-center rt-sidebar-last-ele">
+                <a href="#" class="btn btn-icon icon-left btn-primary btn-restore-theme">
+                  <i class="fas fa-undo"></i> Restore Default
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">&copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.</div>
+        <div class="footer-right"></div>
+      </footer>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById('saveProductBtn').addEventListener('click', function() {
+  Swal.fire({
+    title: 'Save Changes?',
+    text: 'Are you sure you want to update this product?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Save',
+    confirmButtonColor: '#47c363',
+    cancelButtonText: 'Cancel',
+  }).then(function(result) {
+    if (result.isConfirmed) {
+      document.getElementById('editProductForm').submit();
+    }
+  });
+});
+</script>

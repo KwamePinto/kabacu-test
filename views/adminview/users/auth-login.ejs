@@ -71,7 +71,7 @@
             </div>
             <% } %>
 
-            <form method="POST" action="/admin/user/login" class="needs-validation" novalidate="">
+            <form method="POST" action="/command" class="needs-validation" novalidate="">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
               <div class="form-group">
@@ -112,7 +112,7 @@
             </form>
 
             <div style="text-align:center;margin-top:16px;">
-              <a href="/admin/user/forgot-password" style="font-size:13px;color:#6b7280;text-decoration:none;">
+              <a href="/admin/forgot-password" style="font-size:13px;color:#6b7280;text-decoration:none;">
                 Forgot password?
               </a>
             </div>

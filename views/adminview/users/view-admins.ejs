@@ -275,7 +275,7 @@
 
     var body = new URLSearchParams({ adminId: pendingId, password: password, _csrf: csrfToken }).toString();
 
-    fetch('/admin/user/admins/toggle-status', {
+    fetch('/admin/admins/toggle-status', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: body,
@@ -343,7 +343,7 @@
       self.disabled = true;
       self.innerHTML = '<span class="spinner-border spinner-border-sm mr-1" role="status"></span> Sending…';
 
-      fetch('/admin/user/admins/approve-reset/' + id, {
+      fetch('/admin/admins/approve-reset/' + id, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

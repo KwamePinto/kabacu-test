@@ -3,62 +3,68 @@
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
       <div class="navbar-bg"></div>
+      <%- include('../../partials/headerAdmin.ejs')%>
+      <%- include('../../partials/sideMenuAdmin.ejs')%>
 
-                       <!--header-->
- <%- include('../../partials/headerAdmin.ejs')%>
-
-       <%- include('../../partials/sideMenuAdmin.ejs')%>
-      <!-- Main Content -->
       <div class="main-content">
         <section class="section">
           <div class="section-body">
-         
-         
             <div class="row">
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
-                    <h4>Product Category</h4>
-                    
-                        <a href="/admin/category/create-category" class="btn btn-primary btn-rounded float-right"><i class="fa fa-plus"></i> Add Category</a>
-                    
+                    <h4>Product Categories</h4>
+                    <a href="/admin/category/create-category" class="btn btn-primary btn-rounded float-right">
+                      <i class="fa fa-plus"></i> Add Category
+                    </a>
                   </div>
-                  
                   <div class="card-body">
                     <div class="table-responsive">
-                      <table class="table table-striped table-hover" id="save-stage" style="width:100%;">
+                      <table class="table table-striped table-hover" style="width:100%;">
                         <thead>
                           <tr>
+                            <th>#</th>
                             <th>Category Name</th>
-                            
-                           
+                            <th>Created</th>
+                            <th class="text-right">Actions</th>
                           </tr>
                         </thead>
-                          <tbody>
-                           <% if (category.length === 0) { %>
-
-                             <p class="text-muted">No product found.</p>
-                        <% } else { %>
-                          <%category.forEach(category => { %>
+                        <tbody>
+                          <% if (category.length === 0) { %>
                           <tr>
-                            <td><%=category.category_name%></td>
-                           
-                              <td class="text-right">
-                                            <div class="dropdown dropdown-action">
-                                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i class="fa fa-pencil m-r-5"></i> Edit</a>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#delete_employee"><i class="fa fa-trash-o m-r-5"></i> Delete</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                            
+                            <td colspan="4" class="text-center text-muted">No categories found.</td>
                           </tr>
-                          <% })  %>
-                        <% } %>
-    
-                        </tbody> 
-                       
+                          <% } else { %>
+                          <% category.forEach(function(cat, i) { %>
+                          <tr id="cat-row-<%= cat._id %>">
+                            <td><%= i + 1 %></td>
+                            <td id="cat-name-<%= cat._id %>"><strong><%= cat.category_name %></strong></td>
+                            <td style="font-size:12px;color:#6b7280;">
+                              <%= new Date(cat.createdAt).toLocaleDateString('en-GB') %>
+                            </td>
+                            <td class="text-right">
+                              <div class="dropdown dropdown-action">
+                                <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                  <i class="fa fa-ellipsis-v"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                  <a class="dropdown-item cat-edit-btn" href="#"
+                                     data-id="<%= cat._id %>"
+                                     data-name="<%= cat.category_name %>">
+                                    <i class="fa fa-pencil m-r-5"></i> Edit
+                                  </a>
+                                  <a class="dropdown-item text-danger cat-delete-btn" href="#"
+                                     data-id="<%= cat._id %>"
+                                     data-name="<%= cat.category_name %>">
+                                    <i class="fa fa-trash-o m-r-5"></i> Delete
+                                  </a>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          <% }) %>
+                          <% } %>
+                        </tbody>
                       </table>
                     </div>
                   </div>
@@ -67,13 +73,12 @@
             </div>
           </div>
         </section>
+
         <div class="settingSidebar">
-          <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
-          </a>
+          <a href="javascript:void(0)" class="settingPanelToggle"><i class="fa fa-spin fa-cog"></i></a>
           <div class="settingSidebar-body ps-container ps-theme-default">
-            <div class=" fade show active">
-              <div class="setting-panel-header">Setting Panel
-              </div>
+            <div class="fade show active">
+              <div class="setting-panel-header">Setting Panel</div>
               <div class="p-15 border-bottom">
                 <h6 class="font-medium m-b-10">Select Layout</h6>
                 <div class="selectgroup layout-color w-50">
@@ -92,61 +97,11 @@
                 <div class="selectgroup selectgroup-pills sidebar-color">
                   <label class="selectgroup-item">
                     <input type="radio" name="icon-input" value="1" class="selectgroup-input select-sidebar">
-                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                      data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
+                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip" data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
                   </label>
                   <label class="selectgroup-item">
                     <input type="radio" name="icon-input" value="2" class="selectgroup-input select-sidebar" checked>
-                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                      data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
-                  </label>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <h6 class="font-medium m-b-10">Color Theme</h6>
-                <div class="theme-setting-options">
-                  <ul class="choose-theme list-unstyled mb-0">
-                    <li title="white" class="active">
-                      <div class="white"></div>
-                    </li>
-                    <li title="cyan">
-                      <div class="cyan"></div>
-                    </li>
-                    <li title="black">
-                      <div class="black"></div>
-                    </li>
-                    <li title="purple">
-                      <div class="purple"></div>
-                    </li>
-                    <li title="orange">
-                      <div class="orange"></div>
-                    </li>
-                    <li title="green">
-                      <div class="green"></div>
-                    </li>
-                    <li title="red">
-                      <div class="red"></div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <div class="theme-setting-options">
-                  <label class="m-b-0">
-                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                      id="mini_sidebar_setting">
-                    <span class="custom-switch-indicator"></span>
-                    <span class="control-label p-l-10">Mini Sidebar</span>
-                  </label>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <div class="theme-setting-options">
-                  <label class="m-b-0">
-                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                      id="sticky_header_setting">
-                    <span class="custom-switch-indicator"></span>
-                    <span class="control-label p-l-10">Sticky Header</span>
+                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip" data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
                   </label>
                 </div>
               </div>
@@ -159,13 +114,102 @@
           </div>
         </div>
       </div>
+
       <footer class="main-footer">
-        <div class="footer-left">
-          <a href="templateshub.net">Templateshub</a></a>
-        </div>
-        <div class="footer-right">
-        </div>
+        <div class="footer-left">&copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.</div>
+        <div class="footer-right"></div>
       </footer>
     </div>
   </div>
- 
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+var CSRF_TOKEN = '<%= csrfToken %>';
+
+<% if (typeof query !== 'undefined' && query.added == '1') { %>
+Swal.fire({ icon: 'success', title: 'Category Added!', text: 'New category created successfully.', timer: 2500, showConfirmButton: false });
+<% } %>
+
+document.querySelectorAll('.cat-edit-btn').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    var id   = this.dataset.id;
+    var name = this.dataset.name;
+
+    Swal.fire({
+      title: 'Edit Category',
+      input: 'text',
+      inputLabel: 'Category Name',
+      inputValue: name,
+      showCancelButton: true,
+      confirmButtonText: 'Save Changes',
+      confirmButtonColor: '#47c363',
+      cancelButtonText: 'Cancel',
+      inputValidator: function(value) {
+        if (!value || !value.trim()) return 'Category name cannot be empty.';
+      }
+    }).then(function(result) {
+      if (!result.isConfirmed) return;
+
+      fetch('/admin/category/edit-category/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+        body: JSON.stringify({ category_name: result.value.trim() }),
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success) {
+            document.getElementById('cat-name-' + id).innerHTML = '<strong>' + data.category_name + '</strong>';
+            document.querySelectorAll('[data-id="' + id + '"]').forEach(function(el) {
+              el.dataset.name = data.category_name;
+            });
+            Swal.fire({ icon: 'success', title: 'Updated!', text: 'Category renamed to ' + data.category_name + '.', timer: 2000, showConfirmButton: false });
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Could not update category.' });
+          }
+        })
+        .catch(function() {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'Network error. Please try again.' });
+        });
+    });
+  });
+});
+
+document.querySelectorAll('.cat-delete-btn').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    var id   = this.dataset.id;
+    var name = this.dataset.name;
+
+    Swal.fire({
+      title: 'Delete Category?',
+      text: 'Are you sure you want to delete "' + name + '"? This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete',
+      confirmButtonColor: '#e74c3c',
+      cancelButtonText: 'Cancel',
+    }).then(function(result) {
+      if (!result.isConfirmed) return;
+
+      fetch('/admin/category/delete-category/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success) {
+            var row = document.getElementById('cat-row-' + id);
+            if (row) row.remove();
+            Swal.fire({ icon: 'success', title: 'Deleted!', text: '"' + name + '" has been removed.', timer: 2000, showConfirmButton: false });
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Could not delete category.' });
+          }
+        })
+        .catch(function() {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'Network error. Please try again.' });
+        });
+    });
+  });
+});
+</script>

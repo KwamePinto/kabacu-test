@@ -1,18 +1,11 @@
 
-
-
-
-
   <div class="loader"></div>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
       <div class="navbar-bg"></div>
-
       <%- include('../../partials/headerAdmin.ejs')%>
+      <%- include('../../partials/sideMenuAdmin.ejs')%>
 
-       <%- include('../../partials/sideMenuAdmin.ejs')%>
-
-      <!-- Main Content -->
       <div class="main-content">
         <section class="section">
           <div class="section-body">
@@ -27,71 +20,59 @@
                       <table class="table table-striped" id="table-1">
                         <thead>
                           <tr>
-                            <th class="text-center">
-                              #
-                            </th>
-                           
+                            <th>#</th>
                             <th>Image</th>
                             <th>Product</th>
                             <th>Category</th>
                             <th>Details</th>
                             <th>Price</th>
                             <th>RP</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           <% if (products.length > 0) { %>
-                           <% products.forEach((product, index) => { %>
-                          <tr>
+                          <% products.forEach(function(product, index) { %>
+                          <tr id="prod-row-<%= product._id %>">
+                            <td><%= index + 1 %></td>
                             <td>
-                              <%= index + 1 %>
+                              <% if (product.images && product.images.length > 0) { %>
+                              <img src="<%= product.images[0] %>" width="50" style="border-radius:5px;">
+                              <% } %>
                             </td>
-                            <td> <b><%= product.productName %></b></td>
-                            <!-- <td class="align-middle">
-                              <div class="progress progress-xs">
-                                <div class="progress-bar bg-success width-per-40">
-                                </div>
-                              </div>
-                            </td> -->
+                            <td><b><%= product.productName %></b></td>
                             <td>
-                               <% if (product.images && product.images.length > 0) { %>
-                                          <img src="<%= product.images[0] %>" 
-                                              width="50" 
-                                              style="border-radius:5px;">
-                                      <% } %>
-                            </td>
-                            
-                            <td>
-                               <span class="badge badge-info">
-                                    <%= product.category %>
-                                </span>
+                              <span class="badge badge-info"><%= product.category %></span>
                             </td>
                             <td><%= product.productExtra %></td>
-                             <td> ₦<%= product.productPrice.toLocaleString() %></td>
-                              <td>
-                                 <span class="badge badge-success">
-                                      <%= product.reward_point || 0 %>
-                                  </span>
-                                  </td>
+                            <td>₦<%= product.productPrice.toLocaleString() %></td>
                             <td>
-                               <a href="/admin/product/<%= product._id %>" 
-                                class="btn btn-primary btn-sm">
-                                View
-                              </a>
+                              <span class="badge badge-success"><%= product.reward_point || 0 %></span>
+                            </td>
+                            <td>
+                              <div class="dropdown dropdown-action">
+                                <a href="#" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                  Actions
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                  <a class="dropdown-item" href="/admin/product/edit-product/<%= product._id %>">
+                                    <i class="fa fa-pencil m-r-5"></i> Edit
+                                  </a>
+                                  <a class="dropdown-item text-danger prod-delete-btn" href="#"
+                                     data-id="<%= product._id %>"
+                                     data-name="<%= product.productName %>">
+                                    <i class="fa fa-trash-o m-r-5"></i> Delete
+                                  </a>
+                                </div>
+                              </div>
                             </td>
                           </tr>
-                              <% }) %>
-                              <% } else { %>
-                                  <tr>
-                                      <td colspan="8" style="text-align:center;">
-                                          No products found
-                                      </td>
-                                  </tr>
-                              <% } %>
-                        
-                        
-                      
+                          <% }) %>
+                          <% } else { %>
+                          <tr>
+                            <td colspan="8" class="text-center">No products found</td>
+                          </tr>
+                          <% } %>
                         </tbody>
                       </table>
                     </div>
@@ -99,17 +80,14 @@
                 </div>
               </div>
             </div>
-         
-          
           </div>
         </section>
+
         <div class="settingSidebar">
-          <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
-          </a>
+          <a href="javascript:void(0)" class="settingPanelToggle"><i class="fa fa-spin fa-cog"></i></a>
           <div class="settingSidebar-body ps-container ps-theme-default">
-            <div class=" fade show active">
-              <div class="setting-panel-header">Setting Panel
-              </div>
+            <div class="fade show active">
+              <div class="setting-panel-header">Setting Panel</div>
               <div class="p-15 border-bottom">
                 <h6 class="font-medium m-b-10">Select Layout</h6>
                 <div class="selectgroup layout-color w-50">
@@ -128,61 +106,11 @@
                 <div class="selectgroup selectgroup-pills sidebar-color">
                   <label class="selectgroup-item">
                     <input type="radio" name="icon-input" value="1" class="selectgroup-input select-sidebar">
-                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                      data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
+                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip" data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
                   </label>
                   <label class="selectgroup-item">
                     <input type="radio" name="icon-input" value="2" class="selectgroup-input select-sidebar" checked>
-                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip"
-                      data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
-                  </label>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <h6 class="font-medium m-b-10">Color Theme</h6>
-                <div class="theme-setting-options">
-                  <ul class="choose-theme list-unstyled mb-0">
-                    <li title="white" class="active">
-                      <div class="white"></div>
-                    </li>
-                    <li title="cyan">
-                      <div class="cyan"></div>
-                    </li>
-                    <li title="black">
-                      <div class="black"></div>
-                    </li>
-                    <li title="purple">
-                      <div class="purple"></div>
-                    </li>
-                    <li title="orange">
-                      <div class="orange"></div>
-                    </li>
-                    <li title="green">
-                      <div class="green"></div>
-                    </li>
-                    <li title="red">
-                      <div class="red"></div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <div class="theme-setting-options">
-                  <label class="m-b-0">
-                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                      id="mini_sidebar_setting">
-                    <span class="custom-switch-indicator"></span>
-                    <span class="control-label p-l-10">Mini Sidebar</span>
-                  </label>
-                </div>
-              </div>
-              <div class="p-15 border-bottom">
-                <div class="theme-setting-options">
-                  <label class="m-b-0">
-                    <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input"
-                      id="sticky_header_setting">
-                    <span class="custom-switch-indicator"></span>
-                    <span class="control-label p-l-10">Sticky Header</span>
+                    <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip" data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
                   </label>
                 </div>
               </div>
@@ -195,29 +123,60 @@
           </div>
         </div>
       </div>
+
       <footer class="main-footer">
-        <div class="footer-left">
-          <a href="templateshub.net">Templateshub</a></a>
-        </div>
-        <div class="footer-right">
-        </div>
+        <div class="footer-left">&copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.</div>
+        <div class="footer-right"></div>
       </footer>
     </div>
   </div>
-  <!-- General JS Scripts -->
-  <script src="assets/js/app.min.js"></script>
-  <!-- JS Libraies -->
-  <script src="assets/bundles/datatables/datatables.min.js"></script>
-  <script src="assets/bundles/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
-  <script src="assets/bundles/jquery-ui/jquery-ui.min.js"></script>
-  <!-- Page Specific JS File -->
-  <script src="assets/js/page/datatables.js"></script>
-  <!-- Template JS File -->
-  <script src="assets/js/scripts.js"></script>
-  <!-- Custom JS File -->
-  <script src="assets/js/custom.js"></script>
-</body>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+var CSRF_TOKEN = '<%= csrfToken %>';
 
-<!-- datatables.html  21 Nov 2019 03:55:25 GMT -->
-</html>
+<% if (typeof query !== 'undefined' && query.updated == '1') { %>
+Swal.fire({ icon: 'success', title: 'Updated!', text: 'Product updated successfully.', timer: 2000, showConfirmButton: false });
+<% } %>
+<% if (typeof query !== 'undefined' && query.deleted == '1') { %>
+Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Product removed successfully.', timer: 2000, showConfirmButton: false });
+<% } %>
+
+document.querySelectorAll('.prod-delete-btn').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    var id   = this.dataset.id;
+    var name = this.dataset.name;
+
+    Swal.fire({
+      title: 'Delete Product?',
+      text: 'Are you sure you want to delete "' + name + '"? This cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete',
+      confirmButtonColor: '#e74c3c',
+      cancelButtonText: 'Cancel',
+    }).then(function(result) {
+      if (!result.isConfirmed) return;
+
+      fetch('/admin/product/delete-product/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success) {
+            var row = document.getElementById('prod-row-' + id);
+            if (row) row.remove();
+            Swal.fire({ icon: 'success', title: 'Deleted!', text: '"' + name + '" has been removed.', timer: 2000, showConfirmButton: false });
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Could not delete product.' });
+          }
+        })
+        .catch(function() {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'Network error. Please try again.' });
+        });
+    });
+  });
+});
+</script>

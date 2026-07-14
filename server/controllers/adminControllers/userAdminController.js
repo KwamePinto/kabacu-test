@@ -135,7 +135,7 @@ exports.loginAdminPost = async (req, res) => {
     req.session.info = { role: user.role };
 
     if (!user.profileCompleted) {
-      return res.redirect('/admin/user/profile?firstLogin=1');
+      return res.redirect('/admin/profile?firstLogin=1');
     }
 
     res.redirect('/admin/main/dashboard');
@@ -148,7 +148,7 @@ exports.loginAdminPost = async (req, res) => {
 /* ── Logout ─────────────────────────────────────────────── */
 exports.logout = (req, res) => {
   res.clearCookie('admin_token');
-  res.redirect('/admin/user/login');
+  res.redirect('/command');
 };
 
 /* ── Admin management ───────────────────────────────────── */
@@ -190,7 +190,7 @@ exports.addAdminPost = [authenticateAdminUser, async (req, res) => {
       addedBy:          req.user.id,
     });
 
-    const loginUrl = `${req.protocol}://${req.get('host')}/admin/user/login`;
+    const loginUrl = `${req.protocol}://${req.get('host')}/command`;
 
     await sendEmail({
       to:      email.toLowerCase().trim(),
@@ -199,7 +199,7 @@ exports.addAdminPost = [authenticateAdminUser, async (req, res) => {
       text:    `Welcome ${username}. Email: ${email} | Password: ${plainPassword} | Role: ${role}. Login at ${loginUrl}`,
     });
 
-    res.redirect('/admin/user/admins?success=1');
+    res.redirect('/admin/admins?success=1');
   } catch (error) {
     console.log('ADD ADMIN ERROR:', error);
     res.status(500).json({ error: error.message });
@@ -268,10 +268,10 @@ exports.adminProfilePost = [authenticateAdminUser, async (req, res) => {
       department:       department || '',
       profileCompleted: true,
     });
-    res.redirect('/admin/user/profile?saved=1');
+    res.redirect('/admin/profile?saved=1');
   } catch (error) {
     console.log('PROFILE SAVE ERROR:', error);
-    res.redirect('/admin/user/profile?error=1');
+    res.redirect('/admin/profile?error=1');
   }
 }];
 
@@ -349,10 +349,10 @@ exports.forgotPasswordPost = async (req, res) => {
     }
 
     // Always redirect with ?sent=1 — don't reveal whether email exists
-    res.redirect('/admin/user/forgot-password?sent=1');
+    res.redirect('/admin/forgot-password?sent=1');
   } catch (error) {
     console.log('FORGOT PASSWORD ERROR:', error);
-    res.redirect('/admin/user/forgot-password?error=1');
+    res.redirect('/admin/forgot-password?error=1');
   }
 };
 
@@ -376,7 +376,7 @@ exports.approveReset = [authenticateAdminUser, async (req, res) => {
     admin.resetPasswordRequestedAt = null;
     await admin.save();
 
-    const resetUrl = `${req.protocol}://${req.get('host')}/admin/user/reset-password?token=${rawToken}`;
+    const resetUrl = `${req.protocol}://${req.get('host')}/admin/reset-password?token=${rawToken}`;
 
     await sendEmail({
       to:      admin.email,
@@ -418,7 +418,7 @@ exports.resetPasswordGet = async (req, res) => {
 exports.resetPasswordPost = async (req, res) => {
   try {
     const { token, password, confirmPassword } = req.body;
-    if (!token) return res.redirect('/admin/user/forgot-password');
+    if (!token) return res.redirect('/admin/forgot-password');
 
     if (!password || password.length < 8) {
       return res.render('adminview/users/reset-password', { layout: false, tokenValid: true, token, error: 'Password must be at least 8 characters.' });
@@ -442,7 +442,7 @@ exports.resetPasswordPost = async (req, res) => {
     admin.resetPasswordExpires = null;
     await admin.save();
 
-    res.redirect('/admin/user/login?passwordReset=1');
+    res.redirect('/command?passwordReset=1');
   } catch (error) {
     console.log('RESET PASSWORD POST ERROR:', error);
     res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'Something went wrong. Please try again.' });

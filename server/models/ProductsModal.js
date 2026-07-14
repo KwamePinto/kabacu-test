@@ -6,6 +6,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  is_deleted: {
+    type: Number,
+    default: 0
+  },
   images: [String],
   reward_point:{
     type:Number,

@@ -106,7 +106,12 @@ app.set('view engine', 'ejs');
 app.use('/', require('./server/routes/webviewRoutes/packagesRoute'));
 app.use('/user', require('./server/routes/webviewRoutes/userRoute'));
 app.use('/category', require('./server/routes/webviewRoutes/categoryShopRoute'));
-app.use('/admin/user', require('./server/routes/adminRoutes/userAdminRoute'));
+// ── Admin login shortcut ──────────────────────────────────────────────────────
+const adminUserCtrl = require('./server/controllers/adminControllers/userAdminController');
+app.get('/command', adminUserCtrl.loginAdmin);
+app.post('/command', adminUserCtrl.loginAdminPost);
+
+app.use('/admin', require('./server/routes/adminRoutes/userAdminRoute'));
 app.use('/admin/main', require('./server/routes/adminRoutes/dashboardRoute'));
 app.use('/admin/category', require('./server/routes/adminRoutes/categoryRoute'));
 app.use('/admin/product', require('./server/routes/adminRoutes/productsRoute'));
@@ -117,6 +122,9 @@ app.use('/api', apiCors, require('./server/routes/apiRoutes'));
 // ── CSRF error handler ────────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   if (err.code === 'EBADCSRFTOKEN') {
+    if (req.originalUrl === '/command') {
+      return res.redirect('/command');
+    }
     if (req.originalUrl.startsWith('/admin')) {
       return res.redirect('/admin/main/dashboard');
     }

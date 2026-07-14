@@ -1,44 +1,40 @@
- const adminLayouts = 'layouts/adminLayout'
+const adminLayouts = 'layouts/adminLayout';
 
-const Transaction = require('../../models/TransactionModel')
-const TopUp = require('../../models/TopUpModal')
+const Transaction = require('../../models/TransactionModel');
+const TopUp = require('../../models/TopUpModal');
 const Category = require('../../models/CategoryModal');
-const Product =  require('../../models/ProductsModal');
-const User = require('../../models/UserModel')
-const PaymentMethod = require('../../models/PaymentMethodModel')
+const Product = require('../../models/ProductsModal');
+const User = require('../../models/UserModel');
+const PaymentMethod = require('../../models/PaymentMethodModel');
 
 const { authenticateAdminUser } = require('../../config/authMiddleware');
 
 
-exports.createProducts = [authenticateAdminUser,async(req,res)=>{
-    try{
-         const category = await Category.find({})
-    res.render('adminview/forms/add-products',{
-        layout: adminLayouts,
-        category,
-        query: req.query,
-    })
-
-    }catch(error){
-
-        console.log(error)
-    }
-}]
-
-
-exports.addProduct = [authenticateAdminUser,async (req, res) => {
+exports.createProducts = [authenticateAdminUser, async (req, res) => {
   try {
+    const category = await Category.find({ is_deleted: 0 }).sort({ category_name: 1 });
+    res.render('adminview/forms/add-products', {
+      layout: adminLayouts,
+      category,
+      query: req.query,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}];
 
-    const { category, reward_point,description } = req.body;
+
+exports.addProduct = [authenticateAdminUser, async (req, res) => {
+  try {
+    const { category, reward_point, description } = req.body;
     const imagePaths = req.files.map(file => '/uploads/' + file.filename);
 
     let productData = {
-         category ,
-         reward_point:reward_point,
-         description:description,
-         images:imagePaths,
-
-        };
+      category,
+      reward_point,
+      description,
+      images: imagePaths,
+    };
 
     const validCategories = ['DATA', 'ELECTRONICS', 'AUTOMOBILE'];
     if (!validCategories.includes(category)) {
@@ -75,9 +71,7 @@ exports.addProduct = [authenticateAdminUser,async (req, res) => {
     }
 
     await Product.create(productData);
-
     res.redirect('/admin/product/create-products?success=1');
-
   } catch (error) {
     console.log(error);
     res.send('Error adding product');
@@ -85,129 +79,173 @@ exports.addProduct = [authenticateAdminUser,async (req, res) => {
 }];
 
 
-exports.viewProducts =[authenticateAdminUser, async(req,res)=>{
-  try{
-     
-        let products = await Product.find().sort({ createdAt: -1 });
+exports.viewProducts = [authenticateAdminUser, async (req, res) => {
+  try {
+    let products = await Product.find({ is_deleted: { $ne: 1 } }).sort({ createdAt: -1 });
 
-        
-        products = products.map(p => {
-            let name = 'Unknown Product';
-            let price = 0;
-            let extra = '';
+    products = products.map(p => {
+      let name = 'Unknown Product';
+      let price = 0;
+      let extra = '';
 
-            switch (p.category) {
+      switch (p.category) {
+        case 'DATA':
+          name  = `${p.dataDetails?.plan_type || ''} (${p.dataDetails?.plan_name || ''})`;
+          price = p.dataDetails?.amount || 0;
+          extra = p.dataDetails?.network || '';
+          break;
+        case 'AUTOMOBILE':
+          name  = `${p.automobileDetails?.brand || ''} ${p.automobileDetails?.model || ''}`;
+          price = p.automobileDetails?.price || 0;
+          extra = `${p.automobileDetails?.fuel_type || ''} | ${p.automobileDetails?.condition || ''}`;
+          break;
+        case 'ELECTRONICS':
+          name  = `${p.electronicDetails?.itemName || ''}`;
+          price = p.electronicDetails?.items_price || 0;
+          extra = `${p.electronicDetails?.brandItem || ''} | ${p.electronicDetails?.itemtype || ''}`;
+          break;
+        default:
+          name = 'Unknown Category';
+      }
 
-                case "DATA":
-                    name = `${p.dataDetails?.plan_type || ''} (${p.dataDetails?.plan_name || ''})`;
-                    price = p.dataDetails?.amount || 0;
-                    extra = p.dataDetails?.network || '';
-                    break;
+      return { ...p._doc, productName: name, productPrice: price, productExtra: extra };
+    });
 
-                case "AUTOMOBILE":
-                    name = `${p.automobileDetails?.brand || ''} ${p.automobileDetails?.model || ''}`;
-                    price = p.automobileDetails?.price || 0;
-                    extra = `${p.automobileDetails?.fuel_type || ''} | ${p.automobileDetails?.condition || ''}`;
-                    break;
-
-                case "ELECTRONICS":
-                    name = `${p.electronicDetails?.itemName || ''}`;
-                    price = p.electronicDetails?.items_price || 0;
-                    extra = `${p.electronicDetails?.brandItem || ''} | ${p.electronicDetails?.itemtype || ''}`;
-                    break;
-
-                case "COURSES":
-                    name = `${p.coursesDetails?.title || ''}`;
-                    price = p.coursesDetails?.course_price || 0;
-                    extra = `Instructor: ${p.coursesDetails?.instructor || ''}`;
-                    break;
-
-                default:
-                    name = 'Unknown Category';
-            }
-
-            return {
-                ...p._doc,
-                productName: name,
-                productPrice: price,
-                productExtra: extra
-            };
-        });
-
-    res.render('adminview/tables/view-products',{
+    res.render('adminview/tables/view-products', {
       products,
-      layout:adminLayouts,
-    })
-  }catch(error){
-    console.log(error)
+      layout: adminLayouts,
+      query: req.query,
+    });
+  } catch (error) {
+    console.log(error);
   }
-}]
+}];
 
-exports.userView =[authenticateAdminUser, async(req,res)=>{
-try {
-        const users = await User.find().sort({ createdAt: -1 });
 
-        res.render('adminview/tables/view-users', { 
-          users ,
-        layout:adminLayouts,
-        });
+exports.deleteProduct = [authenticateAdminUser, async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { is_deleted: 1 },
+      { new: true }
+    );
+    if (!product) return res.json({ success: false, error: 'Product not found.' });
+    res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, error: error.message });
+  }
+}];
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
+
+exports.editProductGet = [authenticateAdminUser, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.redirect('/admin/product/view-products');
+    const category = await Category.find({ is_deleted: 0 }).sort({ category_name: 1 });
+    res.render('adminview/forms/edit-product', {
+      layout: adminLayouts,
+      product,
+      category,
+      query: req.query,
+    });
+  } catch (error) {
+    console.log(error);
+    res.redirect('/admin/product/view-products');
+  }
+}];
+
+
+exports.editProductPost = [authenticateAdminUser, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.redirect('/admin/product/view-products');
+
+    const { reward_point, description } = req.body;
+    const update = {
+      reward_point: reward_point !== undefined ? reward_point : product.reward_point,
+      description:  description  || product.description,
+    };
+
+    if (product.category === 'DATA') {
+      update.dataDetails = {
+        plan_id:         req.body.plan_id         ?? product.dataDetails?.plan_id,
+        network:         req.body.network         || product.dataDetails?.network,
+        plan_type:       req.body.plan_type       || product.dataDetails?.plan_type,
+        plan_name:       req.body.plan_name       || product.dataDetails?.plan_name,
+        amount:          req.body.amount          ?? product.dataDetails?.amount,
+        oldPrice:        req.body.oldPrice        ?? product.dataDetails?.oldPrice,
+        validate_period: req.body.validate_period || product.dataDetails?.validate_period,
+      };
+    } else if (product.category === 'ELECTRONICS') {
+      update.electronicDetails = {
+        itemName:    req.body.itemName    || product.electronicDetails?.itemName,
+        brandItem:   req.body.brandItem   || product.electronicDetails?.brandItem,
+        itemtype:    req.body.itemtype    || product.electronicDetails?.itemtype,
+        items_price: req.body.items_price ?? product.electronicDetails?.items_price,
+      };
+    } else if (product.category === 'AUTOMOBILE') {
+      update.automobileDetails = {
+        brand:        req.body.brand        || product.automobileDetails?.brand,
+        model:        req.body.model        || product.automobileDetails?.model,
+        year:         req.body.year         ?? product.automobileDetails?.year,
+        fuel_type:    req.body.fuel_type    || product.automobileDetails?.fuel_type,
+        transmission: req.body.transmission || product.automobileDetails?.transmission,
+        condition:    req.body.condition    || product.automobileDetails?.condition,
+        price:        req.body.auto_price   ?? product.automobileDetails?.price,
+      };
     }
 
-}]
+    await Product.findByIdAndUpdate(req.params.id, update);
+    res.redirect('/admin/product/view-products?updated=1');
+  } catch (error) {
+    console.log(error);
+    res.redirect('/admin/product/edit-product/' + req.params.id + '?error=1');
+  }
+}];
 
 
-exports.productDetails = async(req,res)=>{
+exports.userView = [authenticateAdminUser, async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+    res.render('adminview/tables/view-users', { users, layout: adminLayouts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+}];
 
-   try {
-        const product = await Product.findById(req.params.id);
-        res.json(product);
-    } catch (err) {
-        res.status(500).json({ error: 'Product not found' });
-    }
 
+exports.productDetails = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: 'Product not found' });
+  }
+};
 
-
-
-}
-
-exports.viewTransactions =[authenticateAdminUser, async(req,res)=>{
-  try{
+exports.viewTransactions = [authenticateAdminUser, async (req, res) => {
+  try {
     const transactions = await Transaction.find()
-  .populate('user')
-  .populate('product')
-  .populate('products.product')
-  .sort({ createdAt: -1 });
-    res.render('adminview/tables/transactions',{
-       layout:adminLayouts,
-      transactions
-    })
-
-  }catch(err){
-    console.log(err)
+      .populate('user')
+      .populate('product')
+      .populate('products.product')
+      .sort({ createdAt: -1 });
+    res.render('adminview/tables/transactions', { layout: adminLayouts, transactions });
+  } catch (err) {
+    console.log(err);
   }
-}]
+}];
 
-exports.viewTopUps =[authenticateAdminUser, async(req,res)=>{
-  try{
-
-    const topups = await TopUp.find()
-  .populate('user')
-  .sort({ createdAt: -1 });
-
-    res.render('adminview/tables/topUps',{
-       layout:adminLayouts,
-       topups
-
-    })
-
-  }catch(err){
-    console.log(err)
+exports.viewTopUps = [authenticateAdminUser, async (req, res) => {
+  try {
+    const topups = await TopUp.find().populate('user').sort({ createdAt: -1 });
+    res.render('adminview/tables/topUps', { layout: adminLayouts, topups });
+  } catch (err) {
+    console.log(err);
   }
-}]
+}];
 
 exports.viewPaymentMethods = [authenticateAdminUser, async (req, res) => {
   try {

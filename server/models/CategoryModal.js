@@ -5,7 +5,10 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true
   },
- 
+  is_deleted: {
+    type: Number,
+    default: 0
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('category', categorySchema);

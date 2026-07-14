@@ -31,11 +31,8 @@
                         <label>Category</label>
                         <select class="form-control" name="category" id="categorySelect" required>
                           <option value="" disabled selected>Select Category</option>
-                          <% var supported = ['DATA', 'AUTOMOBILE', 'ELECTRONICS']; %>
                           <% category.forEach(function(cat){ %>
-                            <% if (supported.includes(cat.category_name)) { %>
                             <option value="<%= cat.category_name %>"><%= cat.category_name %></option>
-                            <% } %>
                           <% }) %>
                         </select>
                       </div>
@@ -146,7 +143,7 @@
                       <div id="imagePreview" style="display:flex; gap:10px; margin-top:10px;"></div>
 
                       <div class="card-footer text-right">
-                        <button class="btn btn-primary mr-1" type="submit">Submit</button>
+                        <button class="btn btn-primary mr-1" type="button" id="addProductBtn">Submit</button>
                       </div>
                     </form>
 
@@ -237,6 +234,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
   var categorySelect = document.getElementById('categorySelect');
   var dataFields        = document.getElementById('dataFields');
@@ -276,6 +274,27 @@
         previewContainer.appendChild(img);
       };
       reader.readAsDataURL(file);
+    });
+  });
+
+  document.getElementById('addProductBtn').addEventListener('click', function() {
+    var cat = categorySelect.value;
+    if (!cat) {
+      Swal.fire({ icon: 'warning', title: 'Required', text: 'Please select a category.' });
+      return;
+    }
+    Swal.fire({
+      title: 'Add Product?',
+      text: 'Are you sure you want to add this product?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Add It',
+      confirmButtonColor: '#47c363',
+      cancelButtonText: 'Cancel',
+    }).then(function(result) {
+      if (result.isConfirmed) {
+        document.querySelector('form').submit();
+      }
     });
   });
   </script>
