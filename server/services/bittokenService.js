@@ -1,7 +1,7 @@
 const axios = require('axios');
 const crypto = require('crypto');
 
-const BITTOKEN_RECEIVE_RP_URL = 'https://dev-api.bittokenapp.com/api/user/kabacu/receive-rp';
+const BITTOKEN_RECEIVE_RP_URL = `${process.env.BITTOKEN_BASE_URL}/api/user/kabacu/receive-rp`;
 
 function generateSignature(minerId, timestamp) {
   const payload = `${minerId}|${timestamp}`;

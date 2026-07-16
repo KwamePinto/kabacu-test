@@ -176,7 +176,7 @@ exports.startTopUp = async (req, res) => {
     const topup = await TopUp.create({ user: user._id, amount, balanceType });
 
     const otpRes = await axios.post(
-      'https://dev-api.bittokenapp.com/api/user/send-otp',
+      `${process.env.BITTOKEN_BASE_URL}/api/user/send-otp`,
       { minerId: user.minerId }
     );
 
@@ -205,7 +205,7 @@ exports.confirmTopUp = async (req, res) => {
     const user = await User.findById(req.user.id);
 
     const response = await axios.post(
-      'https://dev-api.bittokenapp.com/api/user/deduct-fund',
+      `${process.env.BITTOKEN_BASE_URL}/api/user/deduct-fund`,
       { minerId: user.minerId, otp, amount: topup.amount, balance_type: topup.balanceType }
     );
 

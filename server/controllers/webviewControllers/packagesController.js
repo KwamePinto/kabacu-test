@@ -550,7 +550,7 @@ exports.startTopUp = async (req, res) => {
     let otpMessage = 'OTP sent to your Telegram Bot.';
     try {
       const otpRes = await axios.post(
-        'https://dev-api.bittokenapp.com/api/user/send-otp',
+        `${process.env.BITTOKEN_BASE_URL}/api/user/send-otp`,
         { minerId: user.minerId }
       );
       otpMessage = otpRes.data?.message || otpMessage;
@@ -591,7 +591,7 @@ exports.confirmTopUp = async (req, res) => {
     let response;
     try {
       response = await axios.post(
-        'https://dev-api.bittokenapp.com/api/user/deduct-fund',
+        `${process.env.BITTOKEN_BASE_URL}/api/user/deduct-fund`,
         {
           minerId: user.minerId,
           otp,
@@ -1863,7 +1863,7 @@ exports.editUserProfile = async (req, res) => {
       if (currentUser.minerId !== parsedMinerId) {
         try {
           await axios.post(
-            'https://dev-api.bittokenapp.com/api/user/kabacu/verify/user',
+            `${process.env.BITTOKEN_BASE_URL}/api/user/kabacu/verify/user`,
             { email_id: email, miner_id: parsedMinerId }
           );
         } catch (apiErr) {
