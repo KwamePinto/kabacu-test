@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const siteSettingsSchema = new mongoose.Schema({
   rpTransferEnabled: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   rpTransferSuspendedMessage: {
     type: String,
