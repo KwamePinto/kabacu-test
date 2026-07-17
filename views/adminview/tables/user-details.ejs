@@ -69,23 +69,23 @@
             </div>
             <div class="col-md-3">
               <div class="card card-statistic-1">
-                <div class="card-icon bg-primary"><i class="fas fa-receipt"></i></div>
+                <div class="card-icon bg-primary"><i class="fas fa-coins"></i></div>
                 <div class="card-wrap">
                   <div class="card-header">
-                    <h4>Transactions</h4>
+                    <h4>BTT Balance</h4>
                   </div>
-                  <div class="card-body"><%= transactions.length %></div>
+                  <div class="card-body"><%= Number(walletBalances.BTT || 0).toLocaleString() %> BTT</div>
                 </div>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card card-statistic-1">
-                <div class="card-icon bg-info"><i class="fas fa-arrow-up"></i></div>
+                <div class="card-icon bg-info"><i class="fas fa-dollar-sign"></i></div>
                 <div class="card-wrap">
                   <div class="card-header">
-                    <h4>Total Topped Up</h4>
+                    <h4>USDT Balance</h4>
                   </div>
-                  <div class="card-body">₦<%= Number(totalToppedUp).toLocaleString() %></div>
+                  <div class="card-body"><%= Number(walletBalances.USDT || 0).toLocaleString() %> USDT</div>
                 </div>
               </div>
             </div>
@@ -326,6 +326,15 @@
                             <% } %>
                           </tbody>
                         </table>
+                      </div>
+                      <div class="mt-2">
+                        <small class="text-muted">
+                          Total Transactions = <%= transactions.length %>
+                          &nbsp;&nbsp;
+                          <span style="color: #28a745;">Successful = <%= successfulTransactions %></span>
+                          &nbsp;&nbsp;
+                          <span style="color: #dc3545;">Failed = <%= failedTransactions %></span>
+                        </small>
                       </div>
                     </div>
 

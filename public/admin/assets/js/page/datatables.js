@@ -50,3 +50,21 @@ $('#tableExport').DataTable({
     'copy', 'csv', 'excel', 'pdf', 'print'
   ]
 });
+
+if ($('#table-topups').length) {
+  var topupsTable = $('#table-topups').DataTable({
+    pageLength: 10
+  });
+  $('a[href="#tab-topups"]').on('shown.bs.tab', function () {
+    topupsTable.columns.adjust();
+  });
+}
+
+if ($('#table-transactions').length) {
+  var userTransactionsTable = $('#table-transactions').DataTable({
+    pageLength: 10
+  });
+  $('a[href="#tab-transactions"]').on('shown.bs.tab', function () {
+    userTransactionsTable.columns.adjust();
+  });
+}
