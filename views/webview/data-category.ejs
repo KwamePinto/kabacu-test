@@ -33,7 +33,9 @@
         <% groupedProducts[network].forEach(function(product) { %>
         <div class="bundle-card">
           <div class="bundle-card__img">
+            <% if (product.images && product.images.length > 0) { %>
             <img src="<%= product.images[0] %>" alt="<%= network %>">
+            <% } %>
           </div>
           <div class="bundle-card__body">
             <span class="bundle-card__network"><%= network %></span>

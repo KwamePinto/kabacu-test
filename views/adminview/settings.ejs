@@ -1,0 +1,150 @@
+
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      <%- include('../partials/headerAdmin.ejs')%>
+      <%- include('../partials/sideMenuAdmin.ejs')%>
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-body">
+
+            <div class="row">
+              <div class="col-12 col-lg-8 mx-auto">
+
+                <% if (typeof query !== 'undefined' && query.saved == '1') { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  Settings saved successfully.
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+                <% } %>
+
+                <% if (typeof query !== 'undefined' && query.error == '1') { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  An error occurred. Please try again.
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+                <% } %>
+
+                <form method="post" action="/admin/settings" id="settingsForm">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                  <!-- RP Transfer to BitToken -->
+                  <div class="card">
+                    <div class="card-header">
+                      <h4><i data-feather="repeat" style="width:18px;height:18px;margin-right:6px;"></i> BitToken RP Transfer</h4>
+                    </div>
+                    <div class="card-body">
+
+                      <div class="form-group d-flex align-items-center justify-content-between" style="border-bottom:1px solid #f0f0f0;padding-bottom:16px;margin-bottom:20px;">
+                        <div>
+                          <label class="mb-0" style="font-weight:600;">Allow RP Transfer to BitToken</label>
+                          <p class="text-muted mb-0" style="font-size:13px;">When disabled, users will see a notice instead of being able to transfer their Reward Points.</p>
+                        </div>
+                        <div class="ml-4">
+                          <label class="custom-switch" style="margin-bottom:0;">
+                            <input type="checkbox" id="rpTransferToggle" class="custom-switch-input"
+                              <%= settings.rpTransferEnabled ? 'checked' : '' %>>
+                            <span class="custom-switch-indicator"></span>
+                          </label>
+                          <!-- Hidden field carries the actual value since unchecked checkboxes are not submitted -->
+                          <input type="hidden" name="rpTransferEnabled" id="rpTransferEnabledInput"
+                            value="<%= settings.rpTransferEnabled ? 'true' : 'false' %>">
+                        </div>
+                      </div>
+
+                      <div class="form-group mb-0">
+                        <label for="rpTransferSuspendedMessage" style="font-weight:600;">Suspension Notice Message</label>
+                        <p class="text-muted" style="font-size:13px;">This message is shown to users when RP transfer is disabled.</p>
+                        <textarea
+                          name="rpTransferSuspendedMessage"
+                          id="rpTransferSuspendedMessage"
+                          class="form-control"
+                          rows="3"
+                          maxlength="500"
+                          placeholder="e.g. RP transfer has been suspended for the time being. Please check back later."
+                        ><%= settings.rpTransferSuspendedMessage %></textarea>
+                        <small class="text-muted"><span id="charCount"><%= settings.rpTransferSuspendedMessage.length %></span> / 500 characters</small>
+                      </div>
+
+                    </div>
+                    <div class="card-footer text-right">
+                      <button type="button" class="btn btn-primary" id="saveSettingsBtn">
+                        <i class="fa fa-save mr-1"></i> Save Settings
+                      </button>
+                    </div>
+                  </div>
+
+                </form>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <div class="settingSidebar">
+          <a href="javascript:void(0)" class="settingPanelToggle"><i class="fa fa-spin fa-cog"></i></a>
+          <div class="settingSidebar-body ps-container ps-theme-default">
+            <div class="fade show active">
+              <div class="setting-panel-header">Setting Panel</div>
+              <div class="p-15 border-bottom">
+                <h6 class="font-medium m-b-10">Select Layout</h6>
+                <div class="selectgroup layout-color w-50">
+                  <label class="selectgroup-item">
+                    <input type="radio" name="value" value="1" class="selectgroup-input-radio select-layout" checked>
+                    <span class="selectgroup-button">Light</span>
+                  </label>
+                  <label class="selectgroup-item">
+                    <input type="radio" name="value" value="2" class="selectgroup-input-radio select-layout">
+                    <span class="selectgroup-button">Dark</span>
+                  </label>
+                </div>
+              </div>
+              <div class="mt-4 mb-4 p-3 align-center rt-sidebar-last-ele">
+                <a href="#" class="btn btn-icon icon-left btn-primary btn-restore-theme">
+                  <i class="fas fa-undo"></i> Restore Default
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">&copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.</div>
+        <div class="footer-right"></div>
+      </footer>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// Sync toggle → hidden input
+document.getElementById('rpTransferToggle').addEventListener('change', function () {
+  document.getElementById('rpTransferEnabledInput').value = this.checked ? 'true' : 'false';
+});
+
+// Character counter
+document.getElementById('rpTransferSuspendedMessage').addEventListener('input', function () {
+  document.getElementById('charCount').textContent = this.value.length;
+});
+
+// Save confirmation
+document.getElementById('saveSettingsBtn').addEventListener('click', function () {
+  Swal.fire({
+    title: 'Save Settings?',
+    text: 'This will update the live site configuration immediately.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Save',
+    confirmButtonColor: '#47c363',
+    cancelButtonText: 'Cancel',
+  }).then(function (result) {
+    if (result.isConfirmed) {
+      document.getElementById('settingsForm').submit();
+    }
+  });
+});
+</script>

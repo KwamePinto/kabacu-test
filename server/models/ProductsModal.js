@@ -11,6 +11,10 @@ const productSchema = new mongoose.Schema({
     default: 0
   },
   images: [String],
+  costPrice: {
+    type: Number,
+    default: 0,
+  },
   reward_point:{
     type:Number,
     default: 0

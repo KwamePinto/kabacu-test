@@ -271,28 +271,35 @@ exports.previewUSDTConversion = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid amount' });
     }
 
-    let coinGeckoRate = 0;
-    let coinbaseRate  = 0;
+    let coinGeckoRate     = 0;
+    let coinbaseRate      = 0;
+    let cryptoCompareRate = 0;
 
     try {
-      const cgRes   = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn');
+      const cgRes = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn');
       coinGeckoRate = cgRes.data.tether.ngn || 0;
     } catch (e) { console.log('CoinGecko error:', e.message); }
 
     try {
-      const cbRes  = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USDT');
+      const cbRes = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USDT');
       coinbaseRate = parseFloat(cbRes.data.data.rates.NGN) || 0;
     } catch (e) { console.log('Coinbase error:', e.message); }
 
-    const bestRate = Math.max(coinGeckoRate, coinbaseRate);
-    if (!bestRate || bestRate <= 0) {
+    try {
+      const ccRes = await axios.get('https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=NGN');
+      cryptoCompareRate = ccRes.data.NGN || 0;
+    } catch (e) { console.log('CryptoCompare error:', e.message); }
+
+    const validRates = [coinGeckoRate, coinbaseRate, cryptoCompareRate].filter(r => r > 0);
+    if (validRates.length === 0) {
       return res.json({ success: false, message: 'Unable to fetch exchange rate' });
     }
 
-    const finalRate   = bestRate - (bestRate * 1) / 100;
+    const lowestRate  = Math.min(...validRates);
+    const finalRate   = lowestRate - (lowestRate * 5) / 100;
     const nairaAmount = amount * finalRate;
 
-    res.json({ success: true, nairaAmount, finalRate, bestRate });
+    res.json({ success: true, nairaAmount, finalRate, lowestRate });
 
   } catch (error) {
     console.log(error);
@@ -316,26 +323,34 @@ exports.convertUSDTtoNaira = async (req, res) => {
       return res.json({ success: false, message: 'Insufficient USDT balance' });
     }
 
-    let coinGeckoRate = 0;
-    let coinbaseRate  = 0;
+    let coinGeckoRate     = 0;
+    let coinbaseRate      = 0;
+    let cryptoCompareRate = 0;
 
     try {
-      const cgRes   = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn');
+      const cgRes = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn');
       coinGeckoRate = cgRes.data.tether.ngn || 0;
     } catch (e) { console.log('CoinGecko error:', e.message); }
 
     try {
-      const cbRes  = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USDT');
+      const cbRes = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USDT');
       coinbaseRate = parseFloat(cbRes.data.data.rates.NGN) || 0;
     } catch (e) { console.log('Coinbase error:', e.message); }
 
-    const bestRate = Math.max(coinGeckoRate, coinbaseRate);
-    if (!bestRate || bestRate <= 0) {
+    try {
+      const ccRes = await axios.get('https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=NGN');
+      cryptoCompareRate = ccRes.data.NGN || 0;
+    } catch (e) { console.log('CryptoCompare error:', e.message); }
+
+    const validRates = [coinGeckoRate, coinbaseRate, cryptoCompareRate].filter(r => r > 0);
+    if (validRates.length === 0) {
       return res.json({ success: false, message: 'Unable to fetch exchange rate' });
     }
 
-    const finalRate   = bestRate - (bestRate * 1) / 100;
-    const nairaAmount = amount * finalRate;
+    const lowestRate       = Math.min(...validRates);
+    const conversionMarkup = (lowestRate * 5) / 100;
+    const finalRate        = lowestRate - conversionMarkup;
+    const nairaAmount      = amount * finalRate;
 
     wallet.balances.USDT  -= amount;
     wallet.balances.NAIRA += nairaAmount;
@@ -345,8 +360,8 @@ exports.convertUSDTtoNaira = async (req, res) => {
       success: true,
       amountConverted: amount,
       nairaAmount,
-      rates: { coinGeckoRate, coinbaseRate, bestRate, finalRate },
-      balances: { USDT: wallet.balances.USDT, NAIRA: wallet.balances.NAIRA }
+      rates: { coinGeckoRate, coinbaseRate, cryptoCompareRate, lowestRate, finalRate },
+      balances: { USDT: wallet.balances.USDT, NAIRA: wallet.balances.NAIRA },
     });
 
   } catch (error) {

@@ -136,6 +136,9 @@
 <script>
 var CSRF_TOKEN = '<%= csrfToken %>';
 
+<% if (typeof query !== 'undefined' && query.added == '1') { %>
+Swal.fire({ icon: 'success', title: 'Product Added!', text: 'New product has been added successfully.', timer: 2500, showConfirmButton: false });
+<% } %>
 <% if (typeof query !== 'undefined' && query.updated == '1') { %>
 Swal.fire({ icon: 'success', title: 'Updated!', text: 'Product updated successfully.', timer: 2000, showConfirmButton: false });
 <% } %>

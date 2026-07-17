@@ -26,13 +26,15 @@ exports.createProducts = [authenticateAdminUser, async (req, res) => {
 
 exports.addProduct = [authenticateAdminUser, async (req, res) => {
   try {
-    const { category, reward_point, description } = req.body;
-    const imagePaths = (req.files || []).map(file => '/uploads/' + file.filename);
+    const { category, reward_point, description, costPrice } = req.body;
+    const baseUrl = (process.env.SERVER_BASE_URL || '').replace(/\/$/, '');
+    const imagePaths = (req.files || []).map(file => baseUrl + '/uploads/' + file.filename);
 
     let productData = {
       category,
       reward_point,
       description,
+      costPrice: costPrice ? Number(costPrice) : 0,
       images: imagePaths,
     };
 
@@ -71,7 +73,7 @@ exports.addProduct = [authenticateAdminUser, async (req, res) => {
     }
 
     await Product.create(productData);
-    res.redirect('/admin/product/create-products?success=1');
+    res.redirect('/admin/product/view-products?added=1');
   } catch (error) {
     console.log(error);
     res.send('Error adding product');
@@ -161,15 +163,17 @@ exports.editProductPost = [authenticateAdminUser, async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.redirect('/admin/product/view-products');
 
-    const { reward_point, description } = req.body;
+    const { reward_point, description, costPrice } = req.body;
     const update = {
       reward_point: reward_point !== undefined ? reward_point : product.reward_point,
       description:  description  || product.description,
+      costPrice:    costPrice !== undefined ? Number(costPrice) : product.costPrice,
     };
 
     // Replace images only when the admin explicitly uploaded new ones
     if (req.files && req.files.length > 0) {
-      update.images = req.files.map(file => '/uploads/' + file.filename);
+      const baseUrl = (process.env.SERVER_BASE_URL || '').replace(/\/$/, '');
+      update.images = req.files.map(file => baseUrl + '/uploads/' + file.filename);
     }
 
     if (product.category === 'DATA') {

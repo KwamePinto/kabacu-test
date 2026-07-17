@@ -16,7 +16,7 @@ exports.viewCategory = [authenticateAdminUser, async (req, res) => {
 }];
 
 exports.createCategory = [authenticateAdminUser, (req, res) => {
-  res.render('adminview/forms/add-category', { layout: adminLayouts, query: req.query });
+  res.redirect('/admin/category/view-category?locked=1');
 }];
 
 exports.createCategoryPost = [authenticateAdminUser, async (req, res) => {
