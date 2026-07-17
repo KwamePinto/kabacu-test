@@ -215,10 +215,15 @@
           </button>
         </div>
         <div class="product-card__body">
-          <h4 class="product-card__name"><%= product.dataDetails.plan_type %> · <%= product.dataDetails.plan_name %></h4>
+          <h4 class="product-card__name" style="min-height: 35px;"><%= product.dataDetails.plan_type %> · <%= product.dataDetails.plan_name %></h4>
           <p class="product-card__brand"><%= product.dataDetails.network %></p>
           <div class="product-card__footer">
-            <span class="product-card__price">₦<%= product.dataDetails.amount %></span>
+            <div>
+              <span class="product-card__price">₦<%= product.dataDetails.amount %></span>
+              <% if (product.dataDetails.oldPrice){ %>
+              <span class="" style="text-decoration: line-through; font-size: smaller;">₦<%= product.dataDetails.oldPrice %></span>
+              <% } %>
+            </div>
             <% if (user) { %>
             <button class="product-card__buy buy-btn" data-id="<%= product._id %>" aria-label="Buy">
               <i data-lucide="plus"></i>
@@ -671,15 +676,23 @@ document.querySelectorAll('.buy-btn').forEach(function(btn) {
     e.stopPropagation();
     selectedPackageId = this.dataset.id;
     document.getElementById('buyModal').classList.add('open');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
   });
 });
 
 document.getElementById('cancelBtn').addEventListener('click', function() {
   document.getElementById('buyModal').classList.remove('open');
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
 });
 
 document.getElementById('buyModal').addEventListener('click', function(e) {
-  if (e.target === this) this.classList.remove('open');
+  if (e.target === this) {
+    this.classList.remove('open');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
 });
 
 var phoneInput = document.getElementById('phoneInput');

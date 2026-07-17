@@ -1,95 +1,30 @@
+<div class="loader"></div>
+<div id="app">
+  <div class="main-wrapper main-wrapper-1">
+    <div class="navbar-bg"></div>
 
-  <div class="loader"></div>
-  <div id="app">
-    <div class="main-wrapper main-wrapper-1">
-      <div class="navbar-bg"></div>
+    <%- include('../partials/headerAdmin.ejs') %>
+    <%- include('../partials/sideMenuAdmin.ejs') %>
 
-      <%- include('../partials/headerAdmin.ejs') %>
-      <%- include('../partials/sideMenuAdmin.ejs') %>
+    <div class="main-content">
+      <section class="section">
 
-      <div class="main-content">
-        <section class="section">
-
-          <!-- ── Row 1: Primary KPIs ─────────────────────────────────── -->
-          <div class="row">
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-              <div class="card">
-                <div class="card-statistic-4">
-                  <div class="align-items-center justify-content-between">
-                    <div class="row">
-                      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                        <div class="card-content">
-                          <h5 class="font-15">Total Revenue</h5>
-                          <h2 class="mb-3 font-18">₦<%= totalRevenue.toLocaleString() %></h2>
-                          <p class="mb-0 text-muted font-12">All-time successful sales</p>
-                        </div>
-                      </div>
-                      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                        <div class="banner-img"><img src="/admin/assets/img/banner/1.png" alt=""></div>
+        <!-- ── Row 1: Primary KPIs ─────────────────────────────────── -->
+        <div class="row">
+          <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="card">
+              <div class="card-statistic-4">
+                <div class="align-items-center justify-content-between">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+                      <div class="card-content">
+                        <h5 class="font-15">Total Revenue</h5>
+                        <h2 class="mb-3 font-18">₦<%= totalRevenue.toLocaleString() %></h2>
+                        <p class="mb-0 text-muted font-12">All-time successful sales</p>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-              <div class="card">
-                <div class="card-statistic-4">
-                  <div class="align-items-center justify-content-between">
-                    <div class="row">
-                      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                        <div class="card-content">
-                          <h5 class="font-15">Total Users</h5>
-                          <h2 class="mb-3 font-18"><%= totalUsers.toLocaleString() %></h2>
-                          <p class="mb-0 text-muted font-12"><span class="col-green"><%= newUsersToday %></span> joined today</p>
-                        </div>
-                      </div>
-                      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                        <div class="banner-img"><img src="/admin/assets/img/banner/2.png" alt=""></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-              <div class="card">
-                <div class="card-statistic-4">
-                  <div class="align-items-center justify-content-between">
-                    <div class="row">
-                      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                        <div class="card-content">
-                          <h5 class="font-15">Today Revenue</h5>
-                          <h2 class="mb-3 font-18">₦<%= todayRevenue.toLocaleString() %></h2>
-                          <p class="mb-0 text-muted font-12">This month: ₦<%= monthlyRevenue.toLocaleString() %></p>
-                        </div>
-                      </div>
-                      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                        <div class="banner-img"><img src="/admin/assets/img/banner/3.png" alt=""></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-              <div class="card">
-                <div class="card-statistic-4">
-                  <div class="align-items-center justify-content-between">
-                    <div class="row">
-                      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                        <div class="card-content">
-                          <h5 class="font-15">Total Purchases</h5>
-                          <h2 class="mb-3 font-18"><%= totalPurchases.toLocaleString() %></h2>
-                          <p class="mb-0 text-muted font-12">Successful transactions</p>
-                        </div>
-                      </div>
-                      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                        <div class="banner-img"><img src="/admin/assets/img/banner/4.png" alt=""></div>
-                      </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+                      <div class="banner-img"><img src="/admin/assets/img/banner/1.png" alt=""></div>
                     </div>
                   </div>
                 </div>
@@ -97,66 +32,20 @@
             </div>
           </div>
 
-          <!-- ── Row 2: Secondary KPIs ───────────────────────────────── -->
-          <div class="row">
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-              <div class="card">
-                <div class="card-body px-4 py-3">
-                  <div class="d-flex align-items-center">
-                    <div class="mr-3">
-                      <i data-feather="user-check" style="width:36px;height:36px;color:#47c363;"></i>
+          <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="card">
+              <div class="card-statistic-4">
+                <div class="align-items-center justify-content-between">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+                      <div class="card-content">
+                        <h5 class="font-15">Total Users</h5>
+                        <h2 class="mb-3 font-18"><%= totalUsers.toLocaleString() %></h2>
+                        <p class="mb-0 text-muted font-12"><span class="col-green"><%= newUsersToday %></span> joined today</p>
+                      </div>
                     </div>
-                    <div>
-                      <div class="text-muted font-13">Verified Users</div>
-                      <div class="font-18 font-weight-bold"><%= verifiedUsers.toLocaleString() %></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-              <div class="card">
-                <div class="card-body px-4 py-3">
-                  <div class="d-flex align-items-center">
-                    <div class="mr-3">
-                      <i data-feather="clock" style="width:36px;height:36px;color:#f5a623;"></i>
-                    </div>
-                    <div>
-                      <div class="text-muted font-13">Pending Top-Ups</div>
-                      <div class="font-18 font-weight-bold"><%= pendingTopUps.toLocaleString() %></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-              <div class="card">
-                <div class="card-body px-4 py-3">
-                  <div class="d-flex align-items-center">
-                    <div class="mr-3">
-                      <i data-feather="check-circle" style="width:36px;height:36px;color:#47c363;"></i>
-                    </div>
-                    <div>
-                      <div class="text-muted font-13">Completed Top-Ups</div>
-                      <div class="font-18 font-weight-bold"><%= completedTopUps.toLocaleString() %></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-              <div class="card">
-                <div class="card-body px-4 py-3">
-                  <div class="d-flex align-items-center">
-                    <div class="mr-3">
-                      <i data-feather="refresh-cw" style="width:36px;height:36px;color:#3abaf4;"></i>
-                    </div>
-                    <div>
-                      <div class="text-muted font-13">USDT Conversions</div>
-                      <div class="font-18 font-weight-bold"><%= totalConversions.toLocaleString() %></div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+                      <div class="banner-img"><img src="/admin/assets/img/banner/2.png" alt=""></div>
                     </div>
                   </div>
                 </div>
@@ -164,78 +53,20 @@
             </div>
           </div>
 
-          <!-- ── Analytics ───────────────────────────────────────────── -->
-          <div class="row">
-            <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
-              <div class="card w-100">
-                <div class="card-header">
-                  <h4>User Verification</h4>
-                </div>
-                <div class="card-body">
-                  <div id="chart-user-verification"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
-              <div class="card w-100">
-                <div class="card-header">
-                  <h4>Top-Up Status</h4>
-                </div>
-                <div class="card-body">
-                  <div id="chart-topup-status"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
-              <div class="card w-100">
-                <div class="card-header">
-                  <h4>Revenue by Period</h4>
-                </div>
-                <div class="card-body">
-                  <div id="chart-revenue-period"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ── Revenue summary ─────────────────────────────────────── -->
-          <div class="row">
-            <div class="col-12">
-              <div class="card">
-                <div class="card-header">
-                  <h4>Revenue Summary</h4>
-                </div>
-                <div class="card-body">
-                  <div class="row text-center">
-                    <div class="col-lg-3 col-md-6 mb-3">
-                      <div class="p-3 border rounded">
-                        <i data-feather="arrow-up-circle" class="col-green mb-1"></i>
-                        <h5 class="m-b-0">₦<%= weeklyRevenue.toLocaleString() %></h5>
-                        <p class="text-muted font-14 m-b-0">Weekly Revenue</p>
+          <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="card">
+              <div class="card-statistic-4">
+                <div class="align-items-center justify-content-between">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+                      <div class="card-content">
+                        <h5 class="font-15">Today Revenue</h5>
+                        <h2 class="mb-3 font-18">₦<%= todayRevenue.toLocaleString() %></h2>
+                        <p class="mb-0 text-muted font-12">This month: ₦<%= monthlyRevenue.toLocaleString() %></p>
                       </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                      <div class="p-3 border rounded">
-                        <i data-feather="trending-up" class="col-green mb-1"></i>
-                        <h5 class="m-b-0">₦<%= monthlyRevenue.toLocaleString() %></h5>
-                        <p class="text-muted font-14 m-b-0">Monthly Revenue</p>
-                      </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                      <div class="p-3 border rounded">
-                        <i data-feather="bar-chart-2" class="col-green mb-1"></i>
-                        <h5 class="m-b-0">₦<%= yearlyRevenue.toLocaleString() %></h5>
-                        <p class="text-muted font-14 m-b-0">Yearly Revenue</p>
-                      </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                      <div class="p-3 border rounded">
-                        <i data-feather="users" class="col-green mb-1"></i>
-                        <h5 class="m-b-0"><%= newUsersToday %></h5>
-                        <p class="text-muted font-14 m-b-0">New Users Today</p>
-                      </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+                      <div class="banner-img"><img src="/admin/assets/img/banner/3.png" alt=""></div>
                     </div>
                   </div>
                 </div>
@@ -243,92 +74,253 @@
             </div>
           </div>
 
-          <!-- ── Recent Transactions table ───────────────────────────── -->
-          <div class="row">
-            <div class="col-12">
-              <div class="card">
-                <div class="card-header">
-                  <h4>Recent Transactions</h4>
-                  <div class="card-header-action">
-                    <a href="/admin/product/view-transactions" class="btn btn-primary">View All</a>
+          <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="card">
+              <div class="card-statistic-4">
+                <div class="align-items-center justify-content-between">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+                      <div class="card-content">
+                        <h5 class="font-15">Total Purchases</h5>
+                        <h2 class="mb-3 font-18"><%= totalPurchases.toLocaleString() %></h2>
+                        <p class="mb-0 text-muted font-12">Successful transactions</p>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+                      <div class="banner-img"><img src="/admin/assets/img/banner/4.png" alt=""></div>
+                    </div>
                   </div>
                 </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-striped" id="table-1">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Reference</th>
-                          <th>User</th>
-                          <th>Phone</th>
-                          <th>Amount</th>
-                          <th>RP Earned</th>
-                          <th>Status</th>
-                          <th>Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <% if (recentTransactions && recentTransactions.length > 0) { %>
-                          <% recentTransactions.forEach((tx, index) => { %>
-                            <tr>
-                              <td><%= index + 1 %></td>
-                              <td><small><%= tx.reference || '—' %></small></td>
-                              <td>
-                                <b><%= tx.user?.username || 'N/A' %></b><br>
-                                <small class="text-muted"><%= tx.user?.email || '' %></small>
-                              </td>
-                              <td><%= tx.phone || '—' %></td>
-                              <td><b>₦<%= (tx.amount || 0).toLocaleString() %></b></td>
-                              <td>
-                                <% if (tx.rpEarned > 0) { %>
-                                  <span class="badge badge-success"><%= tx.rpEarned %> RP</span>
-                                <% } else { %>
-                                  <span class="text-muted">—</span>
-                                <% } %>
-                              </td>
-                              <td>
-                                <% if (tx.status === 'success') { %>
-                                  <span class="badge badge-success">Success</span>
-                                <% } else if (tx.status === 'failed') { %>
-                                  <span class="badge badge-danger">Failed</span>
-                                <% } else { %>
-                                  <span class="badge badge-warning">Pending</span>
-                                <% } %>
-                              </td>
-                              <td><small><%= new Date(tx.createdAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) %></small></td>
-                            </tr>
-                          <% }) %>
-                        <% } else { %>
-                          <tr>
-                            <td colspan="8" class="text-center">No transactions yet</td>
-                          </tr>
-                        <% } %>
-                      </tbody>
-                    </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Row 2: Secondary KPIs ───────────────────────────────── -->
+        <div class="row">
+          <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="card">
+              <div class="card-body px-4 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="mr-3">
+                    <i data-feather="user-check" style="width:36px;height:36px;color:#47c363;"></i>
+                  </div>
+                  <div>
+                    <div class="text-muted font-13">Verified Users</div>
+                    <div class="font-18 font-weight-bold"><%= verifiedUsers.toLocaleString() %></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-        </section>
-      </div>
+          <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="card">
+              <div class="card-body px-4 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="mr-3">
+                    <i data-feather="clock" style="width:36px;height:36px;color:#f5a623;"></i>
+                  </div>
+                  <div>
+                    <div class="text-muted font-13">Pending Top-Ups</div>
+                    <div class="font-18 font-weight-bold"><%= pendingTopUps.toLocaleString() %></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <%- include('../partials/footerAdmin.ejs') %>
+          <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="card">
+              <div class="card-body px-4 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="mr-3">
+                    <i data-feather="check-circle" style="width:36px;height:36px;color:#47c363;"></i>
+                  </div>
+                  <div>
+                    <div class="text-muted font-13">Completed Top-Ups</div>
+                    <div class="font-18 font-weight-bold"><%= completedTopUps.toLocaleString() %></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div class="card">
+              <div class="card-body px-4 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="mr-3">
+                    <i data-feather="refresh-cw" style="width:36px;height:36px;color:#3abaf4;"></i>
+                  </div>
+                  <div>
+                    <div class="text-muted font-13">USDT Conversions</div>
+                    <div class="font-18 font-weight-bold"><%= totalConversions.toLocaleString() %></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Analytics ───────────────────────────────────────────── -->
+        <div class="row">
+          <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
+            <div class="card w-100">
+              <div class="card-header">
+                <h4>User Verification</h4>
+              </div>
+              <div class="card-body">
+                <div id="chart-user-verification"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
+            <div class="card w-100">
+              <div class="card-header">
+                <h4>Top-Up Status</h4>
+              </div>
+              <div class="card-body">
+                <div id="chart-topup-status"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch">
+            <div class="card w-100">
+              <div class="card-header">
+                <h4>Revenue by Period</h4>
+              </div>
+              <div class="card-body">
+                <div id="chart-revenue-period"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Revenue summary ─────────────────────────────────────── -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h4>Revenue Summary</h4>
+              </div>
+              <div class="card-body">
+                <div class="row text-center">
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                      <i data-feather="arrow-up-circle" class="col-green mb-1"></i>
+                      <h5 class="m-b-0">₦<%= weeklyRevenue.toLocaleString() %></h5>
+                      <p class="text-muted font-14 m-b-0">Weekly Revenue</p>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                      <i data-feather="trending-up" class="col-green mb-1"></i>
+                      <h5 class="m-b-0">₦<%= monthlyRevenue.toLocaleString() %></h5>
+                      <p class="text-muted font-14 m-b-0">Monthly Revenue</p>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                      <i data-feather="bar-chart-2" class="col-green mb-1"></i>
+                      <h5 class="m-b-0">₦<%= yearlyRevenue.toLocaleString() %></h5>
+                      <p class="text-muted font-14 m-b-0">Yearly Revenue</p>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                      <i data-feather="users" class="col-green mb-1"></i>
+                      <h5 class="m-b-0"><%= newUsersToday %></h5>
+                      <p class="text-muted font-14 m-b-0">New Users Today</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Recent Transactions table ───────────────────────────── -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h4>Recent Transactions</h4>
+                <div class="card-header-action">
+                  <a href="/admin/product/view-transactions" class="btn btn-primary">View All</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped" id="table-1">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Reference</th>
+                        <th>User</th>
+                        <th>Phone</th>
+                        <th>Amount</th>
+                        <th>RP Earned</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% if (recentTransactions && recentTransactions.length > 0) { %>
+                      <% recentTransactions.forEach((tx, index) => { %>
+                      <tr>
+                        <td><%= index + 1 %></td>
+                        <td><small><%= tx.reference || '—' %></small></td>
+                        <td>
+                          <a href="/admin/product/user-details/<%= tx.user._id %>" style="color:black">
+                            <b><%= tx.user?.username || 'N/A' %></b><br>
+                            <small class="text-muted"><%= tx.user?.email || '' %></small>
+                          </a>
+                        </td>
+                        <td><%= tx.phone || '—' %></td>
+                        <td><b>₦<%= (tx.amount || 0).toLocaleString() %></b></td>
+                        <td>
+                          <% if (tx.rpEarned > 0) { %>
+                          <span class="badge badge-success"><%= tx.rpEarned %> RP</span>
+                          <% } else { %>
+                          <span class="text-muted">—</span>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (tx.status === 'success') { %>
+                          <span class="badge badge-success">Success</span>
+                          <% } else if (tx.status === 'failed') { %>
+                          <span class="badge badge-danger">Failed</span>
+                          <% } else { %>
+                          <span class="badge badge-warning">Pending</span>
+                          <% } %>
+                        </td>
+                        <td><small><%= new Date(tx.createdAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) %></small></td>
+                      </tr>
+                      <% }) %>
+                      <% } else { %>
+                      <tr>
+                        <td colspan="8" class="text-center">No transactions yet</td>
+                      </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
     </div>
-  </div>
 
-  <link rel="stylesheet" href="/admin/assets/bundles/apexcharts/apexcharts.css">
-  <div id="dashboard-chart-data"
-       data-verified-users="<%= verifiedUsers %>"
-       data-unverified-users="<%= totalUsers - verifiedUsers %>"
-       data-pending-topups="<%= pendingTopUps %>"
-       data-completed-topups="<%= completedTopUps %>"
-       data-today-revenue="<%= todayRevenue %>"
-       data-weekly-revenue="<%= weeklyRevenue %>"
-       data-monthly-revenue="<%= monthlyRevenue %>"
-       data-yearly-revenue="<%= yearlyRevenue %>"
-       style="display:none"></div>
-  <script src="/admin/assets/bundles/apexcharts/apexcharts.min.js"></script>
-  <script src="/admin/assets/js/page/dashboard-charts.js"></script>
+    <%- include('../partials/footerAdmin.ejs') %>
+  </div>
+</div>
+
+<link rel="stylesheet" href="/admin/assets/bundles/apexcharts/apexcharts.css">
+<div id="dashboard-chart-data" data-verified-users="<%= verifiedUsers %>" data-unverified-users="<%= totalUsers - verifiedUsers %>" data-pending-topups="<%= pendingTopUps %>" data-completed-topups="<%= completedTopUps %>" data-today-revenue="<%= todayRevenue %>" data-weekly-revenue="<%= weeklyRevenue %>" data-monthly-revenue="<%= monthlyRevenue %>" data-yearly-revenue="<%= yearlyRevenue %>" style="display:none"></div>
+<script src="/admin/assets/bundles/apexcharts/apexcharts.min.js"></script>
+<script src="/admin/assets/js/page/dashboard-charts.js"></script>

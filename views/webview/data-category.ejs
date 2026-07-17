@@ -141,15 +141,23 @@ document.querySelectorAll('.buy-btn').forEach(btn => {
     e.preventDefault();
     selectedPackageId = this.dataset.id;
     document.getElementById('buyModal').classList.add('open');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
   });
 });
 
 document.getElementById('cancelBtn').addEventListener('click', () => {
   document.getElementById('buyModal').classList.remove('open');
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
 });
 
 document.getElementById('buyModal').addEventListener('click', function(e) {
-  if (e.target === this) this.classList.remove('open');
+  if (e.target === this) {
+    this.classList.remove('open');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
 });
 
 const phoneInput  = document.getElementById('phoneInput');

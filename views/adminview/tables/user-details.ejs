@@ -1,0 +1,346 @@
+<div class="loader"></div>
+<div id="app">
+  <div class="main-wrapper main-wrapper-1">
+    <div class="navbar-bg"></div>
+
+    <%- include('../../partials/headerAdmin.ejs') %>
+    <%- include('../../partials/sideMenuAdmin.ejs') %>
+
+    <div class="main-content">
+      <section class="section">
+        <div class="section-body">
+
+          <div class="row align-items-center mb-3">
+            <div class="col">
+              <a href="/admin/product/view-users" class="btn btn-light">
+                <i class="fas fa-arrow-left"></i> Back to Users
+              </a>
+            </div>
+          </div>
+
+          <!-- User identity card -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body d-flex align-items-center flex-wrap" style="gap: 16px;">
+                  <div class="d-flex align-items-center justify-content-center" style="width:64px;height:64px;border-radius:50%;background:#e9ecef;font-size:24px;font-weight:700;color:#495057;flex-shrink:0;">
+                    <%= (user.username || '?').charAt(0).toUpperCase() %>
+                  </div>
+                  <div style="flex:1;min-width:200px;">
+                    <h4 class="mb-1"><%= user.username %></h4>
+                    <div class="text-muted"><%= user.email %></div>
+                  </div>
+                  <div>
+                    <% if (user.isVerified) { %>
+                    <span class="badge badge-success">Verified</span>
+                    <% } else { %>
+                    <span class="badge badge-danger">Unverified</span>
+                    <% } %>
+                    <span class="badge badge-secondary text-uppercase"><%= user.role === 'users' ? 'User' : (user.role || 'user') %></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary cards -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-success"><i class="fas fa-wallet"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header">
+                    <h4>Wallet Balance</h4>
+                  </div>
+                  <div class="card-body">₦<%= Number(walletBalances.NAIRA || user.walletBalance || 0).toLocaleString() %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-warning"><i class="fas fa-coins"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header">
+                    <h4>RP Balance</h4>
+                  </div>
+                  <div class="card-body"><%= user.rpBalance || 0 %> RP</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-primary"><i class="fas fa-receipt"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header">
+                    <h4>Transactions</h4>
+                  </div>
+                  <div class="card-body"><%= transactions.length %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-info"><i class="fas fa-arrow-up"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header">
+                    <h4>Total Topped Up</h4>
+                  </div>
+                  <div class="card-body">₦<%= Number(totalToppedUp).toLocaleString() %></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link active" data-toggle="tab" href="#tab-profile" role="tab">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" data-toggle="tab" href="#tab-topups" role="tab">Top-ups</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" data-toggle="tab" href="#tab-transactions" role="tab">Transactions</a>
+                    </li>
+                  </ul>
+                </div>
+                <div class="card-body">
+                  <div class="tab-content">
+
+                    <!-- Profile tab -->
+                    <div class="tab-pane fade show active" id="tab-profile" role="tabpanel">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <table class="table table-striped">
+                            <tbody>
+                              <tr>
+                                <th style="width:40%;">User ID</th>
+                                <td><small><%= user._id %></small></td>
+                              </tr>
+                              <tr>
+                                <th>Username</th>
+                                <td><%= user.username %></td>
+                              </tr>
+                              <tr>
+                                <th>Email</th>
+                                <td><%= user.email %></td>
+                              </tr>
+                              <tr>
+                                <th>Phone Number</th>
+                                <td><%= user.phone_number || '—' %></td>
+                              </tr>
+                              <tr>
+                                <th>Country</th>
+                                <td><%= user.country || '—' %></td>
+                              </tr>
+                              <tr>
+                                <th>Miner ID</th>
+                                <td><%= user.minerId || '—' %></td>
+                              </tr>
+                              <tr>
+                                <th>Role</th>
+                                <td class="text-capitalize"><%= user.role === 'users' ? 'User' : (user.role || '—') %></td>
+                              </tr>
+                              <tr>
+                                <th>Verification Status</th>
+                                <td>
+                                  <% if (user.isVerified) { %>
+                                  <span class="badge badge-success">Verified</span>
+                                  <% } else { %>
+                                  <span class="badge badge-danger">Unverified</span>
+                                  <% } %>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Account Created</th>
+                                <td><%= user._id.getTimestamp().toLocaleString() %></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="col-md-6">
+                          <table class="table table-striped">
+                            <tbody>
+                              <tr>
+                                <th style="width:40%;">Wallet — NAIRA</th>
+                                <td>₦<%= Number(walletBalances.NAIRA || 0).toLocaleString() %></td>
+                              </tr>
+                              <tr>
+                                <th>Wallet — RP</th>
+                                <td><%= Number(walletBalances.RP || 0).toLocaleString() %> RP</td>
+                              </tr>
+                              <tr>
+                                <th>Wallet — BTT</th>
+                                <td><%= Number(walletBalances.BTT || 0).toLocaleString() %></td>
+                              </tr>
+                              <tr>
+                                <th>Wallet — USDT</th>
+                                <td><%= Number(walletBalances.USDT || 0).toLocaleString() %></td>
+                              </tr>
+                              <tr>
+                                <th>Total Spent (successful)</th>
+                                <td>₦<%= Number(totalSpent).toLocaleString() %></td>
+                              </tr>
+                              <tr>
+                                <th>Total Topped Up (completed)</th>
+                                <td>₦<%= Number(totalToppedUp).toLocaleString() %></td>
+                              </tr>
+                              <tr>
+                                <th>Total Transactions</th>
+                                <td><%= transactions.length %></td>
+                              </tr>
+                              <tr>
+                                <th>Total Top-ups</th>
+                                <td><%= topups.length %></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Top-ups tab -->
+                    <div class="tab-pane fade" id="tab-topups" role="tabpanel">
+                      <div class="table-responsive">
+                        <table class="table table-striped" id="table-topups">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Reference</th>
+                              <th>Amount</th>
+                              <th>Naira Amount</th>
+                              <th>Balance Type</th>
+                              <th>Payment Method</th>
+                              <th>Status</th>
+                              <th>Wallet Credited</th>
+                              <th>Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% if (topups && topups.length > 0) { %>
+                            <% topups.forEach((topup, index) => { %>
+                            <tr>
+                              <td><%= index + 1 %></td>
+                              <td><small><%= topup.reference || 'N/A' %></small></td>
+                              <td><%= Number(topup.amount).toLocaleString() %></td>
+                              <td>
+                                <% if (topup.nairaAmount) { %>
+                                ₦<%= Number(topup.nairaAmount).toLocaleString() %>
+                                <% } else { %>
+                                —
+                                <% } %>
+                              </td>
+                              <td><span class="badge badge-info"><%= topup.balanceType %></span></td>
+                              <td>
+                                <span class="badge badge-primary">
+                                  <% if (['RP', 'BTT', 'USDT'].includes(topup.balanceType)) { %>
+                                  Bittoken
+                                  <% } else { %>
+                                  <%= topup.paymentMethod || 'N/A' %>
+                                  <% } %>
+                                </span>
+                              </td>
+                              <td>
+                                <% if (topup.status === 'COMPLETED') { %>
+                                <span class="badge badge-success">Completed</span>
+                                <% } else if (topup.status === 'FAILED') { %>
+                                <span class="badge badge-danger">Failed</span>
+                                <% } else { %>
+                                <span class="badge badge-warning">Pending</span>
+                                <% } %>
+                              </td>
+                              <td>
+                                <% if (topup.walletCredited) { %>
+                                <span class="badge badge-success">Yes</span>
+                                <% } else { %>
+                                <span class="badge badge-danger">No</span>
+                                <% } %>
+                              </td>
+                              <td><%= new Date(topup.createdAt).toLocaleString() %></td>
+                            </tr>
+                            <% }) %>
+                            <% } else { %>
+                            <tr>
+                              <td colspan="9" class="text-center">No top-up records found</td>
+                            </tr>
+                            <% } %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <!-- Transactions tab -->
+                    <div class="tab-pane fade" id="tab-transactions" role="tabpanel">
+                      <div class="table-responsive">
+                        <table class="table table-striped" id="table-transactions">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Reference</th>
+                              <th>Product</th>
+                              <th>Amount</th>
+                              <th>Wallet</th>
+                              <th>RP Earned</th>
+                              <th>Status</th>
+                              <th>Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% if (transactions && transactions.length > 0) { %>
+                            <% transactions.forEach((tx, index) => { %>
+                            <tr>
+                              <td><%= index + 1 %></td>
+                              <td><small><%= tx.reference %></small></td>
+                              <td>
+                                <% if (tx.product) { %>
+                                <%= tx.product.item_name || tx.product.dataDetails?.plan_name || 'N/A' %>
+                                <% } else if (tx.products && tx.products.length > 0) { %>
+                                <%= tx.products.map(p => p.product?.item_name || p.product?.dataDetails?.plan_name || '?').join(', ') %>
+                                <% } else { %>
+                                N/A
+                                <% } %>
+                              </td>
+                              <td>₦<%= tx.amount.toLocaleString() %></td>
+                              <td><span class="badge badge-info"><%= tx.walletType %></span></td>
+                              <td><span class="badge badge-success"><%= tx.rpEarned || 0 %></span></td>
+                              <td>
+                                <% if (tx.status === 'success') { %>
+                                <span class="badge badge-success">Success</span>
+                                <% } else if (tx.status === 'failed') { %>
+                                <span class="badge badge-danger">Failed</span>
+                                <% } else { %>
+                                <span class="badge badge-warning"><%= tx.status %></span>
+                                <% } %>
+                              </td>
+                              <td><%= new Date(tx.createdAt).toLocaleDateString() %></td>
+                            </tr>
+                            <% }) %>
+                            <% } else { %>
+                            <tr>
+                              <td colspan="8" class="text-center">No transactions found</td>
+                            </tr>
+                            <% } %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <footer class="main-footer">
+      <div class="footer-left">Kabacu Admin</div>
+    </footer>
+  </div>
+</div>

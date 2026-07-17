@@ -1,129 +1,138 @@
+<div class="loader"></div>
+<div id="app">
+  <div class="main-wrapper main-wrapper-1">
+    <div class="navbar-bg"></div>
 
-  <div class="loader"></div>
-  <div id="app">
-    <div class="main-wrapper main-wrapper-1">
-      <div class="navbar-bg"></div>
+    <%- include('../../partials/headerAdmin.ejs') %>
+    <%- include('../../partials/sideMenuAdmin.ejs') %>
 
-      <%- include('../../partials/headerAdmin.ejs') %>
-      <%- include('../../partials/sideMenuAdmin.ejs') %>
+    <div class="main-content">
+      <section class="section">
+        <div class="section-body">
 
-      <div class="main-content">
-        <section class="section">
-          <div class="section-body">
-
-            <!-- Summary cards -->
-            <div class="row mb-3">
-              <div class="col-md-3">
-                <div class="card card-statistic-1">
-                  <div class="card-icon bg-primary"><i class="fas fa-users"></i></div>
-                  <div class="card-wrap">
-                    <div class="card-header"><h4>Total Users</h4></div>
-                    <div class="card-body"><%= users.length %></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="card card-statistic-1">
-                  <div class="card-icon bg-success"><i class="fas fa-user-check"></i></div>
-                  <div class="card-wrap">
-                    <div class="card-header"><h4>Verified</h4></div>
-                    <div class="card-body"><%= users.filter(u => u.isVerified).length %></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="card card-statistic-1">
-                  <div class="card-icon bg-warning"><i class="fas fa-user-clock"></i></div>
-                  <div class="card-wrap">
-                    <div class="card-header"><h4>Unverified</h4></div>
-                    <div class="card-body"><%= users.filter(u => !u.isVerified).length %></div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="card card-statistic-1">
-                  <div class="card-icon bg-info"><i class="fas fa-id-card"></i></div>
-                  <div class="card-wrap">
-                    <div class="card-header"><h4>With Miner ID</h4></div>
-                    <div class="card-body"><%= users.filter(u => u.minerId).length %></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
+          <!-- Summary cards -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-primary"><i class="fas fa-users"></i></div>
+                <div class="card-wrap">
                   <div class="card-header">
-                    <h4>All Users</h4>
+                    <h4>Total Users</h4>
                   </div>
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-striped" id="table-1">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>User</th>
-                            <th>Phone</th>
-                            <th>Country</th>
-                            <th>Miner ID</th>
-                            <th>RP Balance</th>
-                            <th>Verified</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <% if (users.length > 0) { %>
-                            <% users.forEach((user, index) => { %>
-                              <tr>
-                                <td><%= index + 1 %></td>
-                                <td>
-                                  <b><%= user.username %></b><br>
-                                  <small class="text-muted"><%= user.email %></small>
-                                </td>
-                                <td><%= user.phone_number || '—' %></td>
-                                <td><%= user.country || '—' %></td>
-                                <td>
-                                  <% if (user.minerId) { %>
-                                    <span class="badge badge-info"><%= user.minerId %></span>
-                                  <% } else { %>
-                                    <span class="text-muted">—</span>
-                                  <% } %>
-                                </td>
-                                <td>
-                                  <% if ((user.rpBalance || 0) > 0) { %>
-                                    <span class="badge badge-success"><%= user.rpBalance %> RP</span>
-                                  <% } else { %>
-                                    <span class="text-muted">0</span>
-                                  <% } %>
-                                </td>
-                                <td>
-                                  <% if (user.isVerified) { %>
-                                    <span class="badge badge-success">Verified</span>
-                                  <% } else { %>
-                                    <span class="badge badge-danger">Unverified</span>
-                                  <% } %>
-                                </td>
-                              </tr>
-                            <% }) %>
-                          <% } else { %>
-                            <tr>
-                              <td colspan="7" class="text-center">No users found</td>
-                            </tr>
-                          <% } %>
-                        </tbody>
-                      </table>
-                    </div>
+                  <div class="card-body"><%= users.length %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-success"><i class="fas fa-user-check"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header">
+                    <h4>Verified</h4>
+                  </div>
+                  <div class="card-body"><%= users.filter(u => u.isVerified).length %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-warning"><i class="fas fa-user-clock"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header">
+                    <h4>Unverified</h4>
+                  </div>
+                  <div class="card-body"><%= users.filter(u => !u.isVerified).length %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-info"><i class="fas fa-id-card"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header">
+                    <h4>With Miner ID</h4>
+                  </div>
+                  <div class="card-body"><%= users.filter(u => u.minerId).length %></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <h4>All Users</h4>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-striped" id="table-1">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>User</th>
+                          <th>Phone</th>
+                          <th>Country</th>
+                          <th>Miner ID</th>
+                          <th>RP Balance</th>
+                          <th>Verified</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% if (users.length > 0) { %>
+                        <% users.forEach((user, index) => { %>
+                        <tr>
+                          <td><%= index + 1 %></td>
+                          <td>
+                            <b><%= user.username %></b><br>
+                            <small class="text-muted"><%= user.email %></small>
+                          </td>
+                          <td><%= user.phone_number || '—' %></td>
+                          <td><%= user.country || '—' %></td>
+                          <td>
+                            <% if (user.minerId) { %>
+                            <span class="badge badge-info"><%= user.minerId %></span>
+                            <% } else { %>
+                            <span class="text-muted">—</span>
+                            <% } %>
+                          </td>
+                          <td>
+                            <% if ((user.rpBalance || 0) > 0) { %>
+                            <span class="badge badge-success"><%= user.rpBalance %> RP</span>
+                            <% } else { %>
+                            <span class="text-muted">0</span>
+                            <% } %>
+                          </td>
+                          <td>
+                            <% if (user.isVerified) { %>
+                            <span class="badge badge-success">Verified</span>
+                            <% } else { %>
+                            <span class="badge badge-danger">Unverified</span>
+                            <% } %>
+                          </td>
+                          <td><a href="/admin/product/user-details/<%= user._id %>" class="btn btn-sm btn-primary" style="border-radius: 20px;">View Details</a></td>
+                        </tr>
+                        <% }) %>
+                        <% } else { %>
+                        <tr>
+                          <td colspan="7" class="text-center">No users found</td>
+                        </tr>
+                        <% } %>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
-        </section>
-      </div>
 
-      <footer class="main-footer">
-        <div class="footer-left">Kabacu Admin</div>
-      </footer>
+        </div>
+      </section>
     </div>
+
+    <footer class="main-footer">
+      <div class="footer-left">Kabacu Admin</div>
+    </footer>
   </div>
+</div>

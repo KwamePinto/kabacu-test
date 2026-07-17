@@ -269,7 +269,7 @@
 .page-main {
   min-height: calc(100vh - 76px);
   padding-top: 82px;
-  animation: page-enter .32s cubic-bezier(.22,.61,.36,1) both;
+  animation: page-enter .32s cubic-bezier(.22,.61,.36,1);
 }
 
 body.is-leaving .page-main {
