@@ -1,0 +1,255 @@
+
+  <div class="loader"></div>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      <%- include('../../partials/headerAdmin.ejs') %>
+      <%- include('../../partials/sideMenuAdmin.ejs') %>
+
+      <div class="main-content">
+        <section class="section">
+          <div class="section-header">
+            <h1>Admin Details</h1>
+            <div class="section-header-breadcrumb">
+              <div class="breadcrumb-item"><a href="/admin/main/dashboard">Dashboard</a></div>
+              <div class="breadcrumb-item"><a href="/admin/admins">Admins</a></div>
+              <div class="breadcrumb-item active"><%= admin.username %></div>
+            </div>
+          </div>
+
+          <div class="section-body">
+
+            <% if (typeof query !== 'undefined' && query.roleUpdated == '1') { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              Role updated successfully.
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            <% } %>
+
+            <div class="row mb-3">
+              <div class="col-12">
+                <a href="/admin/admins" class="btn btn-light btn-sm">
+                  <i data-feather="arrow-left" style="width:14px;height:14px;margin-right:4px;"></i> Back to Admins
+                </a>
+              </div>
+            </div>
+
+            <!-- Identity card -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body d-flex align-items-center flex-wrap" style="gap:16px;">
+                    <div style="width:60px;height:60px;border-radius:50%;background:<%= admin.isActive !== false ? '#47c363' : '#9ca3af' %>;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:22px;flex-shrink:0;">
+                      <%= admin.username.charAt(0).toUpperCase() %>
+                    </div>
+                    <div style="flex:1;min-width:200px;">
+                      <h4 class="mb-1"><%= admin.username %></h4>
+                      <div class="text-muted"><%= admin.email %></div>
+                    </div>
+                    <div>
+                      <% const roleColors = { super_admin: 'badge-danger', senior_admin: 'badge-warning', junior_admin: 'badge-info' }; %>
+                      <span class="badge <%= roleColors[admin.role] || 'badge-secondary' %>" style="font-size:11px;padding:5px 10px;">
+                        <%= admin.role.replace(/_/g, ' ') %>
+                      </span>
+                      <% if (admin.isActive !== false) { %>
+                        <span class="badge badge-success" style="font-size:11px;padding:5px 10px;">Active</span>
+                      <% } else { %>
+                        <span class="badge badge-secondary" style="font-size:11px;padding:5px 10px;">Inactive</span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Account info -->
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header"><h4>Account Information</h4></div>
+                  <div class="card-body">
+                    <table class="table table-striped mb-0">
+                      <tbody>
+                        <tr><th style="width:40%;">Admin ID</th><td><small><%= admin._id %></small></td></tr>
+                        <tr><th>Phone</th><td><%= admin.phone || '—' %></td></tr>
+                        <tr><th>Department</th><td><%= admin.department || '—' %></td></tr>
+                        <tr><th>Bio</th><td><%= admin.bio || '—' %></td></tr>
+                        <tr><th>Added By</th><td><%= admin.addedBy ? admin.addedBy.username : '—' %></td></tr>
+                        <tr><th>Joined</th><td><%= admin.createdAt ? new Date(admin.createdAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—' %></td></tr>
+                        <tr><th>Profile Completed</th><td><%= admin.profileCompleted ? 'Yes' : 'No' %></td></tr>
+                        <tr>
+                          <th>Password Reset</th>
+                          <td>
+                            <% if (admin.resetPasswordRequested) { %>
+                              <span class="badge badge-warning">Requested</span>
+                            <% } else { %>
+                              <span class="text-muted">None pending</span>
+                            <% } %>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Role management -->
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header"><h4>Role Management</h4></div>
+                  <div class="card-body">
+                    <% if (user && user.role === 'super_admin') { %>
+                      <% if (isSelf) { %>
+                        <p class="text-muted mb-0">
+                          <i data-feather="info" style="width:14px;height:14px;margin-right:4px;"></i>
+                          You cannot change your own role.
+                        </p>
+                      <% } else { %>
+                        <div class="form-group">
+                          <label style="font-size:13px;font-weight:600;">Role</label>
+                          <select class="form-control" id="roleSelect">
+                            <option value="junior_admin"  <%= admin.role === 'junior_admin'  ? 'selected' : '' %>>Junior Admin</option>
+                            <option value="senior_admin"  <%= admin.role === 'senior_admin'  ? 'selected' : '' %>>Senior Admin</option>
+                            <option value="super_admin"   <%= admin.role === 'super_admin'   ? 'selected' : '' %>>Super Admin</option>
+                          </select>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="updateRoleBtn">
+                          <i data-feather="shield" style="width:14px;height:14px;margin-right:4px;"></i> Update Role
+                        </button>
+                      <% } %>
+                    <% } else { %>
+                      <p class="text-muted mb-0">
+                        <i data-feather="lock" style="width:14px;height:14px;margin-right:4px;"></i>
+                        Only Super Admins can promote or demote administrators.
+                      </p>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <footer class="main-footer">
+        <div class="footer-left">
+          &copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.
+        </div>
+        <div class="footer-right"></div>
+      </footer>
+    </div>
+  </div>
+
+<!-- ── Password confirmation modal ── -->
+<% if (user && user.role === 'super_admin' && !isSelf) { %>
+<div class="modal fade" id="confirmRoleModal" tabindex="-1" role="dialog" aria-labelledby="confirmRoleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmRoleModalLabel">Confirm Role Change</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmRoleText" style="font-size:14px;margin-bottom:16px;"></p>
+        <div class="form-group mb-0">
+          <label style="font-size:13px;font-weight:600;">Your Password <span class="text-danger">*</span></label>
+          <input type="password" id="confirmRolePassword" class="form-control" placeholder="Enter your password to confirm" autocomplete="current-password">
+          <div id="confirmRoleError" class="text-danger mt-2" style="font-size:12px;display:none;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmRoleSubmitBtn">
+          <span id="confirmRoleBtnLabel">Confirm</span>
+          <span id="confirmRoleBtnSpinner" style="display:none;">
+            <span class="spinner-border spinner-border-sm mr-1" role="status"></span> Please wait…
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var csrfToken  = '<%= csrfToken %>';
+  var adminId    = '<%= admin._id %>';
+  var currentRole = '<%= admin.role %>';
+  var roleLabels = { super_admin: 'Super Admin', senior_admin: 'Senior Admin', junior_admin: 'Junior Admin' };
+
+  document.getElementById('updateRoleBtn').addEventListener('click', function () {
+    var select = document.getElementById('roleSelect');
+    var newRole = select.value;
+
+    if (newRole === currentRole) {
+      alert('Please select a different role to update.');
+      return;
+    }
+
+    document.getElementById('confirmRoleText').innerHTML =
+      'You are about to change this admin\'s role from <strong>' + roleLabels[currentRole] + '</strong> to <strong>' + roleLabels[newRole] + '</strong>. Enter your password to confirm.';
+
+    document.getElementById('confirmRolePassword').value = '';
+    document.getElementById('confirmRoleError').style.display = 'none';
+
+    $('#confirmRoleModal').modal('show');
+  });
+
+  document.getElementById('confirmRoleSubmitBtn').addEventListener('click', function () {
+    var password = document.getElementById('confirmRolePassword').value.trim();
+    var errorBox  = document.getElementById('confirmRoleError');
+    var newRole   = document.getElementById('roleSelect').value;
+
+    if (!password) {
+      errorBox.textContent = 'Password is required.';
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    errorBox.style.display = 'none';
+    document.getElementById('confirmRoleBtnLabel').style.display = 'none';
+    document.getElementById('confirmRoleBtnSpinner').style.display = 'inline';
+    this.disabled = true;
+
+    var body = new URLSearchParams({ role: newRole, password: password, _csrf: csrfToken }).toString();
+
+    fetch('/admin/admins/' + adminId + '/role', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body,
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          window.location.href = '/admin/admins/' + adminId + '?roleUpdated=1';
+        } else {
+          errorBox.textContent = data.error || 'An error occurred. Please try again.';
+          errorBox.style.display = 'block';
+          document.getElementById('confirmRoleBtnLabel').style.display = 'inline';
+          document.getElementById('confirmRoleBtnSpinner').style.display = 'none';
+          document.getElementById('confirmRoleSubmitBtn').disabled = false;
+        }
+      })
+      .catch(function () {
+        errorBox.textContent = 'Network error. Please try again.';
+        errorBox.style.display = 'block';
+        document.getElementById('confirmRoleBtnLabel').style.display = 'inline';
+        document.getElementById('confirmRoleBtnSpinner').style.display = 'none';
+        document.getElementById('confirmRoleSubmitBtn').disabled = false;
+      });
+  });
+
+  document.getElementById('confirmRoleModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('confirmRoleError').style.display = 'none';
+    document.getElementById('confirmRolePassword').value = '';
+  });
+}());
+</script>
+<% } %>
+
+<script>
+  if (typeof feather !== 'undefined') feather.replace();
+</script>

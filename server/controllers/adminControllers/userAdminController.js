@@ -1,25 +1,28 @@
-const bcrypt       = require('bcrypt');
-const crypto       = require('crypto');
-const saltRounds   = 10;
-const UserAdminModel = require('../../models/UserAdminModel');
-const Transaction  = require('../../models/TransactionModel');
-const TopUp        = require('../../models/TopUpModal');
-const User         = require('../../models/UserModel');
-const sendEmail    = require('../../utils/emailService');
-const adminLayouts = 'layouts/adminLayout';
-const { generateUserAdminToken } = require('../../config/authUtils');
-const { authenticateAdminUser }  = require('../../config/authMiddleware');
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const saltRounds = 10;
+const UserAdminModel = require("../../models/UserAdminModel");
+const Transaction = require("../../models/TransactionModel");
+const TopUp = require("../../models/TopUpModal");
+const User = require("../../models/UserModel");
+const sendEmail = require("../../utils/emailService");
+const adminLayouts = "layouts/adminLayout";
+const { generateUserAdminToken } = require("../../config/authUtils");
+const { authenticateAdminUser } = require("../../config/authMiddleware");
 
 /* ── helpers ────────────────────────────────────────────── */
 function generateAdminPassword() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  let pw = 'CTC';
-  for (let i = 0; i < 7; i++) pw += chars.charAt(Math.floor(Math.random() * chars.length));
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+  let pw = "CTC";
+  for (let i = 0; i < 7; i++)
+    pw += chars.charAt(Math.floor(Math.random() * chars.length));
   return pw;
 }
 
 function adminCredentialsEmail({ username, email, password, role, loginUrl }) {
-  const roleLabel = role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const roleLabel = role
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -104,7 +107,7 @@ function adminCredentialsEmail({ username, email, password, role, loginUrl }) {
 
 /* ── Login ──────────────────────────────────────────────── */
 function renderLogin(res, error = null) {
-  res.render('adminview/users/auth-login', { layout: adminLayouts, error });
+  res.render("adminview/users/auth-login", { layout: adminLayouts, error });
 }
 
 exports.loginAdmin = (req, res) => {
@@ -116,164 +119,311 @@ exports.loginAdminPost = async (req, res) => {
     const { email, password, role } = req.body;
 
     const user = await UserAdminModel.findOne({ email });
-    if (!user) return renderLogin(res, 'Invalid email or password.');
+    if (!user) return renderLogin(res, "Invalid email or password.");
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return renderLogin(res, 'Invalid email or password.');
+    if (!isPasswordValid) return renderLogin(res, "Invalid email or password.");
 
-    if (user.role !== role) return renderLogin(res, 'Incorrect role selected for this account.');
+    if (user.role !== role)
+      return renderLogin(res, "Incorrect role selected for this account.");
 
-    if (user.isActive === false) return renderLogin(res, 'Your account has been deactivated. Contact a super admin.');
+    if (user.isActive === false)
+      return renderLogin(
+        res,
+        "Your account has been deactivated. Contact a super admin.",
+      );
 
     const token = generateUserAdminToken(user);
-    res.cookie('admin_token', token, {
+    res.cookie("admin_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
     req.session.info = { role: user.role };
 
     if (!user.profileCompleted) {
-      return res.redirect('/admin/profile?firstLogin=1');
+      return res.redirect("/admin/profile?firstLogin=1");
     }
 
-    res.redirect('/admin/main/dashboard');
+    res.redirect("/admin/main/dashboard");
   } catch (error) {
-    console.log('Login error:', error);
-    return renderLogin(res, 'Something went wrong. Please try again.');
+    console.log("Login error:", error);
+    return renderLogin(res, "Something went wrong. Please try again.");
   }
 };
 
 /* ── Logout ─────────────────────────────────────────────── */
 exports.logout = (req, res) => {
-  res.clearCookie('admin_token');
-  res.redirect('/command');
+  res.clearCookie("admin_token");
+  res.redirect("/command");
 };
 
 /* ── Admin management ───────────────────────────────────── */
-exports.viewAdmins = [authenticateAdminUser, async (req, res) => {
-  try {
-    const [admins, pendingResets] = await Promise.all([
-      UserAdminModel.find().populate('addedBy', 'username email').sort({ createdAt: -1 }),
-      UserAdminModel.find({ resetPasswordRequested: true }).select('username email role resetPasswordRequestedAt').sort({ resetPasswordRequestedAt: -1 }),
-    ]);
-    res.render('adminview/users/view-admins', { admins, pendingResets, query: req.query, layout: adminLayouts });
-  } catch (error) {
-    console.log('VIEW ADMINS ERROR:', error);
-    res.redirect('/admin/main/dashboard');
-  }
-}];
-
-exports.addAdminForm = [authenticateAdminUser, (req, res) => {
-  res.render('adminview/users/add-admin', { layout: adminLayouts });
-}];
-
-exports.addAdminPost = [authenticateAdminUser, async (req, res) => {
-  try {
-    const { username, email, role } = req.body;
-
-    const existing = await UserAdminModel.findOne({ email: email.toLowerCase().trim() });
-    if (existing) {
-      return res.status(400).json({ error: 'An admin with this email already exists.' });
+exports.viewAdmins = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const [admins, pendingResets] = await Promise.all([
+        UserAdminModel.find()
+          .populate("addedBy", "username email")
+          .sort({ createdAt: -1 }),
+        UserAdminModel.find({ resetPasswordRequested: true })
+          .select("username email role resetPasswordRequestedAt")
+          .sort({ resetPasswordRequestedAt: -1 }),
+      ]);
+      res.render("adminview/users/view-admins", {
+        admins,
+        pendingResets,
+        query: req.query,
+        layout: adminLayouts,
+      });
+    } catch (error) {
+      console.log("VIEW ADMINS ERROR:", error);
+      res.redirect("/admin/main/dashboard");
     }
+  },
+];
 
-    const plainPassword  = generateAdminPassword();
-    const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+exports.addAdminForm = [
+  authenticateAdminUser,
+  (req, res) => {
+    res.render("adminview/users/add-admin", { layout: adminLayouts });
+  },
+];
 
-    await UserAdminModel.create({
-      username:         username.trim(),
-      email:            email.toLowerCase().trim(),
-      password:         hashedPassword,
-      role,
-      profileCompleted: false,
-      addedBy:          req.user.id,
-    });
+exports.addAdminPost = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const { username, email, role } = req.body;
 
-    const loginUrl = `${req.protocol}://${req.get('host')}/command`;
+      const existing = await UserAdminModel.findOne({
+        email: email.toLowerCase().trim(),
+      });
+      if (existing) {
+        return res
+          .status(400)
+          .json({ error: "An admin with this email already exists." });
+      }
 
-    await sendEmail({
-      to:      email.toLowerCase().trim(),
-      subject: 'Your Kabacu Admin Account Details',
-      html:    adminCredentialsEmail({ username, email, password: plainPassword, role, loginUrl }),
-      text:    `Welcome ${username}. Email: ${email} | Password: ${plainPassword} | Role: ${role}. Login at ${loginUrl}`,
-    });
+      const plainPassword = generateAdminPassword();
+      const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
 
-    res.redirect('/admin/admins?success=1');
-  } catch (error) {
-    console.log('ADD ADMIN ERROR:', error);
-    res.status(500).json({ error: error.message });
-  }
-}];
+      await UserAdminModel.create({
+        username: username.trim(),
+        email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        role,
+        profileCompleted: false,
+        addedBy: req.user.id,
+      });
+
+      const loginUrl = `${req.protocol}://${req.get("host")}/command`;
+
+      await sendEmail({
+        to: email.toLowerCase().trim(),
+        subject: "Your Kabacu Admin Account Details",
+        html: adminCredentialsEmail({
+          username,
+          email,
+          password: plainPassword,
+          role,
+          loginUrl,
+        }),
+        text: `Welcome ${username}. Email: ${email} | Password: ${plainPassword} | Role: ${role}. Login at ${loginUrl}`,
+      });
+
+      res.redirect("/admin/admins?success=1");
+    } catch (error) {
+      console.log("ADD ADMIN ERROR:", error);
+      res.status(500).json({ error: error.message });
+    }
+  },
+];
 
 /* ── Toggle admin active state ──────────────────────────── */
-exports.toggleAdminStatus = [authenticateAdminUser, async (req, res) => {
-  try {
-    if (req.user.role !== 'super_admin') {
-      return res.status(403).json({ error: 'Only super admins can perform this action.' });
+exports.toggleAdminStatus = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      if (req.user.role !== "super_admin") {
+        return res
+          .status(403)
+          .json({ error: "Only super admins can perform this action." });
+      }
+
+      const { adminId, password } = req.body;
+
+      if (!adminId || !password) {
+        return res
+          .status(400)
+          .json({ error: "Admin ID and password are required." });
+      }
+
+      // Verify the super admin's own password
+      const self = await UserAdminModel.findById(req.user.id);
+      if (!self)
+        return res
+          .status(401)
+          .json({ error: "Session invalid. Please log in again." });
+
+      const passwordValid = await bcrypt.compare(password, self.password);
+      if (!passwordValid)
+        return res
+          .status(401)
+          .json({ error: "Incorrect password. Action cancelled." });
+
+      const target = await UserAdminModel.findById(adminId);
+      if (!target)
+        return res.status(404).json({ error: "Admin account not found." });
+
+      if (target._id.toString() === req.user.id) {
+        return res
+          .status(400)
+          .json({ error: "You cannot deactivate your own account." });
+      }
+
+      target.isActive = !target.isActive;
+      await target.save();
+
+      res.json({
+        success: true,
+        isActive: target.isActive,
+        message: `${target.username}'s account has been ${target.isActive ? "reactivated" : "deactivated"}.`,
+      });
+    } catch (error) {
+      console.log("TOGGLE ADMIN STATUS ERROR:", error);
+      res.status(500).json({ error: error.message });
     }
+  },
+];
 
-    const { adminId, password } = req.body;
+/* ── Admin details ──────────────────────────────────────── */
+exports.adminDetails = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const admin = await UserAdminModel.findById(req.params.id).populate(
+        "addedBy",
+        "username email",
+      );
+      if (!admin) return res.redirect("/admin/admins");
 
-    if (!adminId || !password) {
-      return res.status(400).json({ error: 'Admin ID and password are required.' });
+      res.render("adminview/users/admin-details", {
+        admin,
+        isSelf: admin._id.toString() === req.user.id,
+        query: req.query,
+        layout: adminLayouts,
+      });
+    } catch (error) {
+      console.log("ADMIN DETAILS ERROR:", error);
+      res.redirect("/admin/admins");
     }
+  },
+];
 
-    // Verify the super admin's own password
-    const self = await UserAdminModel.findById(req.user.id);
-    if (!self) return res.status(401).json({ error: 'Session invalid. Please log in again.' });
+/* ── Update admin role (super_admin only) ───────────────── */
+exports.updateAdminRole = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      if (req.user.role !== "super_admin") {
+        return res.status(403).json({
+          error: "Only super admins can promote or demote administrators.",
+        });
+      }
 
-    const passwordValid = await bcrypt.compare(password, self.password);
-    if (!passwordValid) return res.status(401).json({ error: 'Incorrect password. Action cancelled.' });
+      const { role, password } = req.body;
+      const validRoles = ["super_admin", "senior_admin", "junior_admin"];
 
-    const target = await UserAdminModel.findById(adminId);
-    if (!target) return res.status(404).json({ error: 'Admin account not found.' });
+      if (!role || !validRoles.includes(role)) {
+        return res.status(400).json({ error: "Invalid role selected." });
+      }
 
-    if (target._id.toString() === req.user.id) {
-      return res.status(400).json({ error: 'You cannot deactivate your own account.' });
+      if (!password) {
+        return res.status(400).json({ error: "Password is required." });
+      }
+
+      if (req.params.id === req.user.id) {
+        return res
+          .status(400)
+          .json({ error: "You cannot change your own role." });
+      }
+
+      const self = await UserAdminModel.findById(req.user.id);
+      if (!self)
+        return res
+          .status(401)
+          .json({ error: "Session invalid. Please log in again." });
+
+      const passwordValid = await bcrypt.compare(password, self.password);
+      if (!passwordValid)
+        return res
+          .status(401)
+          .json({ error: "Incorrect password. Action cancelled." });
+
+      const target = await UserAdminModel.findById(req.params.id);
+      if (!target)
+        return res.status(404).json({ error: "Admin account not found." });
+
+      const previousRole = target.role;
+      target.role = role;
+      await target.save();
+
+      res.json({
+        success: true,
+        role: target.role,
+        message:
+          previousRole === role
+            ? `${target.username}'s role is unchanged (${role.replace(/_/g, " ")}).`
+            : `${target.username}'s role has been updated to ${role.replace(/_/g, " ")}.`,
+      });
+    } catch (error) {
+      console.log("UPDATE ADMIN ROLE ERROR:", error);
+      res.status(500).json({ error: error.message });
     }
-
-    target.isActive = !target.isActive;
-    await target.save();
-
-    res.json({
-      success: true,
-      isActive: target.isActive,
-      message: `${target.username}'s account has been ${target.isActive ? 'reactivated' : 'deactivated'}.`,
-    });
-  } catch (error) {
-    console.log('TOGGLE ADMIN STATUS ERROR:', error);
-    res.status(500).json({ error: error.message });
-  }
-}];
+  },
+];
 
 /* ── Profile ────────────────────────────────────────────── */
-exports.adminProfile = [authenticateAdminUser, async (req, res) => {
-  try {
-    const admin = await UserAdminModel.findById(req.user.id);
-    const firstLogin = req.query.firstLogin === '1';
-    res.render('adminview/profile', { admin, firstLogin, query: req.query, layout: adminLayouts });
-  } catch (error) {
-    console.log('PROFILE ERROR:', error);
-    res.redirect('/admin/main/dashboard');
-  }
-}];
+exports.adminProfile = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const admin = await UserAdminModel.findById(req.user.id);
+      const firstLogin = req.query.firstLogin === "1";
+      res.render("adminview/profile", {
+        admin,
+        firstLogin,
+        query: req.query,
+        layout: adminLayouts,
+      });
+    } catch (error) {
+      console.log("PROFILE ERROR:", error);
+      res.redirect("/admin/main/dashboard");
+    }
+  },
+];
 
-exports.adminProfilePost = [authenticateAdminUser, async (req, res) => {
-  try {
-    const { phone, bio, department } = req.body;
-    await UserAdminModel.findByIdAndUpdate(req.user.id, {
-      phone:            phone || '',
-      bio:              bio   || '',
-      department:       department || '',
-      profileCompleted: true,
-    });
-    res.redirect('/admin/profile?saved=1');
-  } catch (error) {
-    console.log('PROFILE SAVE ERROR:', error);
-    res.redirect('/admin/profile?error=1');
-  }
-}];
+exports.adminProfilePost = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const { phone, bio, department } = req.body;
+      await UserAdminModel.findByIdAndUpdate(req.user.id, {
+        phone: phone || "",
+        bio: bio || "",
+        department: department || "",
+        profileCompleted: true,
+      });
+      res.redirect("/admin/profile?saved=1");
+    } catch (error) {
+      console.log("PROFILE SAVE ERROR:", error);
+      res.redirect("/admin/profile?error=1");
+    }
+  },
+];
 
 /* ── Password reset email template ─────────────────────── */
 function adminPasswordResetEmail({ username, resetUrl }) {
@@ -334,177 +484,245 @@ function adminPasswordResetEmail({ username, resetUrl }) {
 
 /* ── Forgot password (request) ──────────────────────────── */
 exports.forgotPasswordGet = (req, res) => {
-  res.render('adminview/users/forgot-password', { layout: false, query: req.query });
+  res.render("adminview/users/forgot-password", {
+    layout: false,
+    query: req.query,
+  });
 };
 
 exports.forgotPasswordPost = async (req, res) => {
   try {
-    const email = (req.body.email || '').toLowerCase().trim();
+    const email = (req.body.email || "").toLowerCase().trim();
     const admin = await UserAdminModel.findOne({ email });
 
     if (admin) {
-      admin.resetPasswordRequested   = true;
+      admin.resetPasswordRequested = true;
       admin.resetPasswordRequestedAt = new Date();
       await admin.save();
     }
 
     // Always redirect with ?sent=1 — don't reveal whether email exists
-    res.redirect('/admin/forgot-password?sent=1');
+    res.redirect("/admin/forgot-password?sent=1");
   } catch (error) {
-    console.log('FORGOT PASSWORD ERROR:', error);
-    res.redirect('/admin/forgot-password?error=1');
+    console.log("FORGOT PASSWORD ERROR:", error);
+    res.redirect("/admin/forgot-password?error=1");
   }
 };
 
 /* ── Approve reset (super_admin only) ───────────────────── */
-exports.approveReset = [authenticateAdminUser, async (req, res) => {
-  try {
-    if (req.user.role !== 'super_admin') {
-      return res.status(403).json({ error: 'Only super admins can approve reset requests.' });
+exports.approveReset = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      if (req.user.role !== "super_admin") {
+        return res
+          .status(403)
+          .json({ error: "Only super admins can approve reset requests." });
+      }
+
+      const admin = await UserAdminModel.findById(req.params.id);
+      if (!admin) return res.status(404).json({ error: "Admin not found." });
+      if (!admin.resetPasswordRequested)
+        return res
+          .status(400)
+          .json({ error: "No pending reset request for this admin." });
+
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(rawToken)
+        .digest("hex");
+
+      admin.resetPasswordToken = hashedToken;
+      admin.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      admin.resetPasswordRequested = false;
+      admin.resetPasswordRequestedAt = null;
+      await admin.save();
+
+      const resetUrl = `${req.protocol}://${req.get("host")}/admin/reset-password?token=${rawToken}`;
+
+      await sendEmail({
+        to: admin.email,
+        subject: "Kabacu Admin — Your Password Reset Link",
+        html: adminPasswordResetEmail({ username: admin.username, resetUrl }),
+        text: `Hi ${admin.username}, your password reset link: ${resetUrl} (valid 1 hour).`,
+      });
+
+      res.json({
+        success: true,
+        message: `Reset link sent to ${admin.email}.`,
+      });
+    } catch (error) {
+      console.log("APPROVE RESET ERROR:", error);
+      res.status(500).json({ error: error.message });
     }
-
-    const admin = await UserAdminModel.findById(req.params.id);
-    if (!admin) return res.status(404).json({ error: 'Admin not found.' });
-    if (!admin.resetPasswordRequested) return res.status(400).json({ error: 'No pending reset request for this admin.' });
-
-    const rawToken    = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-
-    admin.resetPasswordToken       = hashedToken;
-    admin.resetPasswordExpires     = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-    admin.resetPasswordRequested   = false;
-    admin.resetPasswordRequestedAt = null;
-    await admin.save();
-
-    const resetUrl = `${req.protocol}://${req.get('host')}/admin/reset-password?token=${rawToken}`;
-
-    await sendEmail({
-      to:      admin.email,
-      subject: 'Kabacu Admin — Your Password Reset Link',
-      html:    adminPasswordResetEmail({ username: admin.username, resetUrl }),
-      text:    `Hi ${admin.username}, your password reset link: ${resetUrl} (valid 1 hour).`,
-    });
-
-    res.json({ success: true, message: `Reset link sent to ${admin.email}.` });
-  } catch (error) {
-    console.log('APPROVE RESET ERROR:', error);
-    res.status(500).json({ error: error.message });
-  }
-}];
+  },
+];
 
 /* ── Reset password (from link) ─────────────────────────── */
 exports.resetPasswordGet = async (req, res) => {
   try {
     const { token } = req.query;
-    if (!token) return res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'Invalid or missing reset link.' });
+    if (!token)
+      return res.render("adminview/users/reset-password", {
+        layout: false,
+        tokenValid: false,
+        error: "Invalid or missing reset link.",
+      });
 
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
     const admin = await UserAdminModel.findOne({
-      resetPasswordToken:   hashedToken,
+      resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: new Date() },
     });
 
     if (!admin) {
-      return res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'This reset link is invalid or has expired. Please request a new one.' });
+      return res.render("adminview/users/reset-password", {
+        layout: false,
+        tokenValid: false,
+        error:
+          "This reset link is invalid or has expired. Please request a new one.",
+      });
     }
 
-    res.render('adminview/users/reset-password', { layout: false, tokenValid: true, token, error: null });
+    res.render("adminview/users/reset-password", {
+      layout: false,
+      tokenValid: true,
+      token,
+      error: null,
+    });
   } catch (error) {
-    console.log('RESET PASSWORD GET ERROR:', error);
-    res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'Something went wrong. Please try again.' });
+    console.log("RESET PASSWORD GET ERROR:", error);
+    res.render("adminview/users/reset-password", {
+      layout: false,
+      tokenValid: false,
+      error: "Something went wrong. Please try again.",
+    });
   }
 };
 
 exports.resetPasswordPost = async (req, res) => {
   try {
     const { token, password, confirmPassword } = req.body;
-    if (!token) return res.redirect('/admin/forgot-password');
+    if (!token) return res.redirect("/admin/forgot-password");
 
     if (!password || password.length < 8) {
-      return res.render('adminview/users/reset-password', { layout: false, tokenValid: true, token, error: 'Password must be at least 8 characters.' });
+      return res.render("adminview/users/reset-password", {
+        layout: false,
+        tokenValid: true,
+        token,
+        error: "Password must be at least 8 characters.",
+      });
     }
     if (password !== confirmPassword) {
-      return res.render('adminview/users/reset-password', { layout: false, tokenValid: true, token, error: 'Passwords do not match.' });
+      return res.render("adminview/users/reset-password", {
+        layout: false,
+        tokenValid: true,
+        token,
+        error: "Passwords do not match.",
+      });
     }
 
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
     const admin = await UserAdminModel.findOne({
-      resetPasswordToken:   hashedToken,
+      resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: new Date() },
     });
 
     if (!admin) {
-      return res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'This reset link is invalid or has expired. Please request a new one.' });
+      return res.render("adminview/users/reset-password", {
+        layout: false,
+        tokenValid: false,
+        error:
+          "This reset link is invalid or has expired. Please request a new one.",
+      });
     }
 
-    admin.password             = await bcrypt.hash(password, saltRounds);
-    admin.resetPasswordToken   = null;
+    admin.password = await bcrypt.hash(password, saltRounds);
+    admin.resetPasswordToken = null;
     admin.resetPasswordExpires = null;
     await admin.save();
 
-    res.redirect('/command?passwordReset=1');
+    res.redirect("/command?passwordReset=1");
   } catch (error) {
-    console.log('RESET PASSWORD POST ERROR:', error);
-    res.render('adminview/users/reset-password', { layout: false, tokenValid: false, error: 'Something went wrong. Please try again.' });
+    console.log("RESET PASSWORD POST ERROR:", error);
+    res.render("adminview/users/reset-password", {
+      layout: false,
+      tokenValid: false,
+      error: "Something went wrong. Please try again.",
+    });
   }
 };
 
 /* ── Notifications (JSON) ───────────────────────────────── */
-exports.getNotifications = [authenticateAdminUser, async (req, res) => {
-  try {
-    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+exports.getNotifications = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-    const [newUsers, pendingTopUps, recentFailedTx, recentPurchases] = await Promise.all([
-      User.find({ createdAt: { $gte: since24h } }).select('username email createdAt').sort({ createdAt: -1 }).limit(5),
-      TopUp.countDocuments({ status: 'PENDING' }),
-      Transaction.find({ status: 'failed', createdAt: { $gte: since24h } }).select('amount reference createdAt').sort({ createdAt: -1 }).limit(3),
-      Transaction.find({ status: 'success', createdAt: { $gte: since24h } }).select('amount createdAt').sort({ createdAt: -1 }).limit(5),
-    ]);
+      const [newUsers, pendingTopUps, recentFailedTx, recentPurchases] =
+        await Promise.all([
+          User.find({ createdAt: { $gte: since24h } })
+            .select("username email createdAt")
+            .sort({ createdAt: -1 })
+            .limit(5),
+          TopUp.countDocuments({ status: "PENDING" }),
+          Transaction.find({ status: "failed", createdAt: { $gte: since24h } })
+            .select("amount reference createdAt")
+            .sort({ createdAt: -1 })
+            .limit(3),
+          Transaction.find({ status: "success", createdAt: { $gte: since24h } })
+            .select("amount createdAt")
+            .sort({ createdAt: -1 })
+            .limit(5),
+        ]);
 
-    const notifications = [];
+      const notifications = [];
 
-    newUsers.forEach(u => {
-      notifications.push({
-        icon: 'user-plus',
-        color: 'bg-success',
-        text: `New user registered: <b>${u.username}</b>`,
-        time: u.createdAt,
+      newUsers.forEach((u) => {
+        notifications.push({
+          icon: "user-plus",
+          color: "bg-success",
+          text: `New user registered: <b>${u.username}</b>`,
+          time: u.createdAt,
+        });
       });
-    });
 
-    if (pendingTopUps > 0) {
-      notifications.push({
-        icon: 'clock',
-        color: 'bg-warning',
-        text: `<b>${pendingTopUps}</b> wallet top-up${pendingTopUps > 1 ? 's' : ''} pending`,
-        time: new Date(),
+      if (pendingTopUps > 0) {
+        notifications.push({
+          icon: "clock",
+          color: "bg-warning",
+          text: `<b>${pendingTopUps}</b> wallet top-up${pendingTopUps > 1 ? "s" : ""} pending`,
+          time: new Date(),
+        });
+      }
+
+      recentFailedTx.forEach((tx) => {
+        notifications.push({
+          icon: "alert-triangle",
+          color: "bg-danger",
+          text: `Transaction failed — ₦${(tx.amount || 0).toLocaleString()} (ref: ${tx.reference || "—"})`,
+          time: tx.createdAt,
+        });
       });
+
+      recentPurchases.forEach((tx) => {
+        notifications.push({
+          icon: "shopping-cart",
+          color: "bg-primary",
+          text: `New purchase — ₦${(tx.amount || 0).toLocaleString()}`,
+          time: tx.createdAt,
+        });
+      });
+
+      // Sort by time descending, cap at 10
+      notifications.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+      res.json({ success: true, notifications: notifications.slice(0, 10) });
+    } catch (error) {
+      console.log("NOTIFICATIONS ERROR:", error);
+      res.json({ success: false, notifications: [] });
     }
-
-    recentFailedTx.forEach(tx => {
-      notifications.push({
-        icon: 'alert-triangle',
-        color: 'bg-danger',
-        text: `Transaction failed — ₦${(tx.amount || 0).toLocaleString()} (ref: ${tx.reference || '—'})`,
-        time: tx.createdAt,
-      });
-    });
-
-    recentPurchases.forEach(tx => {
-      notifications.push({
-        icon: 'shopping-cart',
-        color: 'bg-primary',
-        text: `New purchase — ₦${(tx.amount || 0).toLocaleString()}`,
-        time: tx.createdAt,
-      });
-    });
-
-    // Sort by time descending, cap at 10
-    notifications.sort((a, b) => new Date(b.time) - new Date(a.time));
-
-    res.json({ success: true, notifications: notifications.slice(0, 10) });
-  } catch (error) {
-    console.log('NOTIFICATIONS ERROR:', error);
-    res.json({ success: false, notifications: [] });
-  }
-}];
+  },
+];
