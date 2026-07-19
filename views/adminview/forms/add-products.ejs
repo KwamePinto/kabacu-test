@@ -45,7 +45,15 @@
                         </div>
                         <div class="form-group">
                           <label>Network</label>
-                          <input type="text" name="network" class="form-control">
+                          <select name="network" class="form-control" required>
+                            <option value="" disabled selected>Select network…</option>
+                            <% if (typeof networks !== 'undefined') { networks.forEach(n => { %>
+                            <option value="<%= n.name %>"><%= n.name %></option>
+                            <% }) } %>
+                          </select>
+                          <small class="text-muted">
+                            Networks not listed? <a href="/admin/networks" target="_blank">Manage Networks</a>
+                          </small>
                         </div>
                         <div class="form-group">
                           <label>Plan Type</label>

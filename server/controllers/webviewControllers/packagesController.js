@@ -1,4 +1,4 @@
-﻿const { buyData } = require("../../services/ourdatastore");
+﻿const { buyData, networkCode } = require("../../services/ourdatastore");
 const Product = require("../../models/ProductsModal");
 const Checkout = require("../../models/CheckoutModal");
 const User = require("../../models/UserModel");
@@ -206,7 +206,7 @@ exports.walletCheckout = async (req, res) => {
 
     try {
       apiResponse = await buyData({
-        network: checkout.product.dataDetails.network === "MTN" ? 1 : 2,
+        network: await networkCode(checkout.product.dataDetails.network),
         phone: phone,
         data_plan: checkout.product.dataDetails.plan_id,
       });
@@ -301,7 +301,7 @@ exports.retryTransaction = async (req, res) => {
 
     try {
       apiResponse = await buyData({
-        network: product.dataDetails.network === "MTN" ? 1 : 2,
+        network: await networkCode(product.dataDetails.network),
         phone: tx.phone,
         data_plan: product.dataDetails.plan_id,
       });
@@ -813,19 +813,9 @@ exports.payWithWallet = async (req, res) => {
         }
 
         try {
-          const networkMap = {
-            MTN: 1,
-
-            GLO: 3,
-
-            "9MOBILE": 4,
-
-            AIRTEL: 2,
-          };
-
           apiResponse = await Promise.race([
             buyData({
-              network: networkMap[product.dataDetails.network],
+              network: await networkCode(product.dataDetails.network),
 
               phone,
 

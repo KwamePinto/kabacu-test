@@ -3,6 +3,26 @@ const logger = require('../config/logger');
 
 const BASE_URL = 'https://ourdatastore.com/api';
 
+// Maps a network name to the ourdatastore API code.
+// Queries the Networks collection first (authoritative), then falls back to
+// string matching so legacy products without a DB entry still work.
+// 1 = MTN  |  2 = GLO  |  3 = Airtel  |  4 = 9mobile
+async function networkCode(networkName) {
+  if (!networkName) return null;
+  try {
+    const Network = require('../models/NetworkModel');
+    const net = await Network.findOne({ name: networkName, is_deleted: { $ne: 1 } });
+    if (net) return net.apiCode;
+  } catch (_) { /* DB unavailable — fall through to string matching */ }
+
+  const n = (networkName || '').toUpperCase();
+  if (n.includes('MTN') || n.includes('CTC')) return 1;
+  if (n.includes('GLO'))                       return 2;
+  if (n.includes('AIRTEL'))                    return 3;
+  if (n.includes('9MOBILE') || n.includes('ETISALAT')) return 4;
+  return null;
+}
+
 // ── Token cache ───────────────────────────────────────────
 let cachedToken  = null;
 let tokenTime    = null;
@@ -127,4 +147,4 @@ async function buyData({ network, phone, data_plan }) {
   });
 }
 
-module.exports = { buyData };
+module.exports = { buyData, networkCode };

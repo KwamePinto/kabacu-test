@@ -43,7 +43,23 @@
                       </div>
                       <div class="form-group">
                         <label>Network</label>
-                        <input type="text" name="network" class="form-control" value="<%= product.dataDetails?.network || '' %>">
+                        <select name="network" class="form-control">
+                          <option value="" disabled>Select network…</option>
+                          <% if (typeof networks !== 'undefined') { networks.forEach(n => { %>
+                          <option value="<%= n.name %>" <%= (product.dataDetails?.network === n.name) ? 'selected' : '' %>><%= n.name %></option>
+                          <% }) } %>
+                          <%
+                            // If current value isn't in the list, show it as a fallback option
+                            const _cur = product.dataDetails?.network || '';
+                            const _inList = typeof networks !== 'undefined' && networks.some(n => n.name === _cur);
+                            if (_cur && !_inList) {
+                          %>
+                          <option value="<%= _cur %>" selected><%= _cur %> (legacy)</option>
+                          <% } %>
+                        </select>
+                        <small class="text-muted">
+                          Networks not listed? <a href="/admin/networks" target="_blank">Manage Networks</a>
+                        </small>
                       </div>
                       <div class="form-group">
                         <label>Plan Type</label>

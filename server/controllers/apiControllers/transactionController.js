@@ -2,7 +2,7 @@ const Transaction = require('../../models/TransactionModel');
 const Wallet      = require('../../models/WalletModal');
 const Product     = require('../../models/ProductsModal');
 const User        = require('../../models/UserModel');
-const { buyData } = require('../../services/ourdatastore');
+const { buyData, networkCode } = require('../../services/ourdatastore');
 
 exports.getTransactions = async (req, res) => {
   try {
@@ -49,7 +49,7 @@ exports.retryTransaction = async (req, res) => {
     let apiResponse;
     try {
       apiResponse = await buyData({
-        network:   product.dataDetails.network === 'MTN' ? 1 : 2,
+        network:   await networkCode(product.dataDetails.network),
         phone:     tx.phone,
         data_plan: product.dataDetails.plan_id
       });

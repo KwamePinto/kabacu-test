@@ -4,7 +4,7 @@ const TopUp    = require('../../models/TopUpModal');
 const Product  = require('../../models/ProductsModal');
 const Checkout = require('../../models/CheckoutModal');
 const Transaction = require('../../models/TransactionModel');
-const { buyData } = require('../../services/ourdatastore');
+const { buyData, networkCode } = require('../../services/ourdatastore');
 const { generateSignature, verifySignature } = require('../../utils/palmpay');
 const axios  = require('axios');
 const crypto = require('crypto');
@@ -91,12 +91,10 @@ exports.payWithWallet = async (req, res) => {
           return res.json({ success: false, message: 'Invalid phone number, refunded' });
         }
 
-        const networkMap = { MTN: 1, GLO: 2, '9MOBILE': 3, AIRTEL: 4 };
-
         try {
           apiResponse = await Promise.race([
             buyData({
-              network:   networkMap[product.dataDetails.network],
+              network:   await networkCode(product.dataDetails.network),
               phone,
               data_plan: product.dataDetails.plan_id
             }),

@@ -7,6 +7,7 @@ const Product = require("../../models/ProductsModal");
 const User = require("../../models/UserModel");
 const Wallet = require("../../models/WalletModal");
 const PaymentMethod = require("../../models/PaymentMethodModel");
+const Network       = require("../../models/NetworkModel");
 
 const { authenticateAdminUser } = require("../../config/authMiddleware");
 
@@ -14,12 +15,14 @@ exports.createProducts = [
   authenticateAdminUser,
   async (req, res) => {
     try {
-      const category = await Category.find({ is_deleted: { $ne: 1 } }).sort({
-        category_name: 1,
-      });
+      const [category, networks] = await Promise.all([
+        Category.find({ is_deleted: { $ne: 1 } }).sort({ category_name: 1 }),
+        Network.find({ is_deleted: { $ne: 1 } }).sort({ apiCode: 1, name: 1 }),
+      ]);
       res.render("adminview/forms/add-products", {
         layout: adminLayouts,
         category,
+        networks,
         query: req.query,
       });
     } catch (error) {
@@ -166,13 +169,15 @@ exports.editProductGet = [
     try {
       const product = await Product.findById(req.params.id);
       if (!product) return res.redirect("/admin/product/view-products");
-      const category = await Category.find({ is_deleted: { $ne: 1 } }).sort({
-        category_name: 1,
-      });
+      const [category, networks] = await Promise.all([
+        Category.find({ is_deleted: { $ne: 1 } }).sort({ category_name: 1 }),
+        Network.find({ is_deleted: { $ne: 1 } }).sort({ apiCode: 1, name: 1 }),
+      ]);
       res.render("adminview/forms/edit-product", {
         layout: adminLayouts,
         product,
         category,
+        networks,
         query: req.query,
       });
     } catch (error) {
