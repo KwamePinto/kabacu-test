@@ -122,6 +122,7 @@ app.use('/admin/main', require('./server/routes/adminRoutes/dashboardRoute'));
 app.use('/admin/category', require('./server/routes/adminRoutes/categoryRoute'));
 app.use('/admin/product', require('./server/routes/adminRoutes/productsRoute'));
 app.use('/admin/settings', require('./server/routes/adminRoutes/settingsRoute'));
+app.use('/admin/logs',    require('./server/routes/adminRoutes/logsRoute'));
 
 // ── API routes (CORS enabled here only) ──────────────────────────────────────
 app.use('/api', apiCors, require('./server/routes/apiRoutes'));

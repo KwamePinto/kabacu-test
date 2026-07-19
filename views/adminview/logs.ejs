@@ -1,0 +1,149 @@
+<div class="loader"></div>
+<div id="app">
+  <div class="main-wrapper main-wrapper-1">
+    <div class="navbar-bg"></div>
+    <%- include('../partials/headerAdmin.ejs') %>
+    <%- include('../partials/sideMenuAdmin.ejs') %>
+
+    <div class="main-content">
+      <section class="section">
+
+        <div class="section-header">
+          <h1>System Logs</h1>
+          <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="/admin/main/dashboard">Dashboard</a></div>
+            <div class="breadcrumb-item">Logs</div>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+
+                  <!-- File picker -->
+                  <form method="get" action="/admin/logs" class="d-flex align-items-center" style="gap:8px;flex-wrap:wrap;">
+                    <select name="file" class="form-control form-control-sm" style="min-width:220px;" onchange="this.form.submit()">
+                      <% files.forEach(f => { %>
+                      <option value="<%= f %>" <%= f === file ? 'selected' : '' %>><%= f %></option>
+                      <% }) %>
+                      <% if (!files.length) { %><option>No log files</option><% } %>
+                    </select>
+
+                    <!-- Filter -->
+                    <input type="text" name="filter" value="<%= filter %>"
+                      class="form-control form-control-sm" style="min-width:180px;"
+                      placeholder="Filter (e.g. ERROR, DATA PURCHASE)">
+                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                    <% if (filter) { %>
+                    <a href="/admin/logs?file=<%= encodeURIComponent(file) %>" class="btn btn-sm btn-secondary">Clear</a>
+                    <% } %>
+                  </form>
+
+                  <!-- Download -->
+                  <% if (file) { %>
+                  <a href="/admin/logs/download?file=<%= encodeURIComponent(file) %>"
+                     class="btn btn-sm btn-outline-success ml-auto">
+                    <i data-feather="download" style="width:14px;height:14px;"></i> Download
+                  </a>
+                  <% } %>
+
+                </div>
+
+                <div class="card-body p-0">
+                  <% if (error) { %>
+                  <div class="alert alert-danger m-3"><%= error %></div>
+                  <% } else if (!file) { %>
+                  <div class="text-muted text-center p-4">No log files found.</div>
+                  <% } else { %>
+
+                  <div style="padding:10px 16px;background:#f9fafb;border-bottom:1px solid #f0f0f0;font-size:12px;color:#6b7280;">
+                    Showing <strong><%= lines.length %></strong> of <strong><%= total %></strong> lines
+                    <% if (filter) { %>(filtered by "<%= filter %>")<% } %>
+                    — most recent first
+                  </div>
+
+                  <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-family:monospace;font-size:12px;">
+                      <% lines.forEach(line => {
+                           const lvl = /\[ERROR\]/i.test(line) ? 'error'
+                                     : /\[WARN\]/i.test(line)  ? 'warn'
+                                     : /\[INFO\]/i.test(line)  ? 'info'
+                                     : '';
+                           const bg  = lvl === 'error' ? '#fff5f5'
+                                     : lvl === 'warn'  ? '#fffbeb'
+                                     : '';
+                           const col = lvl === 'error' ? '#dc2626'
+                                     : lvl === 'warn'  ? '#d97706'
+                                     : '#374151';
+                      %>
+                      <tr style="background:<%= bg %>;border-bottom:1px solid #f3f4f6;">
+                        <td style="padding:4px 16px;color:<%= col %>;white-space:pre-wrap;word-break:break-all;"><%= line %></td>
+                      </tr>
+                      <% }) %>
+                      <% if (!lines.length) { %>
+                      <tr><td style="padding:20px;text-align:center;color:#9ca3af;">No entries match your filter.</td></tr>
+                      <% } %>
+                    </table>
+                  </div>
+
+                  <!-- Pagination -->
+                  <% if (totalPages > 1) { %>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid #f0f0f0;font-size:13px;">
+                    <span style="color:#6b7280;">Page <%= page %> of <%= totalPages %></span>
+                    <div style="display:flex;gap:8px;">
+                      <% if (page > 1) { %>
+                      <a href="/admin/logs?file=<%= encodeURIComponent(file) %>&filter=<%= encodeURIComponent(filter) %>&page=<%= page - 1 %>"
+                         class="btn btn-sm btn-outline-secondary">← Newer</a>
+                      <% } %>
+                      <% if (page < totalPages) { %>
+                      <a href="/admin/logs?file=<%= encodeURIComponent(file) %>&filter=<%= encodeURIComponent(filter) %>&page=<%= page + 1 %>"
+                         class="btn btn-sm btn-outline-secondary">Older →</a>
+                      <% } %>
+                    </div>
+                  </div>
+                  <% } %>
+
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="settingSidebar">
+        <a href="javascript:void(0)" class="settingPanelToggle"><i class="fa fa-spin fa-cog"></i></a>
+        <div class="settingSidebar-body ps-container ps-theme-default">
+          <div class="fade show active">
+            <div class="setting-panel-header">Setting Panel</div>
+            <div class="p-15 border-bottom">
+              <h6 class="font-medium m-b-10">Select Layout</h6>
+              <div class="selectgroup layout-color w-50">
+                <label class="selectgroup-item">
+                  <input type="radio" name="value" value="1" class="selectgroup-input-radio select-layout" checked>
+                  <span class="selectgroup-button">Light</span>
+                </label>
+                <label class="selectgroup-item">
+                  <input type="radio" name="value" value="2" class="selectgroup-input-radio select-layout">
+                  <span class="selectgroup-button">Dark</span>
+                </label>
+              </div>
+            </div>
+            <div class="mt-4 mb-4 p-3 align-center rt-sidebar-last-ele">
+              <a href="#" class="btn btn-icon icon-left btn-primary btn-restore-theme">
+                <i class="fas fa-undo"></i> Restore Default
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="main-footer">
+      <div class="footer-left">&copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.</div>
+      <div class="footer-right"></div>
+    </footer>
+  </div>
+</div>
