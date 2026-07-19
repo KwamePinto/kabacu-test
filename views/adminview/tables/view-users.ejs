@@ -76,6 +76,7 @@
                           <th>Miner ID</th>
                           <th>RP Balance</th>
                           <th>Verified</th>
+                          <th>Registered</th>
                           <th></th>
                         </tr>
                       </thead>
@@ -111,12 +112,21 @@
                             <span class="badge badge-danger">Unverified</span>
                             <% } %>
                           </td>
+                          <td>
+                            <%
+                              var _reg = user._id.getTimestamp();
+                              var _regDate = _reg.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+                              var _regTime = _reg.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+                            %>
+                            <span style="font-size:12px;white-space:nowrap;"><%= _regDate %></span><br>
+                            <small class="text-muted"><%= _regTime %></small>
+                          </td>
                           <td><a href="/admin/product/user-details/<%= user._id %>" class="btn btn-sm btn-primary" style="border-radius: 20px;">View Details</a></td>
                         </tr>
                         <% }) %>
                         <% } else { %>
                         <tr>
-                          <td colspan="7" class="text-center">No users found</td>
+                          <td colspan="8" class="text-center">No users found</td>
                         </tr>
                         <% } %>
                       </tbody>

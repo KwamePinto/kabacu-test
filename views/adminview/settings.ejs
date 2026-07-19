@@ -25,14 +25,21 @@
                 </div>
                 <% } %>
 
+<%
+  const _sec = (typeof query !== 'undefined' && query.section) ? query.section : '';
+  const _sectionLabels = { maintenance: 'Maintenance', bittoken: 'BitToken RP Transfer' };
+  const _sectionLabel  = _sectionLabels[_sec] || null;
+%>
+
                 <form method="post" action="/admin/settings" id="settingsForm">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="_csrf"    value="<%= csrfToken %>">
+                  <input type="hidden" name="section"  id="activeSection" value="<%= _sec %>">
 
                   <div class="card">
                     <div class="card-header" style="border-bottom:1px solid #f0f0f0;">
                       <h4 class="mb-0">
                         <i data-feather="sliders" style="width:18px;height:18px;margin-right:8px;vertical-align:middle;"></i>
-                        Site Settings
+                        Settings<% if (_sectionLabel) { %><span style="color:#9ca3af;font-weight:400;font-size:14px;"> / <%= _sectionLabel %></span><% } %>
                       </h4>
                     </div>
                     <div class="card-body p-0">
@@ -309,23 +316,39 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 // ── Accordion ────────────────────────────────────────────────────────────────
+var activeSectionInput = document.getElementById('activeSection');
+
+var sectionGroupMap = { maintenance: 'group-maintenance', bittoken: 'group-bittoken' };
+
 document.querySelectorAll('.settings-group__header').forEach(function (btn) {
   btn.addEventListener('click', function () {
-    var group = this.closest('.settings-group');
-    var isOpen = group.classList.contains('is-open');
-    // Close all
-    document.querySelectorAll('.settings-group').forEach(function (g) {
-      g.classList.remove('is-open');
-    });
-    // Open clicked (unless it was already open)
-    if (!isOpen) group.classList.add('is-open');
+    var group   = this.closest('.settings-group');
+    var isOpen  = group.classList.contains('is-open');
+    document.querySelectorAll('.settings-group').forEach(function (g) { g.classList.remove('is-open'); });
+    if (!isOpen) {
+      group.classList.add('is-open');
+      // Keep the hidden section field in sync so save redirects back here
+      if (activeSectionInput) {
+        var key = Object.keys(sectionGroupMap).find(function (k) { return sectionGroupMap[k] === group.id; });
+        activeSectionInput.value = key || '';
+      }
+    } else {
+      if (activeSectionInput) activeSectionInput.value = '';
+    }
   });
 });
 
-// Auto-open the maintenance group when maintenance mode is active
-<% if (settings.maintenanceModeEnabled) { %>
-document.getElementById('group-maintenance').classList.add('is-open');
-<% } %>
+// Auto-open based on ?section= param, or maintenance group when mode is active
+(function () {
+  var section = '<%= _sec %>';
+  var groupId = sectionGroupMap[section];
+  if (groupId) {
+    document.getElementById(groupId).classList.add('is-open');
+  } else if (<%= settings.maintenanceModeEnabled ? 'true' : 'false' %>) {
+    document.getElementById('group-maintenance').classList.add('is-open');
+    if (activeSectionInput) activeSectionInput.value = 'maintenance';
+  }
+}());
 
 // ── Hidden-input sync for toggles ────────────────────────────────────────────
 function syncToggle(checkboxId, hiddenId, badgeId, labels) {

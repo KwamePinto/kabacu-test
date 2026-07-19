@@ -41,9 +41,13 @@ exports.updateSettings = [authenticateAdminUser, async (req, res) => {
     // Flush the 30-second middleware cache so changes take effect immediately
     maintenanceMiddleware.invalidateCache();
 
-    res.redirect('/admin/settings?saved=1');
+    const section = (req.body.section || '').trim();
+    const qs = section ? `?saved=1&section=${encodeURIComponent(section)}` : '?saved=1';
+    res.redirect('/admin/settings' + qs);
   } catch (err) {
     console.error('[settingsController.updateSettings]', err);
-    res.redirect('/admin/settings?error=1');
+    const section = (req.body.section || '').trim();
+    const qs = section ? `?error=1&section=${encodeURIComponent(section)}` : '?error=1';
+    res.redirect('/admin/settings' + qs);
   }
 }];
