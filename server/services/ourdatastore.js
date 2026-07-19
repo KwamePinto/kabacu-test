@@ -1,4 +1,5 @@
-const axios = require('axios');
+const axios  = require('axios');
+const logger = require('../config/logger');
 
 const BASE_URL = 'https://ourdatastore.com/api';
 
@@ -75,16 +76,12 @@ async function executeBuyData(params) {
   const { network, phone, data_plan } = params;
   const requestId = `DATA_${Date.now()}`;
 
-  console.log('[DATA PURCHASE] ── Request ──────────────────────');
-  console.log('[DATA PURCHASE] Phone     :', phone);
-  console.log('[DATA PURCHASE] Network   :', network === 1 ? 'MTN (1)' : `Other (${network})`);
-  console.log('[DATA PURCHASE] Plan ID   :', data_plan);
-  console.log('[DATA PURCHASE] Request ID:', requestId);
+  logger.info(`[DATA PURCHASE] Request — phone: ${phone}, network: ${network === 1 ? 'MTN' : network}, plan: ${data_plan}, reqId: ${requestId}`);
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       const token = await getToken();
-      console.log(`[DATA PURCHASE] Token acquired (attempt ${attempt}/${MAX_RETRIES})`);
+      logger.info(`[DATA PURCHASE] Token acquired (attempt ${attempt}/${MAX_RETRIES})`);
 
       const payload = {
         network,
@@ -101,26 +98,18 @@ async function executeBuyData(params) {
         },
       });
 
-      console.log('[DATA PURCHASE] ── Response ─────────────────────');
-      console.log('[DATA PURCHASE]', JSON.stringify(response.data, null, 2));
-      console.log('[DATA PURCHASE] ─────────────────────────────────');
+      logger.info(`[DATA PURCHASE] Response — ${JSON.stringify(response.data)}`);
       return response.data;
 
     } catch (error) {
       const msg       = error.response?.data?.message || error.message || '';
       const isRateLimit = msg === 'Too Many Attempts.' || error.response?.status === 429;
 
-      console.error('[DATA PURCHASE] ── Error ────────────────────────');
-      console.error('[DATA PURCHASE] Status :', error.response?.status || 'N/A');
-      console.error('[DATA PURCHASE] Message:', msg);
-      if (error.response?.data) {
-        console.error('[DATA PURCHASE] Body   :', JSON.stringify(error.response.data, null, 2));
-      }
-      console.error('[DATA PURCHASE] ─────────────────────────────────');
+      logger.error(`[DATA PURCHASE] Error — status: ${error.response?.status || 'N/A'}, message: ${msg}, body: ${JSON.stringify(error.response?.data || {})}`);
 
       if (isRateLimit && attempt < MAX_RETRIES) {
         const wait = BASE_DELAY * attempt;
-        console.warn(`[DATA PURCHASE] Rate limited – retrying in ${wait}ms (attempt ${attempt}/${MAX_RETRIES})`);
+        logger.warn(`[DATA PURCHASE] Rate limited – retrying in ${wait}ms (attempt ${attempt}/${MAX_RETRIES})`);
         await sleep(wait);
         continue;
       }

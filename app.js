@@ -16,6 +16,7 @@ const connectDB = require('./server/config/db');
 const loadUser = require('./server/config/loadUser');
 const loadWallt = require('./server/config/loadWallet');
 const { optionalUser } = require('./server/config/authMiddleware');
+const logger = require('./server/config/logger');
 
 const app = express();
 const PORT = process.env.PORT;
@@ -34,8 +35,10 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// ── Logging ───────────────────────────────────────────────────────────────────
-app.use(logger('dev'));
+// ── HTTP request logging (morgan → winston file) ──────────────────────────────
+app.use(require('morgan')('combined', {
+  stream: { write: (msg) => logger.info(msg.trim()) },
+}));
 
 // ── Body parsing & cookies ────────────────────────────────────────────────────
 app.use(express.urlencoded({ extended: true }));
@@ -146,10 +149,10 @@ app.use((req, res) => {
 
 // ── 500 handler ───────────────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
+  logger.error('Unhandled error: %s', err.stack || err.message);
   res.status(500).render('errors/404', { layout: false });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });

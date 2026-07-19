@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "C:\\Users\\user\\Desktop\\CTC\\kabacu\\log\\.error-audit.json",
+    "files": [
+        {
+            "date": 1784444961046,
+            "name": "C:\\Users\\user\\Desktop\\CTC\\kabacu\\log\\error-2026-07-19.log",
+            "hash": "45e264c951c872b8a9c374fe9833aad12ec41065ed9b9308e08da5e034957472"
+        }
+    ],
+    "hashType": "sha256"
+}
