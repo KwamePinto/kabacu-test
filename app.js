@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const MongoStore = require('connect-mongo').default;
 const session = require('express-session');
 const flash = require('connect-flash');
-const logger = require('morgan');
+const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const csrf = require('csurf');
@@ -36,7 +36,7 @@ app.use(helmet({
 }));
 
 // ── HTTP request logging (morgan → winston file) ──────────────────────────────
-app.use(require('morgan')('combined', {
+app.use(morgan('combined', {
   stream: { write: (msg) => logger.info(msg.trim()) },
 }));
 
