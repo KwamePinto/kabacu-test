@@ -103,9 +103,9 @@ exports.dataCategory = async (req, res) => {
     const reqNet   = (req.query.network || '').toUpperCase();
     const reqPage  = parseInt(req.query.page) || 1;
 
-    /* Fetch all DATA products sorted: network A-Z, newest first within each */
+    /* Fetch all DATA products sorted: network A-Z, lowest price first within each */
     const all = await Product.find({ category: 'DATA' })
-      .sort({ 'dataDetails.network': 1, createdAt: -1 });
+      .sort({ 'dataDetails.network': 1, 'dataDetails.amount': 1 });
 
     /* Group every product by network */
     const allGrouped = {};
