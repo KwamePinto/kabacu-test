@@ -271,11 +271,6 @@ document.querySelectorAll('.settings-group__header').forEach(function (btn) {
   });
 });
 
-// Auto-open maintenance group when maintenance mode is active
-<% if (settings.maintenanceModeEnabled) { %>
-document.getElementById('group-maintenance').classList.add('is-open');
-<% } %>
-
 // ── Toggle sync ──────────────────────────────────────────────────────────────
 function syncToggle(cbId, hidId, badgeId, labels) {
   var cb = document.getElementById(cbId), hid = document.getElementById(hidId);
