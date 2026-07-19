@@ -170,27 +170,32 @@ try{
 }
 
 
+// exports.courseCategory = async (req, res) => {
+//   const apiUrl = process.env.COURSES_API_URL || 'http://localhost:5000';
+//   let courses  = [];
+//   let apiError = false;
+//
+//   try {
+//     const response = await axios.get(`${apiUrl}/api/public/courses`, {
+//       headers: { 'Cache-Control': 'no-cache' }
+//     });
+//     const data = response.data;
+//     courses = Array.isArray(data)          ? data
+//             : Array.isArray(data.courses)  ? data.courses
+//             : Array.isArray(data.data)     ? data.data
+//             : [];
+//   } catch (err) {
+//     console.error('[courseCategory]', err.message);
+//     apiError = true;
+//   }
+//
+//   res.render('webview/courses-category', { coursesApiUrl: apiUrl, courses, apiError });
+// };
+
+// TO RE-ENABLE COURSES: delete this block and uncomment the code above.
 exports.courseCategory = async (req, res) => {
-  const apiUrl = process.env.COURSES_API_URL || 'http://localhost:5000';
-  let courses  = [];
-  let apiError = false;
-
-  try {
-    const response = await axios.get(`${apiUrl}/api/public/courses`, {
-      headers: { 'Cache-Control': 'no-cache' }
-    });
-    const data = response.data;
-    courses = Array.isArray(data)          ? data
-            : Array.isArray(data.courses)  ? data.courses
-            : Array.isArray(data.data)     ? data.data
-            : [];
-  } catch (err) {
-    console.error('[courseCategory]', err.message);
-    apiError = true;
-  }
-
-  res.render('webview/courses-category', { coursesApiUrl: apiUrl, courses, apiError });
-}
+  res.render('webview/courses-category', { comingSoon: true, coursesApiUrl: '', courses: [], apiError: false });
+};
 
 
 exports.courseDetail = async (req, res) => {
