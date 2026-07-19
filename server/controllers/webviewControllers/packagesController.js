@@ -176,7 +176,7 @@ exports.walletCheckout = async (req, res) => {
 
     if (user.walletBalance < amount) {
       req.flash("error", "Insufficient balance");
-      return res.redirect("/checkout");
+      return res.redirect("/my-wallet");
     }
 
     // Deduct balance
@@ -314,6 +314,7 @@ exports.retryTransaction = async (req, res) => {
       if (wallet.balances.NAIRA < tx.amount) {
         return res.json({
           success: false,
+          insufficientBalance: true,
           message: "Insufficient balance",
         });
       }
@@ -750,6 +751,7 @@ exports.payWithWallet = async (req, res) => {
     if (wallet.balances.NAIRA < total) {
       return res.json({
         success: false,
+        insufficientBalance: true,
         message: "Insufficient NAIRA wallet balance",
       });
     }

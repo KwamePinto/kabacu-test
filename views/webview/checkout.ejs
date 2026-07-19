@@ -237,6 +237,8 @@ document.getElementById('walletBtn').addEventListener('click', async () => {
       Swal.fire({ icon: 'success', title: 'Successful', text: 'Package Purchased Successfully' });
       paymentModal.classList.remove('open');
       setTimeout(() => window.location.href = '/', 1500);
+    } else if (data.insufficientBalance) {
+      window.location.href = '/my-wallet';
     } else {
       walletBtn.style.opacity = '1';
       walletBtn.style.pointerEvents = '';

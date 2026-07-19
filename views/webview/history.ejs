@@ -224,6 +224,8 @@ document.addEventListener('click', async function (e) {
     if (data.success) {
       Swal.fire('Success', 'Transaction completed!', 'success')
         .then(() => location.reload());
+    } else if (data.insufficientBalance) {
+      window.location.href = '/my-wallet';
     } else {
       Swal.fire('Error', data.message, 'error');
       btn.disabled = false;
