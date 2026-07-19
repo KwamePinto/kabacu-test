@@ -1,32 +1,24 @@
-﻿
-const { buyData  } = require('../../services/ourdatastore');
-const Product = require('../../models/ProductsModal')
-const Checkout = require('../../models/CheckoutModal')
-const User = require('../../models/UserModel')
-const Cart = require('../../models/CartModal')
-const Wallet = require('../../models/WalletModal')
-const TopUp = require('../../models/TopUpModal')
-const Transaction = require('../../models/TransactionModel')
-const Conversion = require('../../models/ConversionModal')
-const CoursePurchase = require('../../models/CoursePurchaseModel')
-const PaymentMethod = require('../../models/PaymentMethodModel')
-const axios = require('axios');
-const crypto = require('crypto');
-const mongoose = require('mongoose');
+﻿const { buyData } = require("../../services/ourdatastore");
+const Product = require("../../models/ProductsModal");
+const Checkout = require("../../models/CheckoutModal");
+const User = require("../../models/UserModel");
+const Cart = require("../../models/CartModal");
+const Wallet = require("../../models/WalletModal");
+const TopUp = require("../../models/TopUpModal");
+const Transaction = require("../../models/TransactionModel");
+const Conversion = require("../../models/ConversionModal");
+const CoursePurchase = require("../../models/CoursePurchaseModel");
+const PaymentMethod = require("../../models/PaymentMethodModel");
+const axios = require("axios");
+const crypto = require("crypto");
+const mongoose = require("mongoose");
 
-
-const {generateSignature,verifySignature} = require('../../utils/palmpay');
-const { transferRPToBittoken } = require('../../services/bittokenService');
-const SiteSettings = require('../../models/SiteSettingsModel');
-
-
-  
-
+const { generateSignature, verifySignature } = require("../../utils/palmpay");
+const { transferRPToBittoken } = require("../../services/bittokenService");
+const SiteSettings = require("../../models/SiteSettingsModel");
 
 exports.packagesView = async (req, res) => {
-
   try {
-
     const products = await Product.find();
 
     // =====================================
@@ -34,36 +26,34 @@ exports.packagesView = async (req, res) => {
     // =====================================
 
     const dataProducts = await Product.find({
-      category: 'DATA'
+      category: "DATA",
     }).sort({ createdAt: -1 });
 
     const specialProdtcs = await Product.find({
-      category: 'DATA'
+      category: "DATA",
     })
-    .limit(3)
-    .sort({ createdAt: -1 });
+      .limit(3)
+      .sort({ createdAt: -1 });
 
     const automobileProducts = await Product.find({
-      category: 'AUTOMOBILE'
+      category: "AUTOMOBILE",
     }).sort({ createdAt: -1 });
 
     const electronicProducts = await Product.find({
-      category: 'ELECTRONICS'
+      category: "ELECTRONICS",
     }).sort({ createdAt: -1 });
 
     const coursesProducts = await Product.find({
-      category: 'COURSES'
+      category: "COURSES",
     }).sort({ createdAt: -1 });
 
     const otherProducts = products.filter(
-      p =>
-        p.category !== 'DATA' &&
-        p.category !== 'AUTOMOBILE' &&
-        p.category !== 'ELECTRONICS' &&
-        p.category !== 'COURSES'
+      (p) =>
+        p.category !== "DATA" &&
+        p.category !== "AUTOMOBILE" &&
+        p.category !== "ELECTRONICS" &&
+        p.category !== "COURSES",
     );
-
- 
 
     // =====================================
     // ✅ GET USER
@@ -72,7 +62,6 @@ exports.packagesView = async (req, res) => {
     let user = null;
 
     if (req.user) {
-
       user = await User.findById(req.user.id);
     }
 
@@ -80,8 +69,7 @@ exports.packagesView = async (req, res) => {
     // RENDER
     // =====================================
 
-    res.render('webview/index', {
-
+    res.render("webview/index", {
       dataProducts,
 
       automobileProducts,
@@ -95,14 +83,11 @@ exports.packagesView = async (req, res) => {
       specialProdtcs,
 
       user,
-    
     });
-
   } catch (error) {
-
     console.log(error);
 
-    res.send('Error loading products');
+    res.send("Error loading products");
   }
 };
 // exports.checkout = (req,res)=>{
@@ -111,18 +96,11 @@ exports.packagesView = async (req, res) => {
 
 // }
 
-exports.dataForm = async(req,res)=>{
-try{
-    res.render("webview/dataform")
-}catch(error){
-  
-}
-
-
-
-}
-
-
+exports.dataForm = async (req, res) => {
+  try {
+    res.render("webview/dataform");
+  } catch (error) {}
+};
 
 // CREATE CHECKOUT
 exports.initiateCheckout = async (req, res) => {
@@ -134,14 +112,13 @@ exports.initiateCheckout = async (req, res) => {
     const newCheckout = await Checkout.create({
       user: userId,
       product: packageId,
-      phone
+      phone,
     });
 
     res.json({ success: true });
-
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: 'Error creating checkout' });
+    res.json({ success: false, message: "Error creating checkout" });
   }
 };
 
@@ -152,25 +129,28 @@ exports.checkoutPage = async (req, res) => {
 
     const [user, checkout, wallet] = await Promise.all([
       User.findById(userId),
-      Checkout.findOne({ user: userId }).sort({ createdAt: -1 }).populate('product'),
+      Checkout.findOne({ user: userId })
+        .sort({ createdAt: -1 })
+        .populate("product"),
       Wallet.findOne({ user: userId }),
     ]);
 
     const walletBalance = wallet?.balances?.NAIRA ?? 0;
 
     if (!checkout) {
-      return res.render('webview/checkout', { user, checkout: null, walletBalance });
+      return res.render("webview/checkout", {
+        user,
+        checkout: null,
+        walletBalance,
+      });
     }
 
-    res.render('webview/checkout', { user, checkout, walletBalance });
-
+    res.render("webview/checkout", { user, checkout, walletBalance });
   } catch (error) {
     console.log("ERROR:", error);
-    res.send('Error loading checkout');
+    res.send("Error loading checkout");
   }
 };
-
-
 
 exports.walletCheckout = async (req, res) => {
   try {
@@ -178,11 +158,11 @@ exports.walletCheckout = async (req, res) => {
 
     const checkout = await Checkout.findOne({ user: userId })
       .sort({ createdAt: -1 })
-      .populate('product');
+      .populate("product");
 
     if (!checkout) {
-      req.flash('error', 'No checkout found');
-      return res.redirect('/checkout');
+      req.flash("error", "No checkout found");
+      return res.redirect("/checkout");
     }
 
     const amount = checkout.product.dataDetails.amount;
@@ -190,13 +170,13 @@ exports.walletCheckout = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      req.flash('error', 'User not found');
-      return res.redirect('/checkout');
+      req.flash("error", "User not found");
+      return res.redirect("/checkout");
     }
 
     if (user.walletBalance < amount) {
-      req.flash('error', 'Insufficient balance');
-      return res.redirect('/checkout');
+      req.flash("error", "Insufficient balance");
+      return res.redirect("/checkout");
     }
 
     // Deduct balance
@@ -205,15 +185,15 @@ exports.walletCheckout = async (req, res) => {
 
     // ✅ FIX PHONE
     let phone = checkout.phone.trim();
-    phone = phone.replace(/\D/g, '');
+    phone = phone.replace(/\D/g, "");
 
-    if (phone.startsWith('234')) {
-      phone = '0' + phone.slice(3);
+    if (phone.startsWith("234")) {
+      phone = "0" + phone.slice(3);
     }
 
     if (phone.length !== 11) {
-      req.flash('error', 'Phone number must be 11 digits');
-      return res.redirect('/checkout');
+      req.flash("error", "Phone number must be 11 digits");
+      return res.redirect("/checkout");
     }
 
     // const apiResponse = await buyData({
@@ -224,21 +204,20 @@ exports.walletCheckout = async (req, res) => {
 
     let apiResponse;
 
-try {
-  apiResponse = await buyData({
-    network: checkout.product.dataDetails.network === 'MTN' ? 1 : 2,
-    phone: phone,
-    data_plan: checkout.product.dataDetails.plan_id
-  });
+    try {
+      apiResponse = await buyData({
+        network: checkout.product.dataDetails.network === "MTN" ? 1 : 2,
+        phone: phone,
+        data_plan: checkout.product.dataDetails.plan_id,
+      });
+    } catch (err) {
+      console.log("API ERROR:", err.response?.data);
 
-} catch (err) {
-  console.log("API ERROR:", err.response?.data);
-
-  apiResponse = {
-    status: 'fail',
-    message: err.response?.data?.message || 'API error'
-  };
-}
+      apiResponse = {
+        status: "fail",
+        message: err.response?.data?.message || "API error",
+      };
+    }
 
     console.log("About to save transaction...");
 
@@ -247,53 +226,48 @@ try {
       package: checkout.product._id,
       phone: phone,
       amount,
-      status: apiResponse.status === 'success' ? 'success' : 'failed',
+      status: apiResponse.status === "success" ? "success" : "failed",
       reference: `TX-${Date.now()}`,
-      apiResponse
+      apiResponse,
     });
 
     console.log("API RESPONSE:", apiResponse);
 
-    if (apiResponse.status !== 'success') {
+    if (apiResponse.status !== "success") {
       user.walletBalance += amount;
       await user.save();
 
-      req.flash('error', 'Transaction failed, refunded');
-      return res.redirect('/checkout');
+      req.flash("error", "Transaction failed, refunded");
+      return res.redirect("/checkout");
     }
 
-    req.flash('success', 'Payment successful, data sent!');
-    return res.redirect('/checkout');
-
+    req.flash("success", "Payment successful, data sent!");
+    return res.redirect("/checkout");
   } catch (error) {
     console.log(error);
-    req.flash('error', 'Wallet payment error');
-    return res.redirect('/checkout');
+    req.flash("error", "Wallet payment error");
+    return res.redirect("/checkout");
   }
 };
 
 exports.history = async (req, res) => {
-
   try {
-
     const userId = req.user.id;
 
     const [user, transactions, coursePurchases] = await Promise.all([
       User.findById(userId),
       Transaction.find({ user: userId })
-        .populate('product')
-        .populate('products.product')
+        .populate("product")
+        .populate("products.product")
         .sort({ createdAt: -1 }),
-      CoursePurchase.find({ user: userId }).sort({ createdAt: -1 })
+      CoursePurchase.find({ user: userId }).sort({ createdAt: -1 }),
     ]);
 
-    res.render('webview/history', { user, transactions, coursePurchases });
-
+    res.render("webview/history", { user, transactions, coursePurchases });
   } catch (error) {
-
     console.log(error);
 
-    res.send('Error loading history');
+    res.send("Error loading history");
   }
 };
 
@@ -301,109 +275,102 @@ exports.retryTransaction = async (req, res) => {
   try {
     const { transactionId } = req.body;
 
-    const tx = await Transaction.findById(transactionId)
-      .populate('product');
+    const tx = await Transaction.findById(transactionId).populate("product");
 
     if (!tx) {
-      return res.json({ success: false, message: 'Transaction not found' });
+      return res.json({ success: false, message: "Transaction not found" });
     }
 
-    if (tx.status === 'success') {
-      return res.json({ success: false, message: 'Already successful' });
+    if (tx.status === "success") {
+      return res.json({ success: false, message: "Already successful" });
     }
 
     const wallet = await Wallet.findOne({ user: tx.user });
 
     if (!wallet) {
-      return res.json({ success: false, message: 'Wallet not found' });
+      return res.json({ success: false, message: "Wallet not found" });
     }
 
-    const product =
-      tx.product || tx.products?.[0]?.product;
+    const product = tx.product || tx.products?.[0]?.product;
 
     if (!product || !product.dataDetails) {
-      return res.json({ success: false, message: 'Invalid product data' });
+      return res.json({ success: false, message: "Invalid product data" });
     }
 
     let apiResponse;
 
     try {
       apiResponse = await buyData({
-        network: product.dataDetails.network === 'MTN' ? 1 : 2,
+        network: product.dataDetails.network === "MTN" ? 1 : 2,
         phone: tx.phone,
-        data_plan: product.dataDetails.plan_id
+        data_plan: product.dataDetails.plan_id,
       });
     } catch (err) {
-      apiResponse = { status: 'fail', message: 'API error' };
+      apiResponse = { status: "fail", message: "API error" };
     }
 
     // SUCCESS CASE
-    if (apiResponse.status === 'success') {
-
+    if (apiResponse.status === "success") {
       if (wallet.balances.NAIRA < tx.amount) {
         return res.json({
           success: false,
-          message: 'Insufficient balance'
+          message: "Insufficient balance",
         });
       }
 
       wallet.balances.NAIRA -= tx.amount;
       await wallet.save();
 
-      tx.status = 'success';
+      tx.status = "success";
 
       if (tx.rpEarned > 0) {
-        await User.findByIdAndUpdate(tx.user, { $inc: { rpBalance: tx.rpEarned } });
+        await User.findByIdAndUpdate(tx.user, {
+          $inc: { rpBalance: tx.rpEarned },
+        });
       }
-
     } else {
-      tx.status = 'failed';
+      tx.status = "failed";
     }
 
     tx.apiResponse = apiResponse;
     await tx.save();
 
     return res.json({
-      success: tx.status === 'success',
-      message: apiResponse.message
+      success: tx.status === "success",
+      message: apiResponse.message,
     });
-
   } catch (error) {
     console.log(error);
     return res.json({
       success: false,
-      message: 'Retry failed'
+      message: "Retry failed",
     });
   }
 };
 
-
 exports.myTopUps = async (req, res) => {
   try {
-
     const userId = req.user.id;
 
     const [user, topups] = await Promise.all([
       User.findById(userId),
-      TopUp.find({ user: userId }).sort({ createdAt: -1 })
+      TopUp.find({ user: userId }).sort({ createdAt: -1 }),
     ]);
 
-    res.render('webview/myTopUps', {
-      title: 'My Top Ups',
+    res.render("webview/myTopUps", {
+      title: "My Top Ups",
       user,
-      topups
+      topups,
     });
-
   } catch (error) {
     console.log(error);
 
-    res.render('webview/myTopUps', {
-      title: 'My Top Ups',
-      topups: []
+    res.render("webview/myTopUps", {
+      title: "My Top Ups",
+      topups: [],
     });
   }
 };
-
 
 exports.addToCart = async (req, res) => {
   try {
@@ -415,11 +382,11 @@ exports.addToCart = async (req, res) => {
     if (!cart) {
       cart = new Cart({
         user: userId,
-        items: [{ product: productId, quantity: 1 }]
+        items: [{ product: productId, quantity: 1 }],
       });
     } else {
       const itemIndex = cart.items.findIndex(
-        item => item.product.toString() === productId
+        (item) => item.product.toString() === productId,
       );
 
       if (itemIndex > -1) {
@@ -432,45 +399,41 @@ exports.addToCart = async (req, res) => {
     await cart.save();
 
     res.json({ success: true });
-
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: 'Error adding to cart' });
+    res.json({ success: false, message: "Error adding to cart" });
   }
 };
 
-
 exports.itemCheckout = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user.id })
-      .populate('items.product');
+    const cart = await Cart.findOne({ user: req.user.id }).populate(
+      "items.product",
+    );
 
     if (!cart || cart.items.length === 0) {
-      return res.render('webview/item-checkout', { cart: [], total: 0 });
+      return res.render("webview/item-checkout", { cart: [], total: 0 });
     }
 
     let total = 0;
     let totalItems = 0;
 
-    const formattedCart = cart.items.map(item => {
+    const formattedCart = cart.items.map((item) => {
       const product = item.product;
 
-      let name = '';
+      let name = "";
       let price = 0;
 
-      if (product.category === 'AUTOMOBILE') {
+      if (product.category === "AUTOMOBILE") {
         name = `${product.automobileDetails.brand} ${product.automobileDetails.model}`;
         price = product.automobileDetails.price;
-
-      } else if (product.category === 'DATA') {
+      } else if (product.category === "DATA") {
         name = product.dataDetails.plan_name;
         price = product.dataDetails.amount;
-
-      } else if (product.category === 'ELECTRONICS') {
+      } else if (product.category === "ELECTRONICS") {
         name = product.electronicDetails.itemName;
         price = product.electronicDetails.items_price;
-
-      } else if (product.category === 'COURSES') {
+      } else if (product.category === "COURSES") {
         name = product.coursesDetails.title;
         price = product.coursesDetails.course_price;
       }
@@ -485,22 +448,21 @@ exports.itemCheckout = async (req, res) => {
         name,
         price,
         quantity: item.quantity,
-        subtotal
+        subtotal,
       };
     });
 
     const user = await User.findById(req.user.id);
 
-    res.render('webview/item-checkout', {
+    res.render("webview/item-checkout", {
       user,
       cart: formattedCart,
       total,
-      totalItems
+      totalItems,
     });
-
   } catch (error) {
     console.log(error);
-    res.send('Error loading checkout');
+    res.send("Error loading checkout");
   }
 };
 
@@ -510,65 +472,70 @@ exports.userWallet = async (req, res) => {
     const [user, wallet, paymentMethods] = await Promise.all([
       User.findById(userId),
       Wallet.findOne({ user: userId }),
-      PaymentMethod.find({ isActive: true }).sort({ createdAt: 1 })
+      PaymentMethod.find({ isActive: true }).sort({ createdAt: 1 }),
     ]);
-    res.render('webview/user-wallet', { user, wallet, paymentMethods });
+    res.render("webview/user-wallet", { user, wallet, paymentMethods });
   } catch (error) {
     console.log(error);
-    res.render('webview/user-wallet', { user: null, wallet: null });
+    res.render("webview/user-wallet", { user: null, wallet: null });
   }
-}
-
-
+};
 
 exports.startTopUp = async (req, res) => {
   try {
     const { amount, balanceType } = req.body;
 
     if (!amount || amount <= 0) {
-      return res.json({ success: false, message: 'Invalid amount' });
+      return res.json({ success: false, message: "Invalid amount" });
     }
 
-    if (!['BTT', 'RP', 'USDT'].includes(balanceType)) {
-      return res.json({ success: false, message: 'Invalid wallet type' });
+    if (!["BTT", "RP", "USDT"].includes(balanceType)) {
+      return res.json({ success: false, message: "Invalid wallet type" });
     }
 
     const user = await User.findById(req.user.id);
 
     if (!user.minerId) {
-      return res.json({ success: false, message: 'You must set your Miner ID in your profile before topping up.' });
+      return res.json({
+        success: false,
+        message:
+          "You must set your Miner ID in your profile before topping up.",
+      });
     }
 
-    const reference = `TOPUP-${balanceType}-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+    const reference = `TOPUP-${balanceType}-${Date.now()}-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
 
     const topup = await TopUp.create({
       user: user._id,
       amount,
       balanceType,
-      reference
+      reference,
     });
 
-    let otpMessage = 'OTP sent to your Telegram Bot.';
+    let otpMessage = "OTP sent to your Telegram Bot.";
     try {
       const otpRes = await axios.post(
         `${process.env.BITTOKEN_BASE_URL}/api/user/send-otp`,
-        { minerId: user.minerId }
+        { minerId: user.minerId },
       );
       otpMessage = otpRes.data?.message || otpMessage;
     } catch (apiErr) {
       await TopUp.findByIdAndDelete(topup._id);
-      const apiMsg = apiErr.response?.data?.message
-        || apiErr.response?.data?.error
-        || 'Could not send OTP. Please check your Miner ID or try again later.';
-      console.log('TOPUP OTP API ERROR:', apiErr.response?.data || apiErr.message);
+      const apiMsg =
+        apiErr.response?.data?.message ||
+        apiErr.response?.data?.error ||
+        "Could not send OTP. Please check your Miner ID or try again later.";
+      console.log(
+        "TOPUP OTP API ERROR:",
+        apiErr.response?.data || apiErr.message,
+      );
       return res.json({ success: false, message: apiMsg });
     }
 
     res.json({ success: true, topupId: topup._id, message: otpMessage });
-
   } catch (error) {
-    console.log('START TOPUP ERROR:', error);
-    res.json({ success: false, message: 'Failed to start top-up' });
+    console.log("START TOPUP ERROR:", error);
+    res.json({ success: false, message: "Failed to start top-up" });
   }
 };
 
@@ -579,12 +546,12 @@ exports.confirmTopUp = async (req, res) => {
 
     const topup = await TopUp.findById(topupId);
 
-    if (!topup || topup.status !== 'PENDING') {
-      return res.json({ success: false, message: 'Invalid session' });
+    if (!topup || topup.status !== "PENDING") {
+      return res.json({ success: false, message: "Invalid session" });
     }
 
     if (new Date() > topup.expiresAt) {
-      return res.json({ success: false, message: 'Session expired' });
+      return res.json({ success: false, message: "Session expired" });
     }
 
     const user = await User.findById(req.user.id);
@@ -597,19 +564,26 @@ exports.confirmTopUp = async (req, res) => {
           minerId: user.minerId,
           otp,
           amount: topup.amount,
-          balance_type: topup.balanceType
-        }
+          balance_type: topup.balanceType,
+        },
       );
     } catch (apiErr) {
-      const apiMsg = apiErr.response?.data?.message
-        || apiErr.response?.data?.error
-        || 'Deduction failed. Please check your OTP and try again.';
-      console.log('CONFIRM TOPUP API ERROR:', apiErr.response?.data || apiErr.message);
+      const apiMsg =
+        apiErr.response?.data?.message ||
+        apiErr.response?.data?.error ||
+        "Deduction failed. Please check your OTP and try again.";
+      console.log(
+        "CONFIRM TOPUP API ERROR:",
+        apiErr.response?.data || apiErr.message,
+      );
       return res.json({ success: false, message: apiMsg });
     }
 
     if (response.data.status !== 200) {
-      return res.json({ success: false, message: response.data.message || 'Deduction failed' });
+      return res.json({
+        success: false,
+        message: response.data.message || "Deduction failed",
+      });
     }
 
     // ✅ Wallet update (NEW LOGIC)
@@ -621,8 +595,8 @@ exports.confirmTopUp = async (req, res) => {
         balances: {
           BTT: 0,
           RP: 0,
-          USDT:0,
-        }
+          USDT: 0,
+        },
       });
     }
 
@@ -630,37 +604,33 @@ exports.confirmTopUp = async (req, res) => {
 
     await wallet.save();
 
-    topup.status = 'COMPLETED';
+    topup.status = "COMPLETED";
     await topup.save();
 
-    res.json({ success: true, message: response.data.message || 'Top-up confirmed' });
-
+    res.json({
+      success: true,
+      message: response.data.message || "Top-up confirmed",
+    });
   } catch (error) {
     console.log(error.response?.data || error);
-    res.json({ success: false, message: 'Top up failed' });
+    res.json({ success: false, message: "Top up failed" });
   }
 };
 
-
-
-
 exports.payWithWallet = async (req, res) => {
-
   try {
-
     const userId = req.user.id;
 
     const { productId } = req.body;
 
     const wallet = await Wallet.findOne({
-      user: userId
+      user: userId,
     });
 
     if (!wallet) {
-
       return res.json({
         success: false,
-        message: 'Wallet not funded'
+        message: "Wallet not funded",
       });
     }
 
@@ -679,38 +649,29 @@ exports.payWithWallet = async (req, res) => {
     // ✅ DIRECT PURCHASE
     // =====================================
     if (productId) {
-
       const product = await Product.findById(productId);
 
       if (!product) {
-
         return res.json({
           success: false,
-          message: 'Product not found'
+          message: "Product not found",
         });
       }
 
       let price = 0;
 
       // DATA
-      if (product.category === 'DATA') {
-
-        price =
-          product.dataDetails?.amount || 0;
+      if (product.category === "DATA") {
+        price = product.dataDetails?.amount || 0;
       }
 
       // COURSES
-      else if (product.category === 'COURSES') {
-
-        price =
-          product.coursesDetails?.course_price || 0;
-      }
-
-      else {
-
+      else if (product.category === "COURSES") {
+        price = product.coursesDetails?.course_price || 0;
+      } else {
         return res.json({
           success: false,
-          message: 'Invalid direct purchase item'
+          message: "Invalid direct purchase item",
         });
       }
 
@@ -721,7 +682,7 @@ exports.payWithWallet = async (req, res) => {
 
       itemsToProcess.push({
         product,
-        quantity: 1
+        quantity: 1,
       });
     }
 
@@ -729,75 +690,55 @@ exports.payWithWallet = async (req, res) => {
     // ✅ CART PURCHASE
     // =====================================
     else {
-
       cart = await Cart.findOne({
-        user: userId
-      }).populate('items.product');
+        user: userId,
+      }).populate("items.product");
 
       if (!cart || cart.items.length === 0) {
-
         return res.json({
           success: false,
-          message: 'Cart is empty'
+          message: "Cart is empty",
         });
       }
 
-      cart.items.forEach(item => {
-
+      cart.items.forEach((item) => {
         const product = item.product;
 
         let price = 0;
 
         // AUTOMOBILE
-        if (product.category === 'AUTOMOBILE') {
-
-          price =
-            item.selectedPrice ||
-            product.automobileDetails?.price ||
-            0;
+        if (product.category === "AUTOMOBILE") {
+          price = item.selectedPrice || product.automobileDetails?.price || 0;
         }
 
         // ELECTRONICS
-        else if (product.category === 'ELECTRONICS') {
-
+        else if (product.category === "ELECTRONICS") {
           price =
-            item.selectedPrice ||
-            product.electronicDetails?.items_price ||
-            0;
+            item.selectedPrice || product.electronicDetails?.items_price || 0;
         }
 
         // DRINKS / WATER
         else if (
-          product.category === 'DRINKS' ||
-          product.category === 'WATER'
+          product.category === "DRINKS" ||
+          product.category === "WATER"
         ) {
-
-          price =
-            item.selectedPrice ||
-            product.item_price ||
-            0;
+          price = item.selectedPrice || product.item_price || 0;
         }
 
         // DATA
-        else if (product.category === 'DATA') {
-
-          price =
-            product.dataDetails?.amount || 0;
+        else if (product.category === "DATA") {
+          price = product.dataDetails?.amount || 0;
         }
 
         // COURSES
-        else if (product.category === 'COURSES') {
-
-          price =
-            product.coursesDetails?.course_price || 0;
+        else if (product.category === "COURSES") {
+          price = product.coursesDetails?.course_price || 0;
         }
 
         total += price * item.quantity;
 
         // ✅ ADD RP
-        totalRP +=
-          (product.reward_point || 0)
-          * item.quantity;
+        totalRP += (product.reward_point || 0) * item.quantity;
 
         itemsToProcess.push(item);
       });
@@ -807,10 +748,9 @@ exports.payWithWallet = async (req, res) => {
     // ✅ CHECK WALLET BALANCE
     // =====================================
     if (wallet.balances.NAIRA < total) {
-
       return res.json({
         success: false,
-        message: 'Insufficient NAIRA wallet balance'
+        message: "Insufficient NAIRA wallet balance",
       });
     }
 
@@ -826,14 +766,9 @@ exports.payWithWallet = async (req, res) => {
     // =====================================
     let checkout = null;
 
-    if (
-      itemsToProcess.some(
-        item => item.product.category === 'DATA'
-      )
-    ) {
-
+    if (itemsToProcess.some((item) => item.product.category === "DATA")) {
       checkout = await Checkout.findOne({
-        user: userId
+        user: userId,
       }).sort({ createdAt: -1 });
     }
 
@@ -841,128 +776,94 @@ exports.payWithWallet = async (req, res) => {
     // ✅ PROCESS PRODUCTS
     // =====================================
     for (let item of itemsToProcess) {
-
       const product = item.product;
 
       // =====================================
       // ✅ DATA PURCHASE
       // =====================================
-      if (product.category === 'DATA') {
-
+      if (product.category === "DATA") {
         if (!checkout) {
-
           wallet.balances.NAIRA += total;
 
           await wallet.save();
 
           return res.json({
             success: false,
-            message:
-              'Checkout data not found, refunded'
+            message: "Checkout data not found, refunded",
           });
         }
 
-        let phone = checkout.phone
-          .trim()
-          .replace(/\D/g, '');
+        let phone = checkout.phone.trim().replace(/\D/g, "");
 
-        if (phone.startsWith('234')) {
-
-          phone = '0' + phone.slice(3);
+        if (phone.startsWith("234")) {
+          phone = "0" + phone.slice(3);
         }
 
         if (phone.length !== 11) {
-
           wallet.balances.NAIRA += total;
 
           await wallet.save();
 
           return res.json({
             success: false,
-            message:
-              'Invalid phone number, refunded'
+            message: "Invalid phone number, refunded",
           });
         }
 
         try {
-
           const networkMap = {
-
             MTN: 1,
 
             GLO: 3,
 
-            '9MOBILE': 4,
+            "9MOBILE": 4,
 
-            AIRTEL: 2
+            AIRTEL: 2,
           };
 
           apiResponse = await Promise.race([
-
             buyData({
-
-              network:
-                networkMap[
-                  product.dataDetails.network
-                ],
+              network: networkMap[product.dataDetails.network],
 
               phone,
 
-              data_plan:
-                product.dataDetails.plan_id
+              data_plan: product.dataDetails.plan_id,
             }),
 
             new Promise((_, reject) =>
+              setTimeout(
+                () => reject(new Error("Request timeout")),
 
-              setTimeout(() =>
-
-                reject(
-                  new Error('Request timeout')
-                ),
-
-                25000
-              )
-            )
+                25000,
+              ),
+            ),
           ]);
 
-          console.log(
-            'BUY RESPONSE:',
-            apiResponse
-          );
-
+          console.log("BUY RESPONSE:", apiResponse);
         } catch (err) {
-
-          console.log(
-            'API ERROR:',
-            err.response?.data || err.message
-          );
+          console.log("API ERROR:", err.response?.data || err.message);
 
           apiResponse = {
-            status: 'fail'
+            status: "fail",
           };
         }
 
         // =====================================
         // ❌ REFUND IF FAILED
         // =====================================
-        if (
-          apiResponse.status !== 'success'
-        ) {
-
+        if (apiResponse.status !== "success") {
           wallet.balances.NAIRA += total;
 
           await wallet.save();
 
           await Transaction.create({
-
             user: userId,
 
-            product:
-              itemsToProcess[0]?.product?._id,
+            product: itemsToProcess[0]?.product?._id,
 
-            products: itemsToProcess.map(item => ({
+            products: itemsToProcess.map((item) => ({
               product: item.product._id,
-              quantity: item.quantity
+              quantity: item.quantity,
             })),
 
             phone,
@@ -971,24 +872,21 @@ exports.payWithWallet = async (req, res) => {
 
             rpEarned: 0,
 
-            walletType: 'NAIRA',
+            walletType: "NAIRA",
 
-            paymentMethod: 'wallet',
+            paymentMethod: "wallet",
 
-            status: 'failed',
+            status: "failed",
 
-            reference:
-              'PAY-' + Date.now(),
+            reference: "PAY-" + Date.now(),
 
-            apiResponse
+            apiResponse,
           });
 
           return res.json({
-
             success: false,
 
-            message:
-              'Data purchase failed, refunded'
+            message: "Data purchase failed, refunded",
           });
         }
       }
@@ -997,57 +895,50 @@ exports.payWithWallet = async (req, res) => {
     // =====================================
     // ✅ SAVE SUCCESS TRANSACTION
     // =====================================
-    const transaction =
-      await Transaction.create({
+    const transaction = await Transaction.create({
+      user: userId,
 
-        user: userId,
+      product: itemsToProcess[0]?.product?._id,
 
-        product:
-          itemsToProcess[0]?.product?._id,
+      products: itemsToProcess.map((item) => ({
+        product: item.product._id,
+        quantity: item.quantity,
+      })),
 
-        products: itemsToProcess.map(item => ({
-          product: item.product._id,
-          quantity: item.quantity
-        })),
+      phone: checkout?.phone || "",
 
-        phone:
-          checkout?.phone || '',
+      amount: total,
 
-        amount: total,
+      rpEarned: totalRP,
 
-        rpEarned: totalRP,
+      walletType: "NAIRA",
 
-        walletType: 'NAIRA',
+      paymentMethod: "wallet",
 
-        paymentMethod: 'wallet',
+      status: "success",
 
-        status: 'success',
+      reference: "PAY-" + Date.now(),
 
-        reference:
-          'PAY-' + Date.now(),
-
-        apiResponse
-      });
+      apiResponse,
+    });
 
     // =====================================
     // ✅ CREDIT USER RP
     // =====================================
     await User.findByIdAndUpdate(
-
       userId,
 
       {
         $inc: {
-          rpBalance: totalRP
-        }
-      }
+          rpBalance: totalRP,
+        },
+      },
     );
 
     // =====================================
     // ✅ CLEAR CART
     // =====================================
     if (cart) {
-
       cart.items = [];
 
       await cart.save();
@@ -1057,502 +948,359 @@ exports.payWithWallet = async (req, res) => {
     // ✅ SUCCESS RESPONSE
     // =====================================
     res.json({
-
       success: true,
 
-      message:
-        'Payment successful',
+      message: "Payment successful",
 
-      balance:
-        wallet.balances.NAIRA,
+      balance: wallet.balances.NAIRA,
 
       rpEarned: totalRP,
 
-      transaction
+      transaction,
     });
-
   } catch (error) {
-
     console.log(error);
 
     res.json({
-
       success: false,
 
-      message:
-        'Payment failed'
+      message: "Payment failed",
     });
   }
 };
 
-
-
-
-
-
-
-
 exports.createPalmPayPayment = async (req, res) => {
-
-    try {
-
-        const userId = req.user.id;
-        const { amount } = req.body;
-
-        // =====================================
-        // VALIDATE AMOUNT
-        // =====================================
-
-        const nairaAmount = parseFloat(amount);
-
-        if (!nairaAmount || nairaAmount <= 0) {
-
-            return res.json({
-                success: false,
-                message: 'Invalid amount'
-            });
-        }
-
-        // Store internally as kobo
-        const koboAmount =
-            Math.round(nairaAmount * 100);
-
-        // =====================================
-        // GENERATE ORDER DETAILS
-        // =====================================
-
-        const requestTime = Date.now();
-
-        const nonceStr =
-            crypto.randomBytes(16)
-            .toString("hex");
-
-        const orderId =
-            `PALM-${Date.now()}-${userId}`;
-
-        const version = "1.1";
-
-        // =====================================
-        // PREVENT DUPLICATE REFERENCES
-        // =====================================
-
-        const existing =
-            await TopUp.findOne({
-
-                reference: orderId
-            });
-
-        if (existing) {
-
-            return res.json({
-
-                success: false,
-
-                message:
-                    "Duplicate transaction reference"
-            });
-        }
-
-        // =====================================
-        // PALMPAY PAYLOAD
-        // =====================================
-
-        const payload = {
-
-            requestTime,
-
-            amount: koboAmount,
-
-            orderId,
-
-            payeeName:
-                "Wallet Topup",
-
-            payeeBankCode:
-                "MTN",
-
-            payeeBankAccNo:
-                "0591990607",
-
-            callBackUrl:
-                process.env.PALMPAY_CALLBACK_URL,
-
-            notifyUrl:
-                process.env.PALMPAY_WEBHOOK_URL,
-
-            currency:
-                "NGN",
-
-            remark:
-                "Wallet Topup " + orderId,
-
-            version,
-
-            nonceStr
-        };
-
-        // =====================================
-        // SIGN REQUEST
-        // =====================================
-
-        const signature =
-            generateSignature(
-
-                payload,
-
-                process.env
-                .PALMPAY_PRIVATE_KEY
-            );
-
-        // =====================================
-        // CREATE PALMPAY ORDER
-        // =====================================
-
-        const response =
-            await axios.post(
-
-                `${process.env.PALMPAY_BASE_URL}/api/v2/payment/merchant/createorder`,
-
-                payload,
-
-                {
-                    headers: {
-
-                        "Content-Type":
-                            "application/json",
-
-                        Authorization:
-                            `Bearer ${process.env.PALMPAY_APP_ID}`,
-
-                        Signature:
-                            signature,
-
-                        CountryCode:
-                            "NG"
-                    }
-                }
-            );
-
-        // =====================================
-        // CHECK RESPONSE
-        // =====================================
-
-        if (
-
-            !response.data ||
-
-            response.data.respCode !==
-            "00000000"
-
-        ) {
-
-            return res.json({
-
-                success: false,
-
-                message:
-
-                    response.data?.respMsg ||
-
-                    "PalmPay request failed"
-            });
-        }
-
-        // =====================================
-        // SAVE TOPUP RECORD
-        // =====================================
-
-        const topUp =
-            await TopUp.create({
-
-                user:
-                    userId,
-
-                // Stored in Kobo
-                amount:
-                    koboAmount,
-
-                // Stored for display/reporting
-                nairaAmount:
-                    nairaAmount,
-
-                balanceType:
-                    'NAIRA',
-
-                paymentMethod:
-                    'PalmPay',
-
-                reference:
-                    orderId,
-
-                status:
-                    'PENDING',
-
-                palmPayOrderId:
-                    response.data.data.orderNo,
-
-                sdkSessionId:
-                    response.data.data.sdkSessionId,
-
-                payToken:
-                    response.data.data.payToken,
-
-                checkoutUrl:
-                    response.data.data.checkoutUrl,
-
-                apiResponse:
-                    response.data
-            });
-
-        // =====================================
-        // SUCCESS RESPONSE
-        // =====================================
-
-        return res.json({
-
-            success: true,
-
-            paymentUrl:
-                response.data.data.checkoutUrl,
-
-            topUpId:
-                topUp._id
-        });
-
-    } catch (error) {
-
-        console.log(
-            error.response?.data ||
-            error
-        );
-
-        return res.json({
-
-            success: false,
-
-            message:
-                "PalmPay error",
-
-            error:
-                error.response?.data ||
-                error.message
-        });
+  try {
+    const userId = req.user.id;
+    const { amount } = req.body;
+
+    // =====================================
+    // VALIDATE AMOUNT
+    // =====================================
+
+    const nairaAmount = parseFloat(amount);
+
+    if (!nairaAmount || nairaAmount <= 0) {
+      return res.json({
+        success: false,
+        message: "Invalid amount",
+      });
     }
+
+    // Store internally as kobo
+    const koboAmount = Math.round(nairaAmount * 100);
+
+    // =====================================
+    // GENERATE ORDER DETAILS
+    // =====================================
+
+    const requestTime = Date.now();
+
+    const nonceStr = crypto.randomBytes(16).toString("hex");
+
+    const orderId = `PALM-${Date.now()}-${userId}`;
+
+    const version = "1.1";
+
+    // =====================================
+    // PREVENT DUPLICATE REFERENCES
+    // =====================================
+
+    const existing = await TopUp.findOne({
+      reference: orderId,
+    });
+
+    if (existing) {
+      return res.json({
+        success: false,
+
+        message: "Duplicate transaction reference",
+      });
+    }
+
+    // =====================================
+    // PALMPAY PAYLOAD
+    // =====================================
+
+    const payload = {
+      requestTime,
+
+      amount: koboAmount,
+
+      orderId,
+
+      payeeName: "Wallet Topup",
+
+      payeeBankCode: "MTN",
+
+      payeeBankAccNo: "0591990607",
+
+      callBackUrl: process.env.PALMPAY_CALLBACK_URL,
+
+      notifyUrl: process.env.PALMPAY_WEBHOOK_URL,
+
+      currency: "NGN",
+
+      remark: "Wallet Topup " + orderId,
+
+      version,
+
+      nonceStr,
+    };
+
+    // =====================================
+    // SIGN REQUEST
+    // =====================================
+
+    const signature = generateSignature(
+      payload,
+
+      process.env.PALMPAY_PRIVATE_KEY,
+    );
+
+    // =====================================
+    // CREATE PALMPAY ORDER
+    // =====================================
+
+    const response = await axios.post(
+      `${process.env.PALMPAY_BASE_URL}/api/v2/payment/merchant/createorder`,
+
+      payload,
+
+      {
+        headers: {
+          "Content-Type": "application/json",
+
+          Authorization: `Bearer ${process.env.PALMPAY_APP_ID}`,
+
+          Signature: signature,
+
+          CountryCode: "NG",
+        },
+      },
+    );
+
+    // =====================================
+    // CHECK RESPONSE
+    // =====================================
+
+    if (!response.data || response.data.respCode !== "00000000") {
+      return res.json({
+        success: false,
+
+        message: response.data?.respMsg || "PalmPay request failed",
+      });
+    }
+
+    // =====================================
+    // SAVE TOPUP RECORD
+    // =====================================
+
+    const topUp = await TopUp.create({
+      user: userId,
+
+      // Stored in Kobo
+      amount: koboAmount,
+
+      // Stored for display/reporting
+      nairaAmount: nairaAmount,
+
+      balanceType: "NAIRA",
+
+      paymentMethod: "PalmPay",
+
+      reference: orderId,
+
+      status: "PENDING",
+
+      palmPayOrderId: response.data.data.orderNo,
+
+      sdkSessionId: response.data.data.sdkSessionId,
+
+      payToken: response.data.data.payToken,
+
+      checkoutUrl: response.data.data.checkoutUrl,
+
+      apiResponse: response.data,
+    });
+
+    // =====================================
+    // SUCCESS RESPONSE
+    // =====================================
+
+    return res.json({
+      success: true,
+
+      paymentUrl: response.data.data.checkoutUrl,
+
+      topUpId: topUp._id,
+    });
+  } catch (error) {
+    console.log(error.response?.data || error);
+
+    return res.json({
+      success: false,
+
+      message: "PalmPay error",
+
+      error: error.response?.data || error.message,
+    });
+  }
 };
 
-
-
 ////////////////////////////////////////////////////////
-exports.palmPayWebhook =
-async (req, res) => {
+exports.palmPayWebhook = async (req, res) => {
+  try {
+    console.log("PALMPAY WEBHOOK:", req.body);
 
-    try {
+    const verified = verifySignature(
+      req.body,
 
-        console.log(
-            "PALMPAY WEBHOOK:",
-            req.body
-        );
+      process.env.PALMPAY_PUBLIC_KEY,
+    );
 
-        const verified =
-            verifySignature(
+    console.log("SIGNATURE VERIFIED:", verified);
 
-                req.body,
-
-                process.env
-                .PALMPAY_PUBLIC_KEY
-            );
-
-        console.log(
-            "SIGNATURE VERIFIED:",
-            verified
-        );
-
-        if (!verified) {
-
-            return res.status(400)
-            .json({
-
-                success: false,
-
-                message:
-                    "Invalid PalmPay signature"
-            });
-        }
-
-        const topUp =
-            await TopUp.findOne({
-
-                reference:
-                    req.body.orderId
-            });
-
-        console.log(
-            "FOUND TOPUP:",
-            topUp
-        );
-
-  if (!topUp || !topUp.amount || topUp.amount <= 0) {
-    return res.status(400).json({
+    if (!verified) {
+      return res.status(400).json({
         success: false,
-        message: "Invalid or corrupted topup record"
+
+        message: "Invalid PalmPay signature",
+      });
+    }
+
+    const topUp = await TopUp.findOne({
+      reference: req.body.orderId,
     });
-}
 
-        // if (!topUp) {
+    console.log("FOUND TOPUP:", topUp);
 
-        //     return res.status(404)
-        //     .json({
+    if (!topUp || !topUp.amount || topUp.amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or corrupted topup record",
+      });
+    }
 
-        //         success: false,
+    // if (!topUp) {
 
-        //         message:
-        //             "TopUp not found"
-        //     });
-        // }
+    //     return res.status(404)
+    //     .json({
 
-        if (
-            topUp.walletCredited
-        ) {
+    //         success: false,
 
-            return res.json({
+    //         message:
+    //             "TopUp not found"
+    //     });
+    // }
 
-                success: true,
+    if (topUp.walletCredited) {
+      return res.json({
+        success: true,
 
-                message:
-                    "TopUp already processed"
-            });
-        }
+        message: "TopUp already processed",
+      });
+    }
 
-        topUp.webhookData =
-            req.body;
+    topUp.webhookData = req.body;
 
-        topUp.webhookVerified =
-            true;
+    topUp.webhookVerified = true;
 
-        await topUp.save();
+    await topUp.save();
 
-        // SUCCESS PAYMENT
-        console.log(
-    "FULL WEBHOOK:",
-    JSON.stringify(req.body, null, 2)
-);
+    // SUCCESS PAYMENT
+    console.log("FULL WEBHOOK:", JSON.stringify(req.body, null, 2));
 
-         if (req.body.orderStatus == 2) {
-
-let wallet = await Wallet.findOne({
-    user: topUp.user
-});
-
-if (!wallet) {
-    wallet = new Wallet({
+    if (req.body.orderStatus == 2) {
+      let wallet = await Wallet.findOne({
         user: topUp.user,
-        balances: {
+      });
+
+      if (!wallet) {
+        wallet = new Wallet({
+          user: topUp.user,
+          balances: {
             BTT: 0,
             RP: 0,
             USDT: 0,
-            NAIRA: 0
-        }
-    });
-}
-
-wallet.balances[topUp.balanceType] =
-    (wallet.balances[topUp.balanceType] || 0)
-    + (topUp.amount / 100);
-
-await wallet.save();
-
-console.log(
-    "UPDATED WALLET:",
-    wallet
-);
-
-            topUp.status =
-                'COMPLETED';
-
-            topUp.walletCredited =
-                true;
-
-            await topUp.save();
-
-            return res.json({
-
-                success: true,
-
-                message:
-                    'Wallet funded successfully'
-            });
-        }
-
-        // FAILED PAYMENT
-
-        topUp.status =
-            'FAILED';
-
-        await topUp.save();
-
-        return res.json({
-
-            success: false,
-
-            message:
-                'Payment failed'
+            NAIRA: 0,
+          },
         });
+      }
 
-    } catch (error) {
+      wallet.balances[topUp.balanceType] =
+        (wallet.balances[topUp.balanceType] || 0) + topUp.amount / 100;
 
-        console.log(error);
+      await wallet.save();
 
-        return res.status(500)
-        .json({
+      console.log("UPDATED WALLET:", wallet);
 
-            success: false,
+      topUp.status = "COMPLETED";
 
-            error:
-                error.message
-        });
+      topUp.walletCredited = true;
+
+      await topUp.save();
+
+      return res.json({
+        success: true,
+
+        message: "Wallet funded successfully",
+      });
     }
+
+    // FAILED PAYMENT
+
+    topUp.status = "FAILED";
+
+    await topUp.save();
+
+    return res.json({
+      success: false,
+
+      message: "Payment failed",
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+
+      error: error.message,
+    });
+  }
 };
 
-
-
-
-
 exports.convertUSDTtoNaira = async (req, res) => {
-
   try {
-
     const userId = req.user.id;
 
     const { amount } = req.body;
 
     // VALIDATION
     if (!amount || amount <= 0) {
-
       return res.json({
         success: false,
-        message: 'Invalid amount'
+        message: "Invalid amount",
       });
     }
 
     // GET USER WALLET
     const wallet = await Wallet.findOne({
-      user: userId
+      user: userId,
     });
 
     if (!wallet) {
-
       return res.json({
         success: false,
-        message: 'Wallet not found'
+        message: "Wallet not found",
       });
     }
 
     // CHECK BALANCE
     if (wallet.balances.USDT < amount) {
-
       return res.json({
         success: false,
-        message: 'Insufficient USDT balance'
+        message: "Insufficient USDT balance",
       });
     }
 
@@ -1560,38 +1308,55 @@ exports.convertUSDTtoNaira = async (req, res) => {
     // FETCH RATES FROM MULTIPLE SOURCES
     // =========================================
 
-    let coinGeckoRate     = 0;
-    let coinbaseRate      = 0;
+    let coinGeckoRate = 0;
+    let coinbaseRate = 0;
     let cryptoCompareRate = 0;
 
     try {
-      const cgRes = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn');
+      const cgRes = await axios.get(
+        "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn",
+      );
       coinGeckoRate = cgRes.data.tether.ngn || 0;
-    } catch (err) { console.log('CoinGecko Error:', err.message); }
-
-    try {
-      const cbRes = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USDT');
-      coinbaseRate = parseFloat(cbRes.data.data.rates.NGN) || 0;
-    } catch (err) { console.log('Coinbase Error:', err.message); }
-
-    try {
-      const ccRes = await axios.get('https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=NGN');
-      cryptoCompareRate = ccRes.data.NGN || 0;
-    } catch (err) { console.log('CryptoCompare Error:', err.message); }
-
-    const validRates = [coinGeckoRate, coinbaseRate, cryptoCompareRate].filter(r => r > 0);
-    if (validRates.length === 0) {
-      return res.json({ success: false, message: 'Unable to fetch exchange rate' });
+    } catch (err) {
+      console.log("CoinGecko Error:", err.message);
     }
 
-    const lowestRate       = Math.min(...validRates);
-    const markupPercent    = 5;
-    const conversionMarkup = (lowestRate * markupPercent) / 100;
-    const finalRate        = lowestRate - conversionMarkup;
-    const nairaAmount      = amount * finalRate;
-    const rateSpread       = Math.max(...validRates) - lowestRate;
+    try {
+      const cbRes = await axios.get(
+        "https://api.coinbase.com/v2/exchange-rates?currency=USDT",
+      );
+      coinbaseRate = parseFloat(cbRes.data.data.rates.NGN) || 0;
+    } catch (err) {
+      console.log("Coinbase Error:", err.message);
+    }
 
-    wallet.balances.USDT  -= amount;
+    try {
+      const ccRes = await axios.get(
+        "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=NGN",
+      );
+      cryptoCompareRate = ccRes.data.NGN || 0;
+    } catch (err) {
+      console.log("CryptoCompare Error:", err.message);
+    }
+
+    const validRates = [coinGeckoRate, coinbaseRate, cryptoCompareRate].filter(
+      (r) => r > 0,
+    );
+    if (validRates.length === 0) {
+      return res.json({
+        success: false,
+        message: "Unable to fetch exchange rate",
+      });
+    }
+
+    const lowestRate = Math.min(...validRates);
+    const markupPercent = 5;
+    const conversionMarkup = (lowestRate * markupPercent) / 100;
+    const finalRate = lowestRate - conversionMarkup;
+    const nairaAmount = amount * finalRate;
+    const rateSpread = Math.max(...validRates) - lowestRate;
+
+    wallet.balances.USDT -= amount;
     wallet.balances.NAIRA += nairaAmount;
     await wallet.save();
 
@@ -1601,158 +1366,174 @@ exports.convertUSDTtoNaira = async (req, res) => {
       nairaAmount,
       finalRate,
       lowestRate,
-      providerARate:    coinGeckoRate,
-      providerBRate:    coinbaseRate,
-      providerCRate:    cryptoCompareRate,
+      providerARate: coinGeckoRate,
+      providerBRate: coinbaseRate,
+      providerCRate: cryptoCompareRate,
       conversionMarkup,
       rateSpread,
-      status: 'COMPLETED',
+      status: "COMPLETED",
     });
 
     res.json({
       success: true,
       amountConverted: amount,
-      rates: { coinGeckoRate, coinbaseRate, cryptoCompareRate, lowestRate, finalRate },
+      rates: {
+        coinGeckoRate,
+        coinbaseRate,
+        cryptoCompareRate,
+        lowestRate,
+        finalRate,
+      },
       markupPercent,
       nairaAmount,
       balances: { USDT: wallet.balances.USDT, NAIRA: wallet.balances.NAIRA },
     });
-
   } catch (error) {
-
     console.log(error);
 
     res.json({
       success: false,
-      message: 'Conversion failed'
+      message: "Conversion failed",
     });
   }
 };
 
-
-
 exports.previewUSDTConversion = async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.json({
+        success: false,
+      });
+    }
+
+    let coinGeckoRate = 0;
+    let coinbaseRate = 0;
+    let cryptoCompareRate = 0;
 
     try {
-
-        const { amount } = req.body;
-
-        if (!amount || amount <= 0) {
-
-            return res.json({
-                success: false
-            });
-        }
-
-        let coinGeckoRate     = 0;
-        let coinbaseRate      = 0;
-        let cryptoCompareRate = 0;
-
-        try {
-            const cgRes = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn');
-            coinGeckoRate = cgRes.data.tether.ngn || 0;
-        } catch (err) { console.log(err.message); }
-
-        try {
-            const cbRes = await axios.get('https://api.coinbase.com/v2/exchange-rates?currency=USDT');
-            coinbaseRate = parseFloat(cbRes.data.data.rates.NGN) || 0;
-        } catch (err) { console.log(err.message); }
-
-        try {
-            const ccRes = await axios.get('https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=NGN');
-            cryptoCompareRate = ccRes.data.NGN || 0;
-        } catch (err) { console.log(err.message); }
-
-        const validRates = [coinGeckoRate, coinbaseRate, cryptoCompareRate].filter(r => r > 0);
-        if (validRates.length === 0) {
-            return res.json({ success: false, message: 'Rate unavailable' });
-        }
-
-        const lowestRate    = Math.min(...validRates);
-        const finalRate     = lowestRate - (lowestRate * 5) / 100;
-        const nairaAmount   = amount * finalRate;
-
-        res.json({ success: true, nairaAmount, finalRate });
-
-    } catch (error) {
-
-        console.log(error);
-
-        res.json({
-            success: false
-        });
+      const cgRes = await axios.get(
+        "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=ngn",
+      );
+      coinGeckoRate = cgRes.data.tether.ngn || 0;
+    } catch (err) {
+      console.log(err.message);
     }
+
+    try {
+      const cbRes = await axios.get(
+        "https://api.coinbase.com/v2/exchange-rates?currency=USDT",
+      );
+      coinbaseRate = parseFloat(cbRes.data.data.rates.NGN) || 0;
+    } catch (err) {
+      console.log(err.message);
+    }
+
+    try {
+      const ccRes = await axios.get(
+        "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=NGN",
+      );
+      cryptoCompareRate = ccRes.data.NGN || 0;
+    } catch (err) {
+      console.log(err.message);
+    }
+
+    const validRates = [coinGeckoRate, coinbaseRate, cryptoCompareRate].filter(
+      (r) => r > 0,
+    );
+    if (validRates.length === 0) {
+      return res.json({ success: false, message: "Rate unavailable" });
+    }
+
+    const lowestRate = Math.min(...validRates);
+    const finalRate = lowestRate - (lowestRate * 5) / 100;
+    const nairaAmount = amount * finalRate;
+
+    res.json({ success: true, nairaAmount, finalRate });
+  } catch (error) {
+    console.log(error);
+
+    res.json({
+      success: false,
+    });
+  }
 };
 
-
-exports.userProfile = async (req,res)=>{
-  try{
+exports.userProfile = async (req, res) => {
+  try {
     const userId = req.user.id;
     const [user, recentOrders, recentTopups, totalTopups] = await Promise.all([
       User.findById(userId),
-      Transaction.find({ user: userId }).sort({ createdAt: -1 }).limit(5).populate('product products.product'),
-      TopUp.find({ user: userId, status: 'COMPLETED' }).sort({ createdAt: -1 }).limit(5),
-      TopUp.countDocuments({ user: userId, status: 'COMPLETED' })
+      Transaction.find({ user: userId })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate("product products.product"),
+      TopUp.find({ user: userId, status: "COMPLETED" })
+        .sort({ createdAt: -1 })
+        .limit(5),
+      TopUp.countDocuments({ user: userId, status: "COMPLETED" }),
     ]);
-    res.render('webview/profile', { user, recentOrders, recentTopups, totalTopups });
-  }catch(error){
-    console.log(error)
+    res.render("webview/profile", {
+      user,
+      recentOrders,
+      recentTopups,
+      totalTopups,
+    });
+  } catch (error) {
+    console.log(error);
   }
-}
+};
 
 exports.editUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const {
-      username,
-      email,
-      minerId
-    } = req.body;
+    const { username, email, minerId } = req.body;
 
     // Check if email belongs to another user
     const existingEmail = await User.findOne({
       email,
-      _id: { $ne: userId }
+      _id: { $ne: userId },
     });
 
     if (existingEmail) {
-      req.flash('error', 'Email already exists');
-      return res.redirect('/user-profile');
+      req.flash("error", "Email already exists");
+      return res.redirect("/user-profile");
     }
 
     // Check if username belongs to another user
     const existingUsername = await User.findOne({
       username,
-      _id: { $ne: userId }
+      _id: { $ne: userId },
     });
 
     if (existingUsername) {
-      req.flash('error', 'Username already exists');
-      return res.redirect('/user-profile');
+      req.flash("error", "Username already exists");
+      return res.redirect("/user-profile");
     }
 
     const currentUser = await User.findById(userId);
 
     let parsedMinerId = null;
-    if (minerId && minerId.trim() !== '') {
+    if (minerId && minerId.trim() !== "") {
       const trimmed = minerId.trim();
       const isNum = /^\d+$/.test(trimmed);
       if (!isNum || (trimmed.length !== 10 && trimmed.length !== 11)) {
-        req.flash('error', 'Miner ID must be exactly 10 or 11 digits');
-        return res.redirect('/user-profile');
+        req.flash("error", "Miner ID must be 8 to 11 digits");
+        return res.redirect("/user-profile");
       }
       parsedMinerId = Number(trimmed);
 
       // Check if minerId belongs to another user
       const existingMinerId = await User.findOne({
         minerId: parsedMinerId,
-        _id: { $ne: userId }
+        _id: { $ne: userId },
       });
 
       if (existingMinerId) {
-        req.flash('error', 'Miner ID already taken');
-        return res.redirect('/user-profile');
+        req.flash("error", "Miner ID already taken");
+        return res.redirect("/user-profile");
       }
 
       // Validate via API only when the miner ID has actually changed
@@ -1760,12 +1541,18 @@ exports.editUserProfile = async (req, res) => {
         try {
           await axios.post(
             `${process.env.BITTOKEN_BASE_URL}/api/user/kabacu/verify/user`,
-            { email_id: email, miner_id: parsedMinerId }
+            { email_id: email, miner_id: parsedMinerId },
           );
         } catch (apiErr) {
-          console.log('MINER ID VERIFY ERROR:', apiErr.response?.data || apiErr.message);
-          req.flash('error', `Your email (${email}) and the miner ID you entered (${parsedMinerId}) do not match an account on BitToken App.`);
-          return res.redirect('/user-profile');
+          console.log(
+            "MINER ID VERIFY ERROR:",
+            apiErr.response?.data || apiErr.message,
+          );
+          req.flash(
+            "error",
+            `Your email (${email}) and the miner ID you entered (${parsedMinerId}) do not match an account on BitToken App.`,
+          );
+          return res.redirect("/user-profile");
         }
       }
     }
@@ -1775,53 +1562,40 @@ exports.editUserProfile = async (req, res) => {
       {
         username,
         email,
-        minerId: parsedMinerId
+        minerId: parsedMinerId,
       },
-      { returnDocument: 'after' }
+      { returnDocument: "after" },
     );
 
-    req.flash('success', 'Profile updated successfully');
-    res.redirect('/user-profile');
-
+    req.flash("success", "Profile updated successfully");
+    res.redirect("/user-profile");
   } catch (error) {
     console.log(error);
-    req.flash('error', 'Something went wrong');
-    res.redirect('/user-profile');
+    req.flash("error", "Something went wrong");
+    res.redirect("/user-profile");
   }
 };
 
-
-
 // UPDATE CHECKOUT
 exports.editItem = async (req, res) => {
+  const { phone, network } = req.body;
 
-    const { phone, network } = req.body;
+  await Checkout.findByIdAndUpdate(req.params.id, {
+    phone,
+  });
 
-    await Checkout.findByIdAndUpdate(req.params.id, {
-        phone
-    });
-
-    res.redirect('/checkout');
+  res.redirect("/checkout");
 };
-
-
 
 // DELETE CHECKOUT
-exports.deleteItem =  async (req, res) => {
+exports.deleteItem = async (req, res) => {
+  await Checkout.findByIdAndDelete(req.params.id);
 
-    await Checkout.findByIdAndDelete(req.params.id);
-
-    res.redirect('/');
-
+  res.redirect("/");
 };
 
-
-
-
 exports.claimRP = async (req, res) => {
-
   try {
-
     const userId = req.user.id;
 
     // =====================================
@@ -1831,12 +1605,10 @@ exports.claimRP = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-
       return res.json({
-
         success: false,
 
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -1845,12 +1617,10 @@ exports.claimRP = async (req, res) => {
     // =====================================
 
     if (user.rpBalance <= 0) {
-
       return res.json({
-
         success: false,
 
-        message: 'No RP available'
+        message: "No RP available",
       });
     }
 
@@ -1859,26 +1629,22 @@ exports.claimRP = async (req, res) => {
     // =====================================
 
     let wallet = await Wallet.findOne({
-
-      user: userId
+      user: userId,
     });
 
     if (!wallet) {
-
       wallet = await Wallet.create({
-
         user: userId,
 
         balances: {
-
           BTT: 0,
 
           RP: 0,
 
           USDT: 0,
 
-          NAIRA: 0
-        }
+          NAIRA: 0,
+        },
       });
     }
 
@@ -1905,31 +1671,24 @@ exports.claimRP = async (req, res) => {
     // =====================================
 
     res.json({
-
       success: true,
 
-      message:
-        `${claimedRP} RP claimed successfully`
+      message: `${claimedRP} RP claimed successfully`,
     });
-
   } catch (error) {
-
     console.log(error);
 
     res.json({
-
       success: false,
 
-      message: 'Failed to claim RP'
+      message: "Failed to claim RP",
     });
   }
 };
 
-
- 
-exports.wallet =  (req, res) => {
-    // wallet deduction logic
-    res.send('Processing wallet payment...');
+exports.wallet = (req, res) => {
+  // wallet deduction logic
+  res.send("Processing wallet payment...");
 };
 
 exports.conversionHistory = async (req, res) => {
@@ -1937,59 +1696,71 @@ exports.conversionHistory = async (req, res) => {
     const userId = req.user.id;
     const [user, conversions] = await Promise.all([
       User.findById(userId),
-      Conversion.find({ user: userId }).sort({ createdAt: -1 })
+      Conversion.find({ user: userId }).sort({ createdAt: -1 }),
     ]);
-    res.render('webview/conversion-history', { user, conversions });
+    res.render("webview/conversion-history", { user, conversions });
   } catch (error) {
-    console.log('CONVERSION HISTORY ERROR:', error);
-    res.redirect('/user-profile');
+    console.log("CONVERSION HISTORY ERROR:", error);
+    res.redirect("/user-profile");
   }
 };
 
 exports.faqPage = (req, res) => {
-  res.render('webview/faq');
+  res.render("webview/faq");
 };
 
 exports.privacyPolicy = (req, res) => {
-  res.render('webview/privacy-policy');
+  res.render("webview/privacy-policy");
 };
 
 exports.termsOfUse = (req, res) => {
-  res.render('webview/terms');
+  res.render("webview/terms");
 };
 
 exports.transferRPToBittokenHandler = async (req, res) => {
   try {
     const siteSettings = await SiteSettings.getSettings();
     if (!siteSettings.rpTransferEnabled) {
-      return res.json({ success: false, suspended: true, message: siteSettings.rpTransferSuspendedMessage });
+      return res.json({
+        success: false,
+        suspended: true,
+        message: siteSettings.rpTransferSuspendedMessage,
+      });
     }
 
     const userId = req.user.id;
     const rpAmount = Number(req.body.rpAmount);
 
     if (isNaN(rpAmount) || rpAmount <= 0) {
-      return res.json({ success: false, message: 'Enter a valid RP amount greater than 0.' });
+      return res.json({
+        success: false,
+        message: "Enter a valid RP amount greater than 0.",
+      });
     }
 
-    const user = await User.findById(userId).select('email minerId');
+    const user = await User.findById(userId).select("email minerId");
     if (!user) {
-      return res.json({ success: false, message: 'User not found.' });
+      return res.json({ success: false, message: "User not found." });
     }
 
     if (!user.minerId) {
       return res.json({
         success: false,
         noMinerId: true,
-        message: 'You have not set up your BitToken Miner ID. Please add it in your profile before transferring Reward Points.',
+        message:
+          "You have not set up your BitToken Miner ID. Please add it in your profile before transferring Reward Points.",
       });
     }
 
     const wallet = await Wallet.findOne({ user: userId });
-    const currentRP = (wallet && wallet.balances && wallet.balances.RP) ? wallet.balances.RP : 0;
+    const currentRP =
+      wallet && wallet.balances && wallet.balances.RP ? wallet.balances.RP : 0;
 
     if (currentRP < rpAmount) {
-      return res.json({ success: false, message: 'Insufficient Reward Points balance.' });
+      return res.json({
+        success: false,
+        message: "Insufficient Reward Points balance.",
+      });
     }
 
     // Deduct first
@@ -2007,35 +1778,55 @@ exports.transferRPToBittokenHandler = async (req, res) => {
     } catch (apiErr) {
       wallet.balances.RP += rpAmount;
       await wallet.save();
-      const errMsg = (apiErr.response && apiErr.response.data && apiErr.response.data.message)
-        ? apiErr.response.data.message
-        : apiErr.message || 'BitToken API error';
-      return res.json({ success: false, message: `Transfer failed: ${errMsg}` });
+      const errMsg =
+        apiErr.response && apiErr.response.data && apiErr.response.data.message
+          ? apiErr.response.data.message
+          : apiErr.message || "BitToken API error";
+      return res.json({
+        success: false,
+        message: `Transfer failed: ${errMsg}`,
+      });
     }
 
-    const accepted = apiResult && (apiResult.status === true || apiResult.status === 200 || apiResult.success === true);
+    const accepted =
+      apiResult &&
+      (apiResult.status === true ||
+        apiResult.status === 200 ||
+        apiResult.success === true);
     if (!accepted) {
       wallet.balances.RP += rpAmount;
       await wallet.save();
-      return res.json({ success: false, message: (apiResult && apiResult.message) || 'Transfer was not accepted by BitToken.' });
+      return res.json({
+        success: false,
+        message:
+          (apiResult && apiResult.message) ||
+          "Transfer was not accepted by BitToken.",
+      });
     }
 
-    const ref = 'BTT-RP-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    const ref =
+      "BTT-RP-" +
+      Date.now() +
+      "-" +
+      Math.random().toString(36).substr(2, 5).toUpperCase();
     await Transaction.create({
       user: userId,
       amount: rpAmount,
-      walletType: 'RP',
-      paymentMethod: 'BitToken Transfer',
-      status: 'success',
+      walletType: "RP",
+      paymentMethod: "BitToken Transfer",
+      status: "success",
       reference: ref,
     });
 
-    res.json({ success: true, message: `${rpAmount} RP successfully transferred to your BitToken account.` });
-
+    res.json({
+      success: true,
+      message: `${rpAmount} RP successfully transferred to your BitToken account.`,
+    });
   } catch (error) {
-    console.error('[transferRPToBittokenHandler]', error);
-    res.json({ success: false, message: 'Something went wrong. Please try again.' });
+    console.error("[transferRPToBittokenHandler]", error);
+    res.json({
+      success: false,
+      message: "Something went wrong. Please try again.",
+    });
   }
 };
-
-

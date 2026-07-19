@@ -293,6 +293,13 @@ exports.userDetails = [
         .filter((tp) => tp.status === "COMPLETED")
         .reduce((sum, tp) => sum + (tp.nairaAmount || tp.amount || 0), 0);
 
+      const successfulTransactions = transactions.filter(
+        (tx) => tx.status === "success"
+      ).length;
+      const failedTransactions = transactions.filter(
+        (tx) => tx.status === "failed"
+      ).length;
+
       res.render("adminview/tables/user-details", {
         layout: adminLayouts,
         user,
@@ -301,6 +308,8 @@ exports.userDetails = [
         topups,
         totalSpent,
         totalToppedUp,
+        successfulTransactions,
+        failedTransactions,
       });
     } catch (err) {
       console.log("USER DETAILS ERROR:", err);
