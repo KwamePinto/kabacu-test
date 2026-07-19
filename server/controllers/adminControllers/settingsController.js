@@ -1,5 +1,6 @@
 const adminLayout = 'layouts/adminLayout';
 const SiteSettings = require('../../models/SiteSettingsModel');
+const maintenanceMiddleware = require('../../middleware/maintenanceMiddleware');
 const { authenticateAdminUser } = require('../../config/authMiddleware');
 
 exports.viewSettings = [authenticateAdminUser, async (req, res) => {
@@ -18,15 +19,27 @@ exports.viewSettings = [authenticateAdminUser, async (req, res) => {
 
 exports.updateSettings = [authenticateAdminUser, async (req, res) => {
   try {
-    const rpTransferEnabled = req.body.rpTransferEnabled === 'true';
-    const rpTransferSuspendedMessage = (req.body.rpTransferSuspendedMessage || '').trim();
-
     const settings = await SiteSettings.getSettings();
-    settings.rpTransferEnabled = rpTransferEnabled;
-    if (rpTransferSuspendedMessage) {
-      settings.rpTransferSuspendedMessage = rpTransferSuspendedMessage;
-    }
+
+    // ── RP Transfer ────────────────────────────────────────────────────────────
+    settings.rpTransferEnabled = req.body.rpTransferEnabled === 'true';
+    const rpMsg = (req.body.rpTransferSuspendedMessage || '').trim();
+    if (rpMsg) settings.rpTransferSuspendedMessage = rpMsg;
+
+    // ── Maintenance mode ───────────────────────────────────────────────────────
+    settings.maintenanceModeEnabled = req.body.maintenanceModeEnabled === 'true';
+    const maintMsg = (req.body.maintenanceMessage || '').trim();
+    if (maintMsg) settings.maintenanceMessage = maintMsg;
+
+    // ── Upcoming maintenance banner ────────────────────────────────────────────
+    settings.maintenanceBannerEnabled = req.body.maintenanceBannerEnabled === 'true';
+    const rawDate = (req.body.maintenanceBannerScheduledAt || '').trim();
+    settings.maintenanceBannerScheduledAt = rawDate ? new Date(rawDate) : null;
+
     await settings.save();
+
+    // Flush the 30-second middleware cache so changes take effect immediately
+    maintenanceMiddleware.invalidateCache();
 
     res.redirect('/admin/settings?saved=1');
   } catch (err) {

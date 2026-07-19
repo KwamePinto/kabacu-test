@@ -102,6 +102,9 @@ app.use(expressLayout);
 app.set('layout', './layouts/main');
 app.set('view engine', 'ejs');
 
+// ── Maintenance mode (runs before all web routes) ─────────────────────────────
+app.use(require('./server/middleware/maintenanceMiddleware'));
+
 // ── Web routes ────────────────────────────────────────────────────────────────
 app.use('/', require('./server/routes/webviewRoutes/packagesRoute'));
 app.use('/user', require('./server/routes/webviewRoutes/userRoute'));

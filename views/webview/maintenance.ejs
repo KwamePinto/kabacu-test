@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kabacu — Under Maintenance</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/images/new.PNG">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      background: #f8fdf9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px 80px;
+      color: #111827;
+    }
+
+    .maint-logo {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 52px;
+      opacity: .85;
+    }
+
+    .maint-img {
+      width: 200px;
+      max-width: 72vw;
+      display: block;
+      margin: 0 auto 44px;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 16px 24px rgba(0,0,0,.10));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-18px); }
+    }
+
+    .maint-title {
+      font-size: clamp(24px, 5vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: #111827;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .maint-message {
+      font-size: 15px;
+      line-height: 1.75;
+      color: #6b7280;
+      text-align: center;
+      max-width: 420px;
+    }
+
+    .maint-divider {
+      width: 40px;
+      height: 3px;
+      border-radius: 2px;
+      background: #22c55e;
+      margin: 28px auto;
+    }
+
+    .maint-footer {
+      position: fixed;
+      bottom: 24px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+      letter-spacing: .3px;
+    }
+
+    @media (max-width: 480px) {
+      .maint-img { width: 150px; margin-bottom: 32px; }
+      .maint-logo { margin-bottom: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+  <img src="/assets/images/new.PNG" alt="Kabacu" class="maint-logo">
+
+  <img src="/assets/images/maintenance.png" alt="Under maintenance" class="maint-img">
+
+  <h1 class="maint-title">We'll Be Right Back</h1>
+
+  <div class="maint-divider"></div>
+
+  <p class="maint-message"><%= message %></p>
+
+  <footer class="maint-footer">
+    &copy; <%= new Date().getFullYear() %> Kabacu &mdash; All rights reserved.
+  </footer>
+
+</body>
+</html>

@@ -69,6 +69,83 @@
                       </div>
 
                     </div>
+                  <!-- Maintenance Mode -->
+                  <div class="card">
+                    <div class="card-header">
+                      <h4><i data-feather="tool" style="width:18px;height:18px;margin-right:6px;"></i> Maintenance Mode</h4>
+                    </div>
+                    <div class="card-body">
+
+                      <div class="form-group d-flex align-items-center justify-content-between" style="border-bottom:1px solid #f0f0f0;padding-bottom:16px;margin-bottom:20px;">
+                        <div>
+                          <label class="mb-0" style="font-weight:600;">Enable Maintenance Mode</label>
+                          <p class="text-muted mb-0" style="font-size:13px;">When enabled, all public pages will display the maintenance screen. The admin panel remains accessible.</p>
+                        </div>
+                        <div class="ml-4">
+                          <label class="custom-switch" style="margin-bottom:0;">
+                            <input type="checkbox" id="maintModeToggle" class="custom-switch-input"
+                              <%= settings.maintenanceModeEnabled ? 'checked' : '' %>>
+                            <span class="custom-switch-indicator"></span>
+                          </label>
+                          <input type="hidden" name="maintenanceModeEnabled" id="maintModeEnabledInput"
+                            value="<%= settings.maintenanceModeEnabled ? 'true' : 'false' %>">
+                        </div>
+                      </div>
+
+                      <div class="form-group mb-0">
+                        <label for="maintenanceMessage" style="font-weight:600;">Maintenance Page Message</label>
+                        <p class="text-muted" style="font-size:13px;">This message is displayed on the maintenance screen shown to users.</p>
+                        <textarea
+                          name="maintenanceMessage"
+                          id="maintenanceMessage"
+                          class="form-control"
+                          rows="3"
+                          maxlength="600"
+                          placeholder="e.g. We're performing scheduled maintenance. We'll be back shortly."
+                        ><%= settings.maintenanceMessage %></textarea>
+                        <small class="text-muted"><span id="maintMsgCount"><%= settings.maintenanceMessage.length %></span> / 600 characters</small>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <!-- Upcoming Maintenance Banner -->
+                  <div class="card">
+                    <div class="card-header">
+                      <h4><i data-feather="bell" style="width:18px;height:18px;margin-right:6px;"></i> Upcoming Maintenance Banner</h4>
+                    </div>
+                    <div class="card-body">
+
+                      <div class="form-group d-flex align-items-center justify-content-between" style="border-bottom:1px solid #f0f0f0;padding-bottom:16px;margin-bottom:20px;">
+                        <div>
+                          <label class="mb-0" style="font-weight:600;">Show Countdown Banner</label>
+                          <p class="text-muted mb-0" style="font-size:13px;">Displays a banner at the top of every public page counting down to the scheduled maintenance time.</p>
+                        </div>
+                        <div class="ml-4">
+                          <label class="custom-switch" style="margin-bottom:0;">
+                            <input type="checkbox" id="maintBannerToggle" class="custom-switch-input"
+                              <%= settings.maintenanceBannerEnabled ? 'checked' : '' %>>
+                            <span class="custom-switch-indicator"></span>
+                          </label>
+                          <input type="hidden" name="maintenanceBannerEnabled" id="maintBannerEnabledInput"
+                            value="<%= settings.maintenanceBannerEnabled ? 'true' : 'false' %>">
+                        </div>
+                      </div>
+
+                      <div class="form-group mb-0">
+                        <label for="maintenanceBannerScheduledAt" style="font-weight:600;">Scheduled Maintenance Time</label>
+                        <p class="text-muted" style="font-size:13px;">The countdown banner will display until this date and time is reached.</p>
+                        <input
+                          type="datetime-local"
+                          name="maintenanceBannerScheduledAt"
+                          id="maintenanceBannerScheduledAt"
+                          class="form-control"
+                          style="max-width:320px;"
+                          value="<%= settings.maintenanceBannerScheduledAt ? new Date(settings.maintenanceBannerScheduledAt).toISOString().slice(0,16) : '' %>"
+                        >
+                      </div>
+
+                    </div>
                     <div class="card-footer text-right">
                       <button type="button" class="btn btn-primary" id="saveSettingsBtn">
                         <i class="fa fa-save mr-1"></i> Save Settings
@@ -121,14 +198,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// Sync toggle → hidden input
+// RP Transfer toggle
 document.getElementById('rpTransferToggle').addEventListener('change', function () {
   document.getElementById('rpTransferEnabledInput').value = this.checked ? 'true' : 'false';
 });
-
-// Character counter
 document.getElementById('rpTransferSuspendedMessage').addEventListener('input', function () {
   document.getElementById('charCount').textContent = this.value.length;
+});
+
+// Maintenance mode toggle
+document.getElementById('maintModeToggle').addEventListener('change', function () {
+  document.getElementById('maintModeEnabledInput').value = this.checked ? 'true' : 'false';
+});
+document.getElementById('maintenanceMessage').addEventListener('input', function () {
+  document.getElementById('maintMsgCount').textContent = this.value.length;
+});
+
+// Maintenance banner toggle
+document.getElementById('maintBannerToggle').addEventListener('change', function () {
+  document.getElementById('maintBannerEnabledInput').value = this.checked ? 'true' : 'false';
 });
 
 // Save confirmation
