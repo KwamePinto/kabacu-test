@@ -1,3 +1,11 @@
+      <style>
+        /* Make the sidebar scroll natively when content overflows */
+        .main-sidebar { overflow-y: auto !important; }
+        .main-sidebar::-webkit-scrollbar { width: 4px; }
+        .main-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.25); border-radius: 4px; }
+        .main-sidebar::-webkit-scrollbar-track { background: transparent; }
+      </style>
+
       <div class="main-sidebar sidebar-style-2">
         <aside id="sidebar-wrapper">
           <div class="sidebar-brand">
@@ -66,16 +74,8 @@
                 <i data-feather="settings"></i><span>Settings</span>
               </a>
               <ul class="dropdown-menu">
-                <li>
-                  <a href="/admin/settings?section=maintenance" class="nav-link">
-                    <i data-feather="tool"></i>Maintenance
-                  </a>
-                </li>
-                <li>
-                  <a href="/admin/settings?section=bittoken" class="nav-link">
-                    <i data-feather="repeat"></i>BitToken
-                  </a>
-                </li>
+                <li><a href="/admin/settings?section=maintenance">Maintenance</a></li>
+                <li><a href="/admin/settings?section=bittoken">BitToken</a></li>
               </ul>
             </li>
 
