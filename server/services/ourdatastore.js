@@ -6,7 +6,7 @@ const BASE_URL = 'https://ourdatastore.com/api';
 // Maps a network name to the ourdatastore API code.
 // Queries the Networks collection first (authoritative), then falls back to
 // string matching so legacy products without a DB entry still work.
-// 1 = MTN  |  2 = GLO  |  3 = Airtel  |  4 = 9mobile
+// 1 = MTN  |  2 = Airtel  |  3 = GLO  |  4 = 9mobile
 async function networkCode(networkName) {
   if (!networkName) return null;
   try {
