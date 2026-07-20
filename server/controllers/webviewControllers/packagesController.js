@@ -877,8 +877,7 @@ exports.payWithWallet = async (req, res) => {
 
           return res.json({
             success: false,
-
-            message: "Data purchase failed, refunded",
+            message: apiResponse.message || "Data purchase failed, refunded",
           });
         }
       }

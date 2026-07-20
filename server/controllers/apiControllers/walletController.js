@@ -122,7 +122,7 @@ exports.payWithWallet = async (req, res) => {
             apiResponse
           });
 
-          return res.json({ success: false, message: 'Data purchase failed, refunded' });
+          return res.json({ success: false, message: apiResponse.message || 'Data purchase failed, refunded' });
         }
       }
     }
