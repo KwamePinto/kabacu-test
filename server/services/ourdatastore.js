@@ -15,10 +15,11 @@ async function networkCode(networkName) {
     if (net) return net.apiCode;
   } catch (_) { /* DB unavailable — fall through to string matching */ }
 
+  // Verified against ourdatastore API: 1=MTN, 2=Airtel, 3=GLO, 4=9mobile
   const n = (networkName || '').toUpperCase();
   if (n.includes('MTN') || n.includes('CTC')) return 1;
-  if (n.includes('GLO'))                       return 2;
-  if (n.includes('AIRTEL'))                    return 3;
+  if (n.includes('AIRTEL'))                    return 2;
+  if (n.includes('GLO'))                       return 3;
   if (n.includes('9MOBILE') || n.includes('ETISALAT')) return 4;
   return null;
 }
