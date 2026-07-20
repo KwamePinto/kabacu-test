@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "C:\\Users\\user\\Desktop\\CTC\\kabacu\\log\\.error-audit.json",
+    "files": [
+        {
+            "date": 1784444961046,
+            "name": "C:\\Users\\user\\Desktop\\CTC\\kabacu\\log\\error-2026-07-19.log",
+            "hash": "45e264c951c872b8a9c374fe9833aad12ec41065ed9b9308e08da5e034957472"
+        },
+        {
+            "date": 1784570849430,
+            "name": "/home/asura/Documents/ctc_ecommerce/log/error-2026-07-20.log",
+            "hash": "1304e25b786ec0373adf6abcfff7f601a9bb40bdcd4e4c9fb4d861886ba9dadc"
+        }
+    ],
+    "hashType": "sha256"
+}

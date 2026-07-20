@@ -149,6 +149,10 @@
 
 .phone-field__num::placeholder { color: var(--muted); }
 
+/* ── Phone input (intl-tel-input) ───────────────────────── */
+.iti { display: block; width: 100%; }
+.iti__country-list { border-radius: var(--r-sm); font-family: var(--font); }
+
 /* ── Product Card ────────────────────────────────────────── */
 .product-card {
   background: var(--white);
