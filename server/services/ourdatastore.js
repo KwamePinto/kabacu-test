@@ -147,4 +147,12 @@ async function buyData({ network, phone, data_plan }) {
   });
 }
 
-module.exports = { buyData, networkCode };
+// Returns the first sentence of the API response for display to the user.
+// The full message is always preserved in the logs.
+function userMessage(apiResponse, fallback = 'Transaction failed. Your balance has been refunded.') {
+  const raw = (apiResponse && (apiResponse.response || apiResponse.message)) || fallback;
+  const dot = raw.indexOf('.');
+  return (dot !== -1 ? raw.slice(0, dot + 1) : raw).trim();
+}
+
+module.exports = { buyData, networkCode, userMessage };

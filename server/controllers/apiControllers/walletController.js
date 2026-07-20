@@ -4,7 +4,7 @@ const TopUp    = require('../../models/TopUpModal');
 const Product  = require('../../models/ProductsModal');
 const Checkout = require('../../models/CheckoutModal');
 const Transaction = require('../../models/TransactionModel');
-const { buyData, networkCode } = require('../../services/ourdatastore');
+const { buyData, networkCode, userMessage } = require('../../services/ourdatastore');
 const { generateSignature, verifySignature } = require('../../utils/palmpay');
 const axios  = require('axios');
 const crypto = require('crypto');
@@ -122,7 +122,7 @@ exports.payWithWallet = async (req, res) => {
             apiResponse
           });
 
-          return res.json({ success: false, message: apiResponse.response || apiResponse.message || 'Data purchase failed, refunded' });
+          return res.json({ success: false, message: userMessage(apiResponse, 'Data purchase failed, refunded') });
         }
       }
     }
