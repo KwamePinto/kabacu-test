@@ -237,7 +237,7 @@ exports.walletCheckout = async (req, res) => {
       user.walletBalance += amount;
       await user.save();
 
-      req.flash("error", "Transaction failed, refunded");
+      req.flash("error", apiResponse.message || "Transaction failed. Your balance has been refunded.");
       return res.redirect("/checkout");
     }
 
