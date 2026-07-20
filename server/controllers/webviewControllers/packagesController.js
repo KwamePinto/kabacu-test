@@ -237,7 +237,7 @@ exports.walletCheckout = async (req, res) => {
       user.walletBalance += amount;
       await user.save();
 
-      req.flash("error", apiResponse.message || "Transaction failed. Your balance has been refunded.");
+      req.flash("error", apiResponse.response || apiResponse.message || "Transaction failed. Your balance has been refunded.");
       return res.redirect("/checkout");
     }
 
@@ -338,7 +338,7 @@ exports.retryTransaction = async (req, res) => {
 
     return res.json({
       success: tx.status === "success",
-      message: apiResponse.message,
+      message: apiResponse.response || apiResponse.message,
     });
   } catch (error) {
     console.log(error);
@@ -877,7 +877,7 @@ exports.payWithWallet = async (req, res) => {
 
           return res.json({
             success: false,
-            message: apiResponse.message || "Data purchase failed, refunded",
+            message: apiResponse.response || apiResponse.message || "Data purchase failed, refunded",
           });
         }
       }
