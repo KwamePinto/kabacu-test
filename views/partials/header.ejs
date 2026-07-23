@@ -19,7 +19,7 @@
 
       <!-- Actions -->
       <div class="app-header__actions">
-                <p>₦<%= ((wallet && wallet.balances && (wallet.balances.NAIRA).toFixed(2)) || 0.00).toLocaleString() %></p>
+                <p class="mobile-only">₦<%= ((wallet && wallet.balances && (wallet.balances.NAIRA).toFixed(2)) || 0.00).toLocaleString() %></p>
         <button id="searchBtn" class="app-header__icon-btn" aria-label="Search">
           <i data-lucide="search"></i>
         </button>

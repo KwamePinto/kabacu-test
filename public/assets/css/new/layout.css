@@ -553,6 +553,9 @@ cursor: pointer;
   /* ── Desktop-only elements ─────────────────────────────── */
   .desktop-only { display: flex !important; }
 
+  /* ── Mobile-only elements — hidden once desktop nav kicks in ── */
+  .mobile-only { display: none !important; }
+
   /* ── Page main ─────────────────────────────────────────── */
   .page-main { padding-top: 68px; }
 
