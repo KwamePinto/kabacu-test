@@ -74,9 +74,9 @@
                             <a href="/admin/product/payment-methods/toggle/<%= m._id %>" style="color:white;border-radius:45px; min-width: 90px; margin-right: 6px;" class="btn btn-sm <%= m.isActive ? 'btn-warning' : 'btn-success' %>">
                               <%= m.isActive ? 'Deactivate' : 'Activate' %>
                             </a>
-                            <a href="/admin/product/payment-methods/delete/<%= m._id %>" class="btn btn-sm btn-danger" style="color: white; min-width: 90px; border-radius:45px;" onclick="return confirm('Delete <%= m.name %>?')">
+                            <!-- <a href="/admin/product/payment-methods/delete/<%= m._id %>" class="btn btn-sm btn-danger" style="color: white; min-width: 90px; border-radius:45px;" onclick="return confirm('Delete <%= m.name %>?')">
                               Delete
-                            </a>
+                            </a> -->
                           </td>
                         </tr>
                         <% }) %>

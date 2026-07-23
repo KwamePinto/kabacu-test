@@ -416,7 +416,14 @@ body.no-header .page-main {
   gap: 7px;
   font-size: 12px;
   margin-bottom: 7px;
+  
 }
+.footer-contact-item span:hover {
+text-decoration: underline;
+cursor: pointer;
+
+}
+
 
 .footer-contact-item svg {
   width: 13px; height: 13px;

@@ -81,6 +81,10 @@
           <div class="payment-method-opt__sub">Balance: <strong>₦<%= (walletBalance || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></strong></div>
         </div>
       </div>
+      <a href="/my-wallet" target="_blank" rel="noopener" id="topUpWalletBtn" class="btn btn--outline btn--sm" style="align-self:flex-end;">
+        <i data-lucide="plus-circle"></i>
+        Top up wallet
+      </a>
     </div>
   </div>
 </div>
@@ -212,6 +216,17 @@ document.getElementById('confirmDelete').addEventListener('click', () => {
     editPhone.value = editCode.value + num;
   });
 })();
+
+// ── Top up wallet ──
+document.getElementById('topUpWalletBtn').addEventListener('click', () => {
+  window._walletTopUpPending = true;
+});
+window.addEventListener('focus', () => {
+  if (window._walletTopUpPending) {
+    window._walletTopUpPending = false;
+    location.reload();
+  }
+});
 
 // ── Wallet payment ──
 document.getElementById('walletBtn').addEventListener('click', async () => {
