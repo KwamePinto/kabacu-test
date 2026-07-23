@@ -405,6 +405,34 @@ exports.addPaymentMethod = [
   },
 ];
 
+exports.editPaymentMethod = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const { name, description } = req.body;
+      if (!name || !name.trim()) {
+        req.flash("error", "Payment method name is required");
+        return res.redirect("/admin/product/payment-methods");
+      }
+      const exists = await PaymentMethod.findOne({ name: name.trim(), _id: { $ne: req.params.id } });
+      if (exists) {
+        req.flash("error", "A payment method with that name already exists");
+        return res.redirect("/admin/product/payment-methods");
+      }
+      await PaymentMethod.findByIdAndUpdate(req.params.id, {
+        name: name.trim(),
+        description: (description || '').trim(),
+      });
+      req.flash("success", "Payment method updated");
+      res.redirect("/admin/product/payment-methods");
+    } catch (err) {
+      console.log(err);
+      req.flash("error", "Something went wrong");
+      res.redirect("/admin/product/payment-methods");
+    }
+  },
+];
+
 exports.togglePaymentMethod = [
   authenticateAdminUser,
   async (req, res) => {

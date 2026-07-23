@@ -19,6 +19,7 @@ router.post('/delete-product/:id', getProducts.deleteProduct);
 
 router.get('/payment-methods',          getProducts.viewPaymentMethods);
 router.post('/payment-methods/add',     getProducts.addPaymentMethod);
+router.post('/payment-methods/edit/:id', getProducts.editPaymentMethod);
 router.get('/payment-methods/toggle/:id', getProducts.togglePaymentMethod);
 router.get('/payment-methods/delete/:id', getProducts.deletePaymentMethod);
 
