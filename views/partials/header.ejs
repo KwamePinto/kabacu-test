@@ -31,7 +31,7 @@
         <a href="/user-profile" class="app-header__icon-btn desktop-only" aria-label="My Account" title="My Account">
           <i data-lucide="user-circle-2"></i>
         </a>
-        <p class="desktop-only">₦<%= ((wallet && wallet.balances && (wallet.balances.NAIRA).toFixed(2)) || 0.00).toLocaleString() %></p>
+        <p class="desktop-only" style="color: white;">₦<%= ((wallet && wallet.balances && (wallet.balances.NAIRA).toFixed(2)) || 0.00).toLocaleString() %></p>
         <% } else { %>
         <a href="/user/login" class="app-header__login-btn">
           <i data-lucide="log-in"></i>
