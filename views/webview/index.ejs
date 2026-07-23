@@ -213,7 +213,7 @@
               <% } %>
             </div>
             <% if (user) { %>
-            <button class="product-card__buy buy-btn" data-id="<%= product._id %>" aria-label="Buy">
+            <button class="product-card__buy buy-btn" data-id="<%= product._id %>" data-network="<%= product.dataDetails.network %>" aria-label="Buy">
               <i data-lucide="plus"></i>
             </button>
             <% } else { %>
@@ -468,6 +468,21 @@
       </button>
     </div>
     <p class="modal-subtitle">Enter the active number to receive the data bundle</p>
+
+    <% if (beneficiaries && beneficiaries.length > 0) { %>
+    <div class="form-group">
+      <label class="form-label">Saved Numbers</label>
+      <div class="beneficiary-chips" id="beneficiaryChips">
+        <% beneficiaries.forEach(function(b) { %>
+        <button type="button" class="beneficiary-chip" data-phone="<%= b.phone %>">
+          <span class="beneficiary-chip__name"><%= b.nickname || b.phone %></span>
+          <% if (b.nickname) { %><span class="beneficiary-chip__phone"><%= b.phone %></span><% } %>
+        </button>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+
     <div class="form-group">
       <label class="form-label">Phone Number</label>
       <div class="input-wrapper">
@@ -478,6 +493,16 @@
         Phone number must be exactly 11 digits
       </small>
     </div>
+
+    <div class="form-group">
+      <label class="beneficiary-save-toggle">
+        <input type="checkbox" id="saveBeneficiaryCheckbox" aria-label="Save this number as a beneficiary">
+        Save this number as a beneficiary
+      </label>
+      <input type="text" id="beneficiaryNicknameInput" class="form-input form-input--plain"
+             placeholder="Nickname (optional)" style="display:none;margin-top:8px;" maxlength="30">
+    </div>
+
     <div class="modal-actions">
       <button id="checkoutBtn" class="btn btn--primary btn--full">
         <i data-lucide="arrow-right"></i>
@@ -681,12 +706,37 @@
 
   /* ── Buy modal ────────────────────────────────────────── */
   var selectedPackageId = null;
+  var selectedNetwork   = null;
+
+  // Nigerian network prefixes — used to catch a phone number that clearly
+  // belongs to a different network than the bundle being purchased.
+  var NETWORK_PREFIXES = {
+    MTN:    ['0803','0806','0703','0706','0810','0813','0814','0816','0903','0906','0913','0916'],
+    AIRTEL: ['0802','0808','0701','0708','0812','0901','0902','0904','0907','0912'],
+    GLO:    ['0805','0807','0705','0811','0815','0905','0915']
+  };
+
+  function detectNetworkKey(name) {
+    var n = (name || '').toUpperCase();
+    if (n.indexOf('MTN') !== -1)    return 'MTN';
+    if (n.indexOf('AIRTEL') !== -1) return 'AIRTEL';
+    if (n.indexOf('GLO') !== -1)    return 'GLO';
+    return null;
+  }
+
+  function phoneMatchesNetwork(phone, networkName) {
+    var key = detectNetworkKey(networkName);
+    if (!key) return true; // e.g. 9mobile — no prefix list to check against
+    return NETWORK_PREFIXES[key].indexOf(phone.slice(0, 4)) !== -1;
+  }
 
   document.querySelectorAll('.buy-btn').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
       selectedPackageId = this.dataset.id;
+      selectedNetwork   = this.dataset.network || null;
+      resetBuyModalForm();
       document.getElementById('buyModal').classList.add('open');
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
@@ -709,14 +759,64 @@
 
   var phoneInput = document.getElementById('phoneInput');
   var phoneError = document.getElementById('phoneError');
+  var beneficiaryChips         = document.getElementById('beneficiaryChips');
+  var saveBeneficiaryCheckbox  = document.getElementById('saveBeneficiaryCheckbox');
+  var beneficiaryNicknameInput = document.getElementById('beneficiaryNicknameInput');
+
+  function resetBuyModalForm() {
+    phoneInput.value = '';
+    phoneError.style.display = 'none';
+    if (beneficiaryChips) {
+      beneficiaryChips.querySelectorAll('.beneficiary-chip').forEach(function(c) { c.classList.remove('active'); });
+    }
+    if (saveBeneficiaryCheckbox) {
+      saveBeneficiaryCheckbox.checked = false;
+      saveBeneficiaryCheckbox.disabled = false;
+    }
+    if (beneficiaryNicknameInput) {
+      beneficiaryNicknameInput.value = '';
+      beneficiaryNicknameInput.style.display = 'none';
+    }
+  }
 
   phoneInput.addEventListener('input', function() {
     this.value = this.value.replace(/\D/g, '').slice(0, 11);
+    if (beneficiaryChips) {
+      beneficiaryChips.querySelectorAll('.beneficiary-chip').forEach(function(c) { c.classList.remove('active'); });
+    }
+    if (saveBeneficiaryCheckbox) saveBeneficiaryCheckbox.disabled = false;
   });
+
+  if (beneficiaryChips) {
+    beneficiaryChips.querySelectorAll('.beneficiary-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        beneficiaryChips.querySelectorAll('.beneficiary-chip').forEach(function(c) { c.classList.remove('active'); });
+        this.classList.add('active');
+        phoneInput.value = this.dataset.phone;
+        phoneError.style.display = 'none';
+        if (saveBeneficiaryCheckbox) {
+          saveBeneficiaryCheckbox.checked = false;
+          saveBeneficiaryCheckbox.disabled = true;
+        }
+      });
+    });
+  }
+
+  if (saveBeneficiaryCheckbox) {
+    saveBeneficiaryCheckbox.addEventListener('change', function() {
+      beneficiaryNicknameInput.style.display = this.checked ? 'block' : 'none';
+    });
+  }
 
   document.getElementById('checkoutBtn').addEventListener('click', async function() {
     var phone = phoneInput.value.trim();
     if (!/^\d{11}$/.test(phone)) {
+      phoneError.textContent = 'Phone number must be exactly 11 digits';
+      phoneError.style.display = 'block';
+      return;
+    }
+    if (!phoneMatchesNetwork(phone, selectedNetwork)) {
+      phoneError.textContent = 'This number doesn\'t look like a ' + selectedNetwork + ' number';
       phoneError.style.display = 'block';
       return;
     }
@@ -727,6 +827,13 @@
         text: 'No product selected'
       });
       return;
+    }
+    if (saveBeneficiaryCheckbox && saveBeneficiaryCheckbox.checked) {
+      fetch('/beneficiaries/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
+        body: JSON.stringify({ phone: phone, network: selectedNetwork, nickname: beneficiaryNicknameInput.value.trim() })
+      }).catch(function() {});
     }
     try {
       var res = await fetch('/checkout/initiate', {

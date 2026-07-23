@@ -16,6 +16,7 @@ const mongoose = require("mongoose");
 const { generateSignature, verifySignature } = require("../../utils/palmpay");
 const { transferRPToBittoken } = require("../../services/bittokenService");
 const SiteSettings = require("../../models/SiteSettingsModel");
+const Beneficiary = require("../../models/BeneficiaryModel");
 
 exports.packagesView = async (req, res) => {
   try {
@@ -119,6 +120,56 @@ exports.initiateCheckout = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error creating checkout" });
+  }
+};
+
+// ADD BENEFICIARY
+exports.addBeneficiary = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { phone, network, nickname } = req.body;
+
+    if (!/^\d{11}$/.test(phone || "")) {
+      return res.json({ success: false, message: "Phone number must be exactly 11 digits" });
+    }
+
+    const existing = await Beneficiary.findOne({ user: userId, phone, is_deleted: 0 });
+    if (existing) {
+      return res.json({ success: false, message: "This number is already saved" });
+    }
+
+    const beneficiary = await Beneficiary.create({
+      user: userId,
+      phone,
+      network: network || "",
+      nickname: (nickname || "").trim(),
+    });
+
+    res.json({ success: true, beneficiary });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error saving beneficiary" });
+  }
+};
+
+// DELETE BENEFICIARY
+exports.deleteBeneficiary = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const beneficiary = await Beneficiary.findOne({ _id: id, user: userId });
+    if (!beneficiary) {
+      return res.json({ success: false, message: "Beneficiary not found" });
+    }
+
+    beneficiary.is_deleted = 1;
+    await beneficiary.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error deleting beneficiary" });
   }
 };
 
