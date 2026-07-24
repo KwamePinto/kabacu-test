@@ -272,17 +272,26 @@ exports.walletCheckout = async (req, res) => {
 
     console.log("About to save transaction...");
 
+    let txStatus = "failed";
+    if (apiResponse.status === "success") txStatus = "success";
+    else if (apiResponse.status === "pending") txStatus = "pending";
+
     await Transaction.create({
       user: userId,
       package: checkout.product._id,
       phone: phone,
       amount,
-      status: apiResponse.status === "success" ? "success" : "failed",
+      status: txStatus,
       reference: `TX-${Date.now()}`,
       apiResponse,
     });
 
     console.log("API RESPONSE:", apiResponse);
+
+    if (apiResponse.status === "pending") {
+      req.flash("success", "Your order is being processed. Please wait a few minutes — do not retry.");
+      return res.redirect("/checkout");
+    }
 
     if (apiResponse.status !== "success") {
       user.walletBalance += amount;
@@ -889,6 +898,33 @@ exports.payWithWallet = async (req, res) => {
           apiResponse = {
             status: "fail",
           };
+        }
+
+        // =====================================
+        // ⏳ PENDING — do not refund
+        // =====================================
+        if (apiResponse.status === "pending") {
+          await Transaction.create({
+            user: userId,
+            product: itemsToProcess[0]?.product?._id,
+            products: itemsToProcess.map((item) => ({
+              product: item.product._id,
+              quantity: item.quantity,
+            })),
+            phone,
+            amount: total,
+            rpEarned: 0,
+            walletType: "NAIRA",
+            paymentMethod: "wallet",
+            status: "pending",
+            reference: "PAY-" + Date.now(),
+            apiResponse,
+          });
+          return res.json({
+            success: false,
+            pending: true,
+            message: "Your order is being processed. Please wait a few minutes — do not retry. Check your transaction history for the update.",
+          });
         }
 
         // =====================================

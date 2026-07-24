@@ -105,6 +105,23 @@ exports.payWithWallet = async (req, res) => {
           apiResponse = { status: 'fail' };
         }
 
+        if (apiResponse.status === 'pending') {
+          await Transaction.create({
+            user:          userId,
+            product:       product._id,
+            products:      itemsToProcess.map(i => ({ product: i.product._id, quantity: i.quantity })),
+            phone,
+            amount:        total,
+            rpEarned:      0,
+            walletType:    'NAIRA',
+            paymentMethod: 'wallet',
+            status:        'pending',
+            reference:     'PAY-' + Date.now(),
+            apiResponse
+          });
+          return res.json({ success: false, pending: true, message: 'Your order is being processed. Please wait a few minutes — do not retry. Check your transaction history for the update.' });
+        }
+
         if (apiResponse.status !== 'success') {
           wallet.balances.NAIRA += total;
           await wallet.save();
