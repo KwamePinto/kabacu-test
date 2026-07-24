@@ -60,6 +60,12 @@
   gap: 8px;
 }
 
+.app-header__balance {
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* Icon buttons — dark-tinted so they're clearly visible on the glassy surface */
 .app-header__icon-btn {
   width: 32px; height: 32px;
@@ -506,6 +512,10 @@ cursor: pointer;
   .app-header.hero-transparent .app-header__login-btn {
     background: rgba(255,255,255,.18);
     border: 1px solid rgba(255,255,255,.38);
+  }
+
+  .app-header.hero-transparent .app-header__balance {
+    color: var(--white);
   }
 
   .app-header__inner {
