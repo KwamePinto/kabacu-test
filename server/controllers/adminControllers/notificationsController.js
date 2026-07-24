@@ -24,6 +24,7 @@ async function viewPanel(req, res) {
     const registeredUsers = Object.values(userMap);
 
     res.render('adminview/notifications', {
+      layout: 'layouts/adminLayout',
       title: 'Notifications',
       messages,
       registeredUsers,
@@ -32,6 +33,7 @@ async function viewPanel(req, res) {
   } catch (err) {
     logger.error('notificationsController.viewPanel: %s', err.message);
     res.render('adminview/notifications', {
+      layout: 'layouts/adminLayout',
       title: 'Notifications',
       messages: [],
       registeredUsers: [],
