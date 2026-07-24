@@ -26,6 +26,16 @@ exports.updateSettings = [authenticateAdminUser, async (req, res) => {
     const rpMsg = (req.body.rpTransferSuspendedMessage || '').trim();
     if (rpMsg) settings.rpTransferSuspendedMessage = rpMsg;
 
+    // ── BTT Topup ──────────────────────────────────────────────────────────────
+    settings.bttTopupEnabled = req.body.bttTopupEnabled === 'true';
+    const bttMsg = (req.body.bttTopupSuspendedMessage || '').trim();
+    if (bttMsg) settings.bttTopupSuspendedMessage = bttMsg;
+
+    // ── USDT Topup ─────────────────────────────────────────────────────────────
+    settings.usdtTopupEnabled = req.body.usdtTopupEnabled === 'true';
+    const usdtMsg = (req.body.usdtTopupSuspendedMessage || '').trim();
+    if (usdtMsg) settings.usdtTopupSuspendedMessage = usdtMsg;
+
     // ── Maintenance mode ───────────────────────────────────────────────────────
     settings.maintenanceModeEnabled = req.body.maintenanceModeEnabled === 'true';
     const maintMsg = (req.body.maintenanceMessage || '').trim();

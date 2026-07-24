@@ -10,6 +10,26 @@ const siteSettingsSchema = new mongoose.Schema({
     default: 'RP transfer to BitToken has been suspended for the time being. Please check back later.',
   },
 
+  // BTT topup from Bittoken
+  bttTopupEnabled: {
+    type: Boolean,
+    default: true,
+  },
+  bttTopupSuspendedMessage: {
+    type: String,
+    default: 'BTT top-up has been temporarily suspended. Please check back later.',
+  },
+
+  // USDT topup & conversion from Bittoken
+  usdtTopupEnabled: {
+    type: Boolean,
+    default: true,
+  },
+  usdtTopupSuspendedMessage: {
+    type: String,
+    default: 'USDT top-up has been temporarily suspended. Please check back later.',
+  },
+
   // Maintenance mode
   maintenanceModeEnabled: {
     type: Boolean,

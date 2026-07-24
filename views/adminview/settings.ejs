@@ -88,6 +88,96 @@
 
                       <div class="settings-divider"></div>
 
+                      <!-- ── BTT Topup ─────────────────────────────────────────── -->
+                      <div class="settings-group" id="group-btt">
+                        <button type="button" class="settings-group__header">
+                          <div class="settings-group__title">
+                            <span class="settings-group__label">BTT Topup</span>
+                            <span class="settings-group__sub">Allow users to top up their BTT balance from BitToken</span>
+                          </div>
+                          <div class="settings-group__meta">
+                            <span class="settings-badge <%= settings.bttTopupEnabled ? 'settings-badge--on' : 'settings-badge--off' %>" id="badge-btt">
+                              <%= settings.bttTopupEnabled ? 'Enabled' : 'Disabled' %>
+                            </span>
+                            <svg class="settings-group__chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                          </div>
+                        </button>
+                        <div class="settings-group__body">
+                          <div class="settings-group__inner">
+
+                            <div class="settings-row">
+                              <div class="settings-row__text">
+                                <span class="settings-row__label">Allow BTT Topup from BitToken</span>
+                                <span class="settings-row__desc">When disabled, users will not be able to transfer BTT from their BitToken account.</span>
+                              </div>
+                              <label class="custom-switch mb-0">
+                                <input type="checkbox" id="bttTopupToggle" class="custom-switch-input" <%= settings.bttTopupEnabled ? 'checked' : '' %>>
+                                <span class="custom-switch-indicator"></span>
+                              </label>
+                              <input type="hidden" name="bttTopupEnabled" id="bttTopupEnabledInput" value="<%= settings.bttTopupEnabled ? 'true' : 'false' %>">
+                            </div>
+
+                            <div class="settings-field">
+                              <label class="settings-field__label" for="bttTopupSuspendedMessage">Suspension Notice Message</label>
+                              <p class="settings-field__desc">Shown to users when BTT topup is disabled.</p>
+                              <textarea name="bttTopupSuspendedMessage" id="bttTopupSuspendedMessage"
+                                class="form-control" rows="3" maxlength="500"
+                                placeholder="e.g. BTT top-up has been temporarily suspended."
+                              ><%= settings.bttTopupSuspendedMessage %></textarea>
+                              <small class="text-muted"><span id="bttMsgCount"><%= settings.bttTopupSuspendedMessage.length %></span> / 500</small>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="settings-divider"></div>
+
+                      <!-- ── USDT Topup ──────────────────────────────────────────── -->
+                      <div class="settings-group" id="group-usdt">
+                        <button type="button" class="settings-group__header">
+                          <div class="settings-group__title">
+                            <span class="settings-group__label">USDT Topup</span>
+                            <span class="settings-group__sub">Allow users to top up USDT from BitToken and convert it to Naira</span>
+                          </div>
+                          <div class="settings-group__meta">
+                            <span class="settings-badge <%= settings.usdtTopupEnabled ? 'settings-badge--on' : 'settings-badge--off' %>" id="badge-usdt">
+                              <%= settings.usdtTopupEnabled ? 'Enabled' : 'Disabled' %>
+                            </span>
+                            <svg class="settings-group__chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                          </div>
+                        </button>
+                        <div class="settings-group__body">
+                          <div class="settings-group__inner">
+
+                            <div class="settings-row">
+                              <div class="settings-row__text">
+                                <span class="settings-row__label">Allow USDT Topup &amp; Conversion</span>
+                                <span class="settings-row__desc">When disabled, users will not be able to transfer USDT from BitToken or convert USDT to Naira.</span>
+                              </div>
+                              <label class="custom-switch mb-0">
+                                <input type="checkbox" id="usdtTopupToggle" class="custom-switch-input" <%= settings.usdtTopupEnabled ? 'checked' : '' %>>
+                                <span class="custom-switch-indicator"></span>
+                              </label>
+                              <input type="hidden" name="usdtTopupEnabled" id="usdtTopupEnabledInput" value="<%= settings.usdtTopupEnabled ? 'true' : 'false' %>">
+                            </div>
+
+                            <div class="settings-field">
+                              <label class="settings-field__label" for="usdtTopupSuspendedMessage">Suspension Notice Message</label>
+                              <p class="settings-field__desc">Shown to users when USDT topup is disabled.</p>
+                              <textarea name="usdtTopupSuspendedMessage" id="usdtTopupSuspendedMessage"
+                                class="form-control" rows="3" maxlength="500"
+                                placeholder="e.g. USDT top-up has been temporarily suspended."
+                              ><%= settings.usdtTopupSuspendedMessage %></textarea>
+                              <small class="text-muted"><span id="usdtMsgCount"><%= settings.usdtTopupSuspendedMessage.length %></span> / 500</small>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="settings-divider"></div>
+
                       <!-- ── Maintenance ───────────────────────────────────────── -->
                       <div class="settings-group" id="group-maintenance">
                         <button type="button" class="settings-group__header">
@@ -284,13 +374,21 @@ function syncToggle(cbId, hidId, badgeId, labels) {
     }
   });
 }
-syncToggle('rpTransferToggle',  'rpTransferEnabledInput', 'badge-rp',    ['Enabled', 'Disabled', 'settings-badge--on',   'settings-badge--off']);
+syncToggle('rpTransferToggle',  'rpTransferEnabledInput', 'badge-rp',    ['Enabled', 'Disabled', 'settings-badge--on', 'settings-badge--off']);
+syncToggle('bttTopupToggle',    'bttTopupEnabledInput',   'badge-btt',   ['Enabled', 'Disabled', 'settings-badge--on', 'settings-badge--off']);
+syncToggle('usdtTopupToggle',   'usdtTopupEnabledInput',  'badge-usdt',  ['Enabled', 'Disabled', 'settings-badge--on', 'settings-badge--off']);
 syncToggle('maintModeToggle',   'maintModeEnabledInput',  'badge-maint', ['Active',  'Off',      'settings-badge--warn', 'settings-badge--on']);
 syncToggle('maintBannerToggle', 'maintBannerEnabledInput', null, null);
 
 // ── Character counters ───────────────────────────────────────────────────────
 document.getElementById('rpTransferSuspendedMessage').addEventListener('input', function () {
   document.getElementById('charCount').textContent = this.value.length;
+});
+document.getElementById('bttTopupSuspendedMessage').addEventListener('input', function () {
+  document.getElementById('bttMsgCount').textContent = this.value.length;
+});
+document.getElementById('usdtTopupSuspendedMessage').addEventListener('input', function () {
+  document.getElementById('usdtMsgCount').textContent = this.value.length;
 });
 document.getElementById('maintenanceMessage').addEventListener('input', function () {
   document.getElementById('maintMsgCount').textContent = this.value.length;

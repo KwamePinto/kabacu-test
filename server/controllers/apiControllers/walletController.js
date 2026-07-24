@@ -4,6 +4,7 @@ const TopUp    = require('../../models/TopUpModal');
 const Product  = require('../../models/ProductsModal');
 const Checkout = require('../../models/CheckoutModal');
 const Transaction = require('../../models/TransactionModel');
+const SiteSettings = require('../../models/SiteSettingsModel');
 const { buyData, networkCode, userMessage } = require('../../services/ourdatastore');
 const { generateSignature, verifySignature } = require('../../utils/palmpay');
 const axios  = require('axios');
@@ -169,6 +170,14 @@ exports.startTopUp = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid wallet type. Use BTT, RP or USDT' });
     }
 
+    const siteSettings = await SiteSettings.getSettings();
+    if (balanceType === 'BTT' && !siteSettings.bttTopupEnabled) {
+      return res.json({ success: false, suspended: true, message: siteSettings.bttTopupSuspendedMessage });
+    }
+    if (balanceType === 'USDT' && !siteSettings.usdtTopupEnabled) {
+      return res.json({ success: false, suspended: true, message: siteSettings.usdtTopupSuspendedMessage });
+    }
+
     const user = await User.findById(req.user.id);
 
     const topup = await TopUp.create({ user: user._id, amount, balanceType });
@@ -269,6 +278,11 @@ exports.previewUSDTConversion = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid amount' });
     }
 
+    const siteSettings = await SiteSettings.getSettings();
+    if (!siteSettings.usdtTopupEnabled) {
+      return res.json({ success: false, suspended: true, message: siteSettings.usdtTopupSuspendedMessage });
+    }
+
     let coinGeckoRate     = 0;
     let coinbaseRate      = 0;
     let cryptoCompareRate = 0;
@@ -312,6 +326,11 @@ exports.convertUSDTtoNaira = async (req, res) => {
 
     if (!amount || amount <= 0) {
       return res.status(400).json({ success: false, message: 'Invalid amount' });
+    }
+
+    const siteSettings = await SiteSettings.getSettings();
+    if (!siteSettings.usdtTopupEnabled) {
+      return res.json({ success: false, suspended: true, message: siteSettings.usdtTopupSuspendedMessage });
     }
 
     const wallet = await Wallet.findOne({ user: userId });
