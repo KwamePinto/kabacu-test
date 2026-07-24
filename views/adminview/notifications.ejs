@@ -38,11 +38,11 @@
           <ul class="nav nav-tabs mb-3" id="notifTabs">
             <li class="nav-item">
               <a class="nav-link <%= tab === 'messages' ? 'active' : '' %>"
-                href="/admin/notifications?tab=messages">Messages</a>
+                href="/admin/push-notifications?tab=messages">Messages</a>
             </li>
             <li class="nav-item">
               <a class="nav-link <%= tab === 'send' ? 'active' : '' %>"
-                href="/admin/notifications?tab=send">Send</a>
+                href="/admin/push-notifications?tab=send">Send</a>
             </li>
           </ul>
 
@@ -53,7 +53,7 @@
           <div class="card">
             <div class="card-header"><h4>Add Message</h4></div>
             <div class="card-body">
-              <form method="POST" action="/admin/notifications/messages">
+              <form method="POST" action="/admin/push-notifications/messages">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <div class="form-group">
                   <label>Title</label>
@@ -92,7 +92,7 @@
                         <small><%= new Date(m.createdAt).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) %></small>
                       </td>
                       <td>
-                        <form method="POST" action="/admin/notifications/messages/<%= m._id %>?_method=DELETE"
+                        <form method="POST" action="/admin/push-notifications/messages/<%= m._id %>?_method=DELETE"
                           onsubmit="return confirm('Delete this message?')">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                           <button type="submit" class="btn btn-sm btn-danger">
@@ -126,7 +126,7 @@
                   <% if (!registeredUsers || !registeredUsers.length) { %>
                   <p class="text-muted">No registered devices yet.</p>
                   <% } else { %>
-                  <form method="POST" action="/admin/notifications/send" id="sendUserForm">
+                  <form method="POST" action="/admin/push-notifications/send" id="sendUserForm">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <div class="form-group">
                       <label>User</label>
@@ -155,7 +155,7 @@
                   <small class="text-muted ml-2">Check users below for selective broadcast, or leave unchecked to send to all.</small>
                 </div>
                 <div class="card-body">
-                  <form method="POST" action="/admin/notifications/broadcast" id="broadcastForm">
+                  <form method="POST" action="/admin/push-notifications/broadcast" id="broadcastForm">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <%- include('../partials/notificationMessageSelect.ejs') %>
 

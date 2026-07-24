@@ -46,15 +46,15 @@ async function addMessage(req, res) {
     const { title, body } = req.body;
     if (!title || !body) {
       req.flash('error', 'Title and body are required');
-      return res.redirect('/admin/notifications?tab=messages');
+      return res.redirect('/admin/push-notifications?tab=messages');
     }
     await NotificationMessage.create({ title, body });
     req.flash('success', 'Message saved');
-    return res.redirect('/admin/notifications?tab=messages');
+    return res.redirect('/admin/push-notifications?tab=messages');
   } catch (err) {
     logger.error('notificationsController.addMessage: %s', err.message);
     req.flash('error', 'Failed to save message');
-    return res.redirect('/admin/notifications?tab=messages');
+    return res.redirect('/admin/push-notifications?tab=messages');
   }
 }
 
@@ -65,7 +65,7 @@ async function deleteMessage(req, res) {
   } catch (err) {
     req.flash('error', 'Failed to delete message');
   }
-  return res.redirect('/admin/notifications?tab=messages');
+  return res.redirect('/admin/push-notifications?tab=messages');
 }
 
 async function sendToUser(req, res) {
@@ -77,7 +77,7 @@ async function sendToUser(req, res) {
       const msg = await NotificationMessage.findById(messageId);
       if (!msg) {
         req.flash('error', 'Message not found');
-        return res.redirect('/admin/notifications?tab=send');
+        return res.redirect('/admin/push-notifications?tab=send');
       }
       title = msg.title;
       body  = msg.body;
@@ -88,22 +88,22 @@ async function sendToUser(req, res) {
 
     if (!title || !body) {
       req.flash('error', 'Title and body are required');
-      return res.redirect('/admin/notifications?tab=send');
+      return res.redirect('/admin/push-notifications?tab=send');
     }
 
     const devices = await UserDevice.find({ user: userId });
     if (!devices.length) {
       req.flash('error', 'No registered devices for this user');
-      return res.redirect('/admin/notifications?tab=send');
+      return res.redirect('/admin/push-notifications?tab=send');
     }
 
     await sendToPlayers(devices.map(d => d.fcmToken), title, body);
     req.flash('success', 'Notification sent');
-    return res.redirect('/admin/notifications?tab=send');
+    return res.redirect('/admin/push-notifications?tab=send');
   } catch (err) {
     logger.error('notificationsController.sendToUser: %s', err.message);
     req.flash('error', 'Failed to send notification: ' + err.message);
-    return res.redirect('/admin/notifications?tab=send');
+    return res.redirect('/admin/push-notifications?tab=send');
   }
 }
 
@@ -116,7 +116,7 @@ async function broadcast(req, res) {
       const msg = await NotificationMessage.findById(messageId);
       if (!msg) {
         req.flash('error', 'Message not found');
-        return res.redirect('/admin/notifications?tab=send');
+        return res.redirect('/admin/push-notifications?tab=send');
       }
       title = msg.title;
       body  = msg.body;
@@ -127,7 +127,7 @@ async function broadcast(req, res) {
 
     if (!title || !body) {
       req.flash('error', 'Title and body are required');
-      return res.redirect('/admin/notifications?tab=send');
+      return res.redirect('/admin/push-notifications?tab=send');
     }
 
     // If specific users selected, send to their devices only
@@ -136,7 +136,7 @@ async function broadcast(req, res) {
       const devs = await UserDevice.find({ user: { $in: ids } });
       if (!devs.length) {
         req.flash('error', 'No registered devices for the selected users');
-        return res.redirect('/admin/notifications?tab=send');
+        return res.redirect('/admin/push-notifications?tab=send');
       }
       await sendToPlayers(devs.map(d => d.fcmToken), title, body);
     } else {
@@ -145,11 +145,11 @@ async function broadcast(req, res) {
     }
 
     req.flash('success', 'Broadcast sent');
-    return res.redirect('/admin/notifications?tab=send');
+    return res.redirect('/admin/push-notifications?tab=send');
   } catch (err) {
     logger.error('notificationsController.broadcast: %s', err.message);
     req.flash('error', 'Failed to broadcast: ' + err.message);
-    return res.redirect('/admin/notifications?tab=send');
+    return res.redirect('/admin/push-notifications?tab=send');
   }
 }
 
