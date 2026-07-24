@@ -132,7 +132,9 @@
           <label class="form-label">From</label>
           <div class="input-wrapper">
             <i data-lucide="dollar-sign"></i>
-            <input type="text" value="USDT" class="form-input" disabled>
+            <select class="form-input form-select" disabled>
+              <option value="USDT">USDT</option>
+            </select>
           </div>
         </div>
 
@@ -174,7 +176,7 @@
               <option value="">Select payment method</option>
               <% if (paymentMethods && paymentMethods.length > 0) { %>
                 <% paymentMethods.forEach(function(m) { %>
-                  <option value="<%= m.name %>"><%= m.name %></option>
+                  <option value="<%= m.name %>"><%= m.name %><%= m.description ? ' - (' + m.description + ')' : '' %></option>
                 <% }) %>
               <% } %>
             </select>
@@ -410,7 +412,7 @@
     var btnText = document.getElementById('palmpayBtnText');
     if (method) {
       btn.disabled    = false;
-      btnText.textContent = 'Pay with ' + method;
+      btnText.textContent = 'Pay';
     } else {
       btn.disabled    = true;
       btnText.textContent = 'Select a payment method';

@@ -384,7 +384,7 @@ exports.addPaymentMethod = [
   authenticateAdminUser,
   async (req, res) => {
     try {
-      const { name } = req.body;
+      const { name, description } = req.body;
       if (!name || !name.trim()) {
         req.flash("error", "Payment method name is required");
         return res.redirect("/admin/product/payment-methods");
@@ -394,7 +394,7 @@ exports.addPaymentMethod = [
         req.flash("error", "A payment method with that name already exists");
         return res.redirect("/admin/product/payment-methods");
       }
-      await PaymentMethod.create({ name: name.trim() });
+      await PaymentMethod.create({ name: name.trim(), description: (description || '').trim() });
       req.flash("success", "Payment method added");
       res.redirect("/admin/product/payment-methods");
     } catch (err) {

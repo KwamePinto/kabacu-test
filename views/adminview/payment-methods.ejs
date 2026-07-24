@@ -23,6 +23,11 @@
                       <label>Method Name</label>
                       <input type="text" name="name" class="form-control" placeholder="e.g. PalmPay, Flutterwave" required>
                     </div>
+                    <div class="form-group">
+                      <label>Additional Info <small class="text-muted">(optional)</small></label>
+                      <input type="text" name="description" class="form-control" placeholder="e.g. Naira payment from any bank in Nigeria" maxlength="100">
+                      <small class="text-muted">Shown next to the method name in the payment dropdown.</small>
+                    </div>
                     <button type="submit" class="btn btn-primary btn-block">Add Method</button>
                   </form>
                 </div>
@@ -51,7 +56,12 @@
                         <% methods.forEach((m, i) => { %>
                         <tr>
                           <td><%= i + 1 %></td>
-                          <td><b><%= m.name %></b></td>
+                          <td>
+                            <b><%= m.name %></b>
+                            <% if (m.description) { %>
+                            <br><small class="text-muted"><%= m.description %></small>
+                            <% } %>
+                          </td>
                           <td>
                             <% if (m.isActive) { %>
                             <span class="badge badge-success">Active</span>
