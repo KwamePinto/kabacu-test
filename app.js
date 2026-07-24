@@ -83,6 +83,8 @@ app.use((req, res, next) => {
   if (req.originalUrl.startsWith('/api')) return next();
   // PalmPay webhook is a server-to-server POST — no CSRF token possible
   if (req.originalUrl === '/palmpay/webhook') return next();
+  // Mobile device registration uses x-token header auth — no CSRF token
+  if (req.originalUrl === '/notification/register') return next();
   csrfProtection(req, res, next);
 });
 
@@ -126,7 +128,11 @@ app.use('/admin/product', require('./server/routes/adminRoutes/productsRoute'));
 app.use('/admin/settings', require('./server/routes/adminRoutes/settingsRoute'));
 app.use('/admin/logs',          require('./server/routes/adminRoutes/logsRoute'));
 app.use('/admin/networks',      require('./server/routes/adminRoutes/networksRoute'));
-app.use('/admin/ourdatastore',  require('./server/routes/adminRoutes/ourdatastoreRoute'));
+app.use('/admin/ourdatastore',    require('./server/routes/adminRoutes/ourdatastoreRoute'));
+app.use('/admin/notifications',  require('./server/routes/adminRoutes/notificationsRoute'));
+
+// ── Notification device registration (mobile — x-token auth, no CSRF) ────────
+app.post('/notification/register', require('./server/controllers/apiControllers/notificationController').registerDevice);
 
 // ── API routes (CORS enabled here only) ──────────────────────────────────────
 app.use('/api', apiCors, require('./server/routes/apiRoutes'));

@@ -140,6 +140,9 @@
       <i data-lucide="user"></i>
       <span>My Account</span>
     </a>
+    <% if (user) { %>
+    <button class="<%= user._id %>" id="user_ID" style="display:none;"></button>
+    <% } %>
   </nav>
 
   <!-- Support bottom sheet (mobile) -->

@@ -1,0 +1,25 @@
+<%
+  // Expects `messages` to be in scope (array of NotificationMessage docs)
+%>
+<div class="form-group">
+  <label>Message</label>
+  <select name="messageId" class="form-control msg-select" required>
+    <option value="">— Select message —</option>
+    <% if (typeof messages !== 'undefined') { %>
+    <% messages.forEach(function(m) { %>
+    <option value="<%= m._id %>"><%= m.title %></option>
+    <% }); %>
+    <% } %>
+    <option value="custom">Custom…</option>
+  </select>
+</div>
+<div class="custom-msg-wrap" style="display:none;">
+  <div class="form-group">
+    <label>Custom Title</label>
+    <input type="text" name="customTitle" class="form-control" placeholder="Title">
+  </div>
+  <div class="form-group">
+    <label>Custom Body</label>
+    <textarea name="customBody" class="form-control" rows="2" placeholder="Body"></textarea>
+  </div>
+</div>
