@@ -15,6 +15,7 @@ const csrf = require('csurf');
 const connectDB = require('./server/config/db');
 const loadUser = require('./server/config/loadUser');
 const loadWallt = require('./server/config/loadWallet');
+const loadBeneficiaries = require('./server/config/loadBeneficiaries');
 const { optionalUser } = require('./server/config/authMiddleware');
 const logger = require('./server/config/logger');
 
@@ -99,6 +100,7 @@ app.use((req, res, next) => {
 app.use(optionalUser);
 app.use(loadUser);
 app.use(loadWallt);
+app.use(loadBeneficiaries);
 
 // ── View engine ───────────────────────────────────────────────────────────────
 app.use(expressLayout);

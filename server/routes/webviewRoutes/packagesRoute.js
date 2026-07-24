@@ -12,6 +12,9 @@ router.get('/terms', getPackages.termsOfUse)
 
 router.post('/checkout/initiate',authenticateUser,getPackages.initiateCheckout)
 
+router.post('/beneficiaries/add', authenticateUser, getPackages.addBeneficiary);
+router.post('/beneficiaries/:id/delete', authenticateUser, getPackages.deleteBeneficiary);
+
 router.get('/checkout',authenticateUser,getPackages.checkoutPage)
 
 router.get('/data-form',authenticateUser,getPackages.dataForm)

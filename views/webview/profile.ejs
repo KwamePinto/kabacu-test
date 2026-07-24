@@ -21,7 +21,7 @@
   <div class="acct-balances">
     <div class="acct-balance-card">
       <i data-lucide="wallet"></i>
-      <div class="acct-balance-card__val">₦<%= ((wallet && wallet.balances && wallet.balances.NAIRA) || 0).toLocaleString() %></div>
+      <div class="acct-balance-card__val">₦<%= ((wallet && wallet.balances && (wallet.balances.NAIRA).toFixed(2)) || 0.00).toLocaleString() %></div>
       <div class="acct-balance-card__lbl">Wallet Balance</div>
     </div>
     <div class="acct-balance-card">
@@ -104,6 +104,48 @@
       </div>
       <% } %>
 
+    </div>
+  </div>
+
+  <!-- ── Beneficiaries ────────────────────────────────────── -->
+  <div class="acct-section">
+    <h3 class="acct-section__title">Beneficiaries</h3>
+    <div class="acct-card">
+      <% if (beneficiaries && beneficiaries.length > 0) { %>
+      <div class="beneficiary-manage-list" id="beneficiaryManageList">
+        <% beneficiaries.forEach(function(b) { %>
+        <div class="beneficiary-manage-row" data-id="<%= b._id %>">
+          <div class="beneficiary-manage-row__info">
+            <span class="beneficiary-manage-row__name"><%= b.nickname || b.phone %></span>
+            <% if (b.nickname) { %><span class="beneficiary-manage-row__phone"><%= b.phone %></span><% } %>
+          </div>
+          <button type="button" class="beneficiary-manage-row__delete" data-id="<%= b._id %>" aria-label="Delete beneficiary">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>
+        <% }) %>
+      </div>
+      <% } else { %>
+      <p class="acct-empty-note">No saved beneficiaries yet</p>
+      <% } %>
+
+      <form id="addBeneficiaryForm" class="profile-form">
+        <div class="form-group">
+          <label class="form-label" for="newBeneficiaryPhone">Phone Number</label>
+          <div class="input-wrapper">
+            <i data-lucide="phone"></i>
+            <input type="text" id="newBeneficiaryPhone" class="form-input" placeholder="e.g 08012345678" maxlength="11" inputmode="numeric" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="newBeneficiaryNickname">Nickname <span style="font-weight:400;color:var(--color-muted);">(optional)</span></label>
+          <input type="text" id="newBeneficiaryNickname" class="form-input form-input--plain" placeholder="e.g Mum" maxlength="30">
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">
+          <i data-lucide="plus"></i>
+          Add Beneficiary
+        </button>
+      </form>
     </div>
   </div>
 
@@ -193,5 +235,75 @@
       e.preventDefault();
     }
   });
+})();
+
+// ── Beneficiaries management ──
+(function() {
+  var addForm       = document.getElementById('addBeneficiaryForm');
+  var phoneInput     = document.getElementById('newBeneficiaryPhone');
+  var nicknameInput  = document.getElementById('newBeneficiaryNickname');
+  var list           = document.getElementById('beneficiaryManageList');
+
+  if (phoneInput) {
+    phoneInput.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').slice(0, 11);
+    });
+  }
+
+  if (addForm) {
+    addForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var phone = phoneInput.value.trim();
+      if (!/^\d{11}$/.test(phone)) {
+        Swal.fire({ icon: 'error', text: 'Phone number must be exactly 11 digits' });
+        return;
+      }
+      try {
+        var res = await fetch('/beneficiaries/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' },
+          body: JSON.stringify({ phone: phone, nickname: nicknameInput.value.trim() })
+        });
+        var data = await res.json();
+        if (data.success) {
+          window.location.reload();
+        } else {
+          Swal.fire({ icon: 'error', text: data.message || 'Could not save beneficiary' });
+        }
+      } catch (err) {
+        Swal.fire({ icon: 'error', text: 'Network error' });
+      }
+    });
+  }
+
+  if (list) {
+    list.querySelectorAll('.beneficiary-manage-row__delete').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        var id = this.dataset.id;
+        var confirmResult = await Swal.fire({
+          icon: 'warning',
+          text: 'Remove this beneficiary?',
+          showCancelButton: true,
+          confirmButtonText: 'Remove'
+        });
+        if (!confirmResult.isConfirmed) return;
+        try {
+          var res = await fetch('/beneficiaries/' + id + '/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': '<%= csrfToken %>' }
+          });
+          var data = await res.json();
+          if (data.success) {
+            var row = list.querySelector('.beneficiary-manage-row[data-id="' + id + '"]');
+            if (row) row.remove();
+          } else {
+            Swal.fire({ icon: 'error', text: data.message || 'Could not remove beneficiary' });
+          }
+        } catch (err) {
+          Swal.fire({ icon: 'error', text: 'Network error' });
+        }
+      });
+    });
+  }
 })();
 </script>
