@@ -120,7 +120,7 @@ async function executeBuyData(params) {
       });
 
       logger.info(`[DATA PURCHASE] Response — ${JSON.stringify(response.data)}`);
-      return response.data;
+      return { ...response.data, requestId };
 
     } catch (error) {
       const msg       = error.response?.data?.message || error.message || '';
@@ -156,4 +156,86 @@ function userMessage(apiResponse, fallback = 'Transaction failed. Your balance h
   return (dot !== -1 ? raw.slice(0, dot + 1) : raw).trim();
 }
 
-module.exports = { buyData, networkCode, userMessage };
+// ── Session-based auth (for history/dashboard API) ───────
+const SESSION_TTL_MS = 90 * 60 * 1000; // refresh every 90 min (cookie expires at 120)
+let sessionCookies = null;
+let sessionTime    = null;
+
+async function loginSession() {
+  const r1 = await axios.get('https://ourdatastore.com/sanctum/csrf-cookie', {
+    headers: { 'Origin': 'https://app.ourdatastore.com', 'User-Agent': 'Mozilla/5.0' },
+  });
+  const cookies = r1.headers['set-cookie'] || [];
+  const xsrf = decodeURIComponent(
+    (cookies.find(c => c.includes('XSRF-TOKEN=')) || '=').split('=')[1].split(';')[0]
+  );
+  const cookieHeader = cookies.map(c => c.split(';')[0]).join('; ');
+
+  await axios.post('https://ourdatastore.com/login',
+    { username: process.env.OURDATASTORE_USERNAME, password: process.env.OURDATASTORE_PASSWORD },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-XSRF-TOKEN': xsrf,
+        'Cookie': cookieHeader,
+        'Origin': 'https://app.ourdatastore.com',
+        'User-Agent': 'Mozilla/5.0',
+      },
+      maxRedirects: 0,
+      validateStatus: s => s < 500,
+    }
+  );
+  sessionCookies = cookieHeader;
+  sessionTime    = Date.now();
+  logger.info('[OURDATASTORE] Session refreshed');
+  return cookieHeader;
+}
+
+async function getSession() {
+  if (sessionCookies && (Date.now() - sessionTime < SESSION_TTL_MS)) return sessionCookies;
+  return loginSession();
+}
+
+async function getAccountInfo() {
+  const username = process.env.OURDATASTORE_USERNAME;
+  const password = process.env.OURDATASTORE_PASSWORD;
+  const encodedAuth = Buffer.from(`${username}:${password}`).toString('base64');
+  const response = await axios.post(`${BASE_URL}/user`, {}, {
+    headers: { Authorization: `Basic ${encodedAuth}` },
+  });
+  return {
+    balance:  response.data.balance,
+    username: response.data.username,
+    status:   response.data.status,
+  };
+}
+
+async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 20 } = {}) {
+  const cookies = await getSession();
+  const adexId  = process.env.OURDATASTORE_ADEX_ID;
+  const url     = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
+  const r = await axios.get(url, {
+    params: { page, adex: perPage, status, search },
+    headers: {
+      Cookie: cookies,
+      Accept: 'application/json',
+      Origin: 'https://app.ourdatastore.com',
+      'User-Agent': 'Mozilla/5.0',
+    },
+  });
+  return r.data.all_summary;
+}
+
+async function getTransactionStatus(requestId) {
+  if (!requestId) return null;
+  try {
+    const history = await fetchHistory({ page: 1, status: 'ALL', search: requestId, perPage: 5 });
+    const match   = (history.data || []).find(t => t.transid === requestId);
+    return match ? match.plan_status : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+module.exports = { buyData, networkCode, userMessage, getAccountInfo, fetchHistory, getTransactionStatus };

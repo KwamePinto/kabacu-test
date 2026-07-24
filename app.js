@@ -124,8 +124,9 @@ app.use('/admin/main', require('./server/routes/adminRoutes/dashboardRoute'));
 app.use('/admin/category', require('./server/routes/adminRoutes/categoryRoute'));
 app.use('/admin/product', require('./server/routes/adminRoutes/productsRoute'));
 app.use('/admin/settings', require('./server/routes/adminRoutes/settingsRoute'));
-app.use('/admin/logs',     require('./server/routes/adminRoutes/logsRoute'));
-app.use('/admin/networks', require('./server/routes/adminRoutes/networksRoute'));
+app.use('/admin/logs',          require('./server/routes/adminRoutes/logsRoute'));
+app.use('/admin/networks',      require('./server/routes/adminRoutes/networksRoute'));
+app.use('/admin/ourdatastore',  require('./server/routes/adminRoutes/ourdatastoreRoute'));
 
 // ── API routes (CORS enabled here only) ──────────────────────────────────────
 app.use('/api', apiCors, require('./server/routes/apiRoutes'));
@@ -159,4 +160,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT}`);
+  require('./server/services/transactionPoller').startPoller();
 });
