@@ -1,5 +1,7 @@
-const axios  = require('axios');
-const logger = require('../config/logger');
+const axios   = require('axios');
+const { wrapper }    = require('axios-cookiejar-support');
+const { CookieJar }  = require('tough-cookie');
+const logger  = require('../config/logger');
 
 const BASE_URL = 'https://ourdatastore.com/api';
 
@@ -162,45 +164,46 @@ let sessionCookies = null;
 let sessionTime    = null;
 
 async function loginSession() {
-  const r1 = await axios.get('https://ourdatastore.com/sanctum/csrf-cookie', {
-    headers: { 'Origin': 'https://app.ourdatastore.com', 'User-Agent': 'Mozilla/5.0' },
-  });
-  const csrfCookies = r1.headers['set-cookie'] || [];
-  const xsrf = decodeURIComponent(
-    (csrfCookies.find(c => c.includes('XSRF-TOKEN=')) || '=').split('=')[1].split(';')[0]
-  );
-  const csrfCookieHeader = csrfCookies.map(c => c.split(';')[0]).join('; ');
+  const jar    = new CookieJar();
+  const client = wrapper(axios.create({ jar, withCredentials: true }));
 
-  // The login response (302 redirect) sets laravel_session — we must capture it
-  const r2 = await axios.post('https://ourdatastore.com/login',
+  // Step 1: get CSRF cookie — jar stores XSRF-TOKEN + ourdatastore_session automatically
+  const r1 = await client.get('https://ourdatastore.com/sanctum/csrf-cookie', {
+    headers: {
+      'Origin':     'https://app.ourdatastore.com',
+      'Referer':    'https://app.ourdatastore.com/',
+      'User-Agent': 'Mozilla/5.0',
+      'Accept':     '*/*',
+    },
+  });
+
+  const cookies1  = await jar.getCookies('https://ourdatastore.com');
+  const xsrfEntry = cookies1.find(c => c.key === 'XSRF-TOKEN');
+  const xsrf      = xsrfEntry ? decodeURIComponent(xsrfEntry.value) : '';
+
+  // Step 2: log in — jar follows the redirect and retains all cookies
+  await client.post('https://ourdatastore.com/login',
     { username: process.env.OURDATASTORE_USERNAME, password: process.env.OURDATASTORE_PASSWORD },
     {
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        'Accept':       'application/json',
         'X-XSRF-TOKEN': xsrf,
-        'Cookie': csrfCookieHeader,
-        'Origin': 'https://app.ourdatastore.com',
-        'User-Agent': 'Mozilla/5.0',
+        'Origin':       'https://app.ourdatastore.com',
+        'Referer':      'https://app.ourdatastore.com/',
+        'User-Agent':   'Mozilla/5.0',
       },
-      maxRedirects: 0,
-      validateStatus: s => s < 500,
+      maxRedirects: 5,
     }
   );
 
-  // Merge: CSRF cookies + session cookies from login response (login cookie wins on collision)
-  const loginCookies = r2.headers['set-cookie'] || [];
-  const cookieMap = {};
-  for (const raw of [...csrfCookies, ...loginCookies]) {
-    const name = raw.split('=')[0].trim();
-    cookieMap[name] = raw.split(';')[0].trim();
-  }
-  const merged = Object.values(cookieMap).join('; ');
+  const cookies2     = await jar.getCookies('https://ourdatastore.com');
+  const cookieHeader = cookies2.map(c => `${c.key}=${c.value}`).join('; ');
 
-  sessionCookies = merged;
+  sessionCookies = cookieHeader;
   sessionTime    = Date.now();
-  logger.info('[OURDATASTORE] Session refreshed (cookies: %s)', Object.keys(cookieMap).join(', '));
-  return merged;
+  logger.info('[OURDATASTORE] Session refreshed (cookies: %s)', cookies2.map(c => c.key).join(', '));
+  return cookieHeader;
 }
 
 async function getSession() {
