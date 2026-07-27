@@ -165,20 +165,21 @@ async function loginSession() {
   const r1 = await axios.get('https://ourdatastore.com/sanctum/csrf-cookie', {
     headers: { 'Origin': 'https://app.ourdatastore.com', 'User-Agent': 'Mozilla/5.0' },
   });
-  const cookies = r1.headers['set-cookie'] || [];
+  const csrfCookies = r1.headers['set-cookie'] || [];
   const xsrf = decodeURIComponent(
-    (cookies.find(c => c.includes('XSRF-TOKEN=')) || '=').split('=')[1].split(';')[0]
+    (csrfCookies.find(c => c.includes('XSRF-TOKEN=')) || '=').split('=')[1].split(';')[0]
   );
-  const cookieHeader = cookies.map(c => c.split(';')[0]).join('; ');
+  const csrfCookieHeader = csrfCookies.map(c => c.split(';')[0]).join('; ');
 
-  await axios.post('https://ourdatastore.com/login',
+  // The login response (302 redirect) sets laravel_session — we must capture it
+  const r2 = await axios.post('https://ourdatastore.com/login',
     { username: process.env.OURDATASTORE_USERNAME, password: process.env.OURDATASTORE_PASSWORD },
     {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'X-XSRF-TOKEN': xsrf,
-        'Cookie': cookieHeader,
+        'Cookie': csrfCookieHeader,
         'Origin': 'https://app.ourdatastore.com',
         'User-Agent': 'Mozilla/5.0',
       },
@@ -186,10 +187,20 @@ async function loginSession() {
       validateStatus: s => s < 500,
     }
   );
-  sessionCookies = cookieHeader;
+
+  // Merge: CSRF cookies + session cookies from login response (login cookie wins on collision)
+  const loginCookies = r2.headers['set-cookie'] || [];
+  const cookieMap = {};
+  for (const raw of [...csrfCookies, ...loginCookies]) {
+    const name = raw.split('=')[0].trim();
+    cookieMap[name] = raw.split(';')[0].trim();
+  }
+  const merged = Object.values(cookieMap).join('; ');
+
+  sessionCookies = merged;
   sessionTime    = Date.now();
-  logger.info('[OURDATASTORE] Session refreshed');
-  return cookieHeader;
+  logger.info('[OURDATASTORE] Session refreshed (cookies: %s)', Object.keys(cookieMap).join(', '));
+  return merged;
 }
 
 async function getSession() {
@@ -212,19 +223,37 @@ async function getAccountInfo() {
 }
 
 async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 20 } = {}) {
-  const cookies = await getSession();
-  const adexId  = process.env.OURDATASTORE_ADEX_ID;
-  const url     = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
-  const r = await axios.get(url, {
-    params: { page, adex: perPage, status, search },
-    headers: {
-      Cookie: cookies,
-      Accept: 'application/json',
-      Origin: 'https://app.ourdatastore.com',
-      'User-Agent': 'Mozilla/5.0',
-    },
-  });
-  return r.data.all_summary;
+  const adexId = process.env.OURDATASTORE_ADEX_ID;
+  const url    = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
+
+  async function doRequest(cookies) {
+    return axios.get(url, {
+      params: { page, adex: perPage, status, search },
+      headers: {
+        Cookie: cookies,
+        Accept: 'application/json',
+        Origin: 'https://app.ourdatastore.com',
+        'User-Agent': 'Mozilla/5.0',
+      },
+    });
+  }
+
+  let cookies = await getSession();
+  try {
+    const r = await doRequest(cookies);
+    return r.data.all_summary;
+  } catch (err) {
+    if (err.response?.status === 403) {
+      // Session expired server-side — force re-login and retry once
+      logger.warn('[OURDATASTORE] 403 on history — forcing session refresh');
+      sessionCookies = null;
+      sessionTime    = null;
+      cookies = await loginSession();
+      const r = await doRequest(cookies);
+      return r.data.all_summary;
+    }
+    throw err;
+  }
 }
 
 async function getTransactionStatus(requestId) {
