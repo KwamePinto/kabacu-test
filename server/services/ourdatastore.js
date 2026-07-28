@@ -167,42 +167,36 @@ async function loginSession() {
   const jar    = new CookieJar();
   const client = wrapper(axios.create({ jar, withCredentials: true }));
 
-  // Step 1: get CSRF cookie — jar stores XSRF-TOKEN + ourdatastore_session automatically
-  const r1 = await client.get('https://ourdatastore.com/sanctum/csrf-cookie', {
-    headers: {
-      'Origin':     'https://app.ourdatastore.com',
-      'Referer':    'https://app.ourdatastore.com/',
-      'User-Agent': 'Mozilla/5.0',
-      'Accept':     '*/*',
-    },
-  });
-
-  const cookies1  = await jar.getCookies('https://ourdatastore.com');
-  const xsrfEntry = cookies1.find(c => c.key === 'XSRF-TOKEN');
-  const xsrf      = xsrfEntry ? decodeURIComponent(xsrfEntry.value) : '';
-
-  // Step 2: log in — jar follows the redirect and retains all cookies
-  await client.post('https://ourdatastore.com/login',
+  // Single endpoint: logs in, returns session cookies AND the current ADEX ID as `token`
+  const r = await client.post('https://ourdatastore.com/api/login/verify/user',
     { username: process.env.OURDATASTORE_USERNAME, password: process.env.OURDATASTORE_PASSWORD },
     {
       headers: {
         'Content-Type': 'application/json',
         'Accept':       'application/json',
-        'X-XSRF-TOKEN': xsrf,
         'Origin':       'https://app.ourdatastore.com',
         'Referer':      'https://app.ourdatastore.com/',
         'User-Agent':   'Mozilla/5.0',
       },
-      maxRedirects: 5,
     }
   );
 
-  const cookies2     = await jar.getCookies('https://ourdatastore.com');
-  const cookieHeader = cookies2.map(c => `${c.key}=${c.value}`).join('; ');
+  if (r.data?.status !== 'success') {
+    throw new Error(`OurDataStore login failed: ${r.data?.message || 'unknown'}`);
+  }
+
+  // token in the login response IS the ADEX ID — save it every login so it stays current
+  const adexToken = r.data?.token;
+  if (adexToken) {
+    saveAdexId(adexToken);
+    logger.info('[OURDATASTORE] Session refreshed. ADEX ID updated: %s', adexToken);
+  }
+
+  const cookies      = await jar.getCookies('https://ourdatastore.com');
+  const cookieHeader = cookies.map(c => `${c.key}=${c.value}`).join('; ');
 
   sessionCookies = cookieHeader;
   sessionTime    = Date.now();
-  logger.info('[OURDATASTORE] Session refreshed (cookies: %s)', cookies2.map(c => c.key).join(', '));
   return cookieHeader;
 }
 
@@ -246,49 +240,6 @@ async function saveAdexId(id) {
   } catch (_) {}
 }
 
-// Probes OurDataStore endpoints to recover the ADEX ID without already knowing it.
-// Called automatically when a 403 is received on the history endpoint.
-async function discoverAdexId() {
-  let cookies;
-  try { cookies = await loginSession(); } catch (_) { return null; }
-
-  const sessionHeaders = {
-    Accept:       'application/json',
-    Cookie:       cookies,
-    Origin:       'https://app.ourdatastore.com',
-    Referer:      'https://app.ourdatastore.com/',
-    'User-Agent': 'Mozilla/5.0',
-  };
-
-  const idPattern = /"(?:id|account_id|adex_id|adexId)"\s*:\s*"([A-Z0-9]{10,20})"/i;
-
-  // Probe 1: /api/account/my-account without a trailing ID — standard RESTful "my own account"
-  try {
-    const r = await axios.get('https://ourdatastore.com/api/account/my-account', {
-      headers: sessionHeaders,
-      validateStatus: () => true,
-    });
-    if (r.status === 200 && r.data && typeof r.data === 'object') {
-      const m = JSON.stringify(r.data).match(idPattern);
-      if (m) { await saveAdexId(m[1]); return m[1]; }
-    }
-  } catch (_) {}
-
-  // Probe 2: /api/user with session cookies (returns account info in some API versions)
-  try {
-    const r = await axios.get('https://ourdatastore.com/api/user', {
-      headers: sessionHeaders,
-      validateStatus: () => true,
-    });
-    if (r.status === 200 && r.data && typeof r.data === 'object') {
-      const m = JSON.stringify(r.data).match(idPattern);
-      if (m) { await saveAdexId(m[1]); return m[1]; }
-    }
-  } catch (_) {}
-
-  return null;
-}
-
 async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 20 } = {}) {
   async function attempt() {
     const adexId = await getAdexId();
@@ -316,18 +267,16 @@ async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 2
   } catch (firstErr) {
     if (firstErr.response?.status !== 403) throw firstErr;
 
-    // 403 — try to auto-recover the ADEX ID without admin intervention
-    logger.warn('[OURDATASTORE] 403 on history — attempting automatic ADEX ID recovery');
-    sessionCookies = null; // force a fresh login inside discoverAdexId
-    const newId = await discoverAdexId();
-
-    if (newId) {
-      logger.info('[OURDATASTORE] Auto-recovered ADEX ID: %s — retrying history', newId);
-      try { return await attempt(); } catch (_) {}
+    // 403 — force a fresh login, which fetches and saves the current ADEX ID as a side effect
+    logger.warn('[OURDATASTORE] 403 on history — forcing fresh login to recover ADEX ID');
+    sessionCookies = null;
+    try {
+      await loginSession(); // updates ADEX ID in DB from the login response token field
+      return await attempt(); // retry with the new ID now in DB
+    } catch (retryErr) {
+      logger.error('[OURDATASTORE] ADEX ID auto-recovery failed: %s', retryErr.message);
+      throw new Error('ADEX_ID_STALE');
     }
-
-    logger.error('[OURDATASTORE] ADEX ID auto-recovery failed. Check server logs or update via /admin/settings.');
-    throw new Error('ADEX_ID_STALE');
   }
 }
 
