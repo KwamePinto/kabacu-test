@@ -1602,8 +1602,8 @@ exports.editUserProfile = async (req, res) => {
     if (minerId && minerId.trim() !== "") {
       const trimmed = minerId.trim();
       const isNum = /^\d+$/.test(trimmed);
-      if (!isNum || (trimmed.length !== 10 && trimmed.length !== 11)) {
-        req.flash("error", "Miner ID must be 8 to 11 digits");
+      if (!isNum || trimmed.length < 8 || trimmed.length > 11) {
+        req.flash("error", "Miner ID must be between 8 and 11 digits (numbers only)");
         return res.redirect("/user-profile");
       }
       parsedMinerId = Number(trimmed);
