@@ -696,6 +696,7 @@ exports.payWithWallet = async (req, res) => {
     }
 
     let total = 0;
+    let totalCost = 0;
 
     // ✅ TOTAL RP
     let totalRP = 0;
@@ -736,7 +737,8 @@ exports.payWithWallet = async (req, res) => {
         });
       }
 
-      total = price;
+      total     = price;
+      totalCost = product.costPrice || 0;
 
       // ✅ ADD RP
       totalRP += product.reward_point || 0;
@@ -796,7 +798,8 @@ exports.payWithWallet = async (req, res) => {
           price = product.coursesDetails?.course_price || 0;
         }
 
-        total += price * item.quantity;
+        total     += price * item.quantity;
+        totalCost += (product.costPrice || 0) * item.quantity;
 
         // ✅ ADD RP
         totalRP += (product.reward_point || 0) * item.quantity;
@@ -986,6 +989,8 @@ exports.payWithWallet = async (req, res) => {
       phone: checkout?.phone || "",
 
       amount: total,
+
+      markup: total - totalCost,
 
       rpEarned: totalRP,
 

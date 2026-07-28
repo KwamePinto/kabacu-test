@@ -1,0 +1,185 @@
+<div class="loader"></div>
+<div id="app">
+  <div class="main-wrapper main-wrapper-1">
+    <div class="navbar-bg"></div>
+    <%- include('../partials/headerAdmin.ejs') %>
+    <%- include('../partials/sideMenuAdmin.ejs') %>
+
+    <div class="main-content">
+      <section class="section">
+
+        <div class="section-header">
+          <h1>Profit Report</h1>
+          <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="/admin/main/dashboard">Dashboard</a></div>
+            <div class="breadcrumb-item">Profit Report</div>
+          </div>
+        </div>
+
+        <div class="section-body">
+
+          <!-- ── Quick-stat cards ──────────────────────────────────────── -->
+          <div class="row mb-4">
+            <div class="col-6 col-lg-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-primary"><i class="fas fa-sun"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header"><h4>Today</h4></div>
+                  <div class="card-body">₦<%= Number(quickStats.today || 0).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-success"><i class="fas fa-calendar-week"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header"><h4>This Week</h4></div>
+                  <div class="card-body">₦<%= Number(quickStats.week || 0).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-warning"><i class="fas fa-calendar-alt"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header"><h4>This Month</h4></div>
+                  <div class="card-body">₦<%= Number(quickStats.month || 0).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-danger"><i class="fas fa-infinity"></i></div>
+                <div class="card-wrap">
+                  <div class="card-header"><h4>All Time</h4></div>
+                  <div class="card-body">₦<%= Number(quickStats.allTime || 0).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Date range filter ─────────────────────────────────────── -->
+          <div class="card mb-4">
+            <div class="card-header"><h4 class="mb-0">Filter by Date Range</h4></div>
+            <div class="card-body">
+              <form method="get" action="/admin/profit" class="form-inline flex-wrap" style="gap:12px;">
+                <div class="form-group">
+                  <label class="mr-2 font-weight-600">From</label>
+                  <input type="date" name="from" class="form-control" value="<%= filters.from %>" style="max-width:180px;">
+                </div>
+                <div class="form-group">
+                  <label class="mr-2 font-weight-600">To</label>
+                  <input type="date" name="to" class="form-control" value="<%= filters.to %>" style="max-width:180px;">
+                </div>
+                <button type="submit" class="btn btn-primary">Apply</button>
+                <% if (filters.from || filters.to) { %>
+                <a href="/admin/profit" class="btn btn-light">Clear</a>
+                <% } %>
+              </form>
+            </div>
+          </div>
+
+          <!-- ── Filtered summary (only shown when a filter is active) ── -->
+          <% if (filters.from || filters.to) { %>
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="alert alert-primary mb-0" style="border-radius:8px;">
+                <strong>Filtered range:</strong>
+                <%= filters.from || 'beginning' %> &rarr; <%= filters.to || 'today' %>
+                &nbsp;&mdash;&nbsp;
+                <strong><%= summary.count %></strong> sale<%= summary.count !== 1 ? 's' : '' %> &nbsp;|&nbsp;
+                Revenue: <strong>₦<%= Number(summary.totalRevenue || 0).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2}) %></strong> &nbsp;|&nbsp;
+                Profit: <strong>₦<%= Number(summary.totalProfit || 0).toLocaleString('en-NG', {minimumFractionDigits:2, maximumFractionDigits:2}) %></strong>
+                <% if (summary.totalRevenue > 0) { %>
+                &nbsp;|&nbsp; Margin: <strong><%= ((summary.totalProfit / summary.totalRevenue) * 100).toFixed(1) %>%</strong>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          <% } %>
+
+          <!-- ── Transaction table ─────────────────────────────────────── -->
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h4 class="mb-0">Sales Breakdown</h4>
+              <span class="text-muted" style="font-size:13px;">
+                Showing <%= transactions.length %> record<%= transactions.length !== 1 ? 's' : '' %>
+                <% if (!filters.from && !filters.to) { %>(all time, latest 200)<% } %>
+              </span>
+            </div>
+            <div class="card-body p-0">
+              <% if (transactions.length === 0) { %>
+              <div class="text-center py-5 text-muted">
+                <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                <p class="mb-0">No profit data yet for this period.</p>
+                <small>Profit is recorded on new sales going forward.</small>
+              </div>
+              <% } else { %>
+              <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0" id="profitTable">
+                  <thead class="thead-light">
+                    <tr>
+                      <th>Date</th>
+                      <th>Customer</th>
+                      <th>Product</th>
+                      <th class="text-right">Selling Price</th>
+                      <th class="text-right">Cost Price</th>
+                      <th class="text-right">Profit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% transactions.forEach(function(tx) {
+                      const product    = tx.product;
+                      const costPrice  = product ? (product.costPrice || 0) : (tx.amount - tx.markup);
+                      const productName = product
+                        ? (product.dataDetails?.plan_name || product.coursesDetails?.title || product.electronicDetails?.itemName || product.item_name || product.category || '—')
+                        : '—';
+                      const customer   = tx.user ? (tx.user.name || tx.user.username || tx.user.email || 'Unknown') : 'Unknown';
+                      const margin     = tx.amount > 0 ? ((tx.markup / tx.amount) * 100).toFixed(1) : 0;
+                    %>
+                    <tr>
+                      <td style="white-space:nowrap; font-size:13px;">
+                        <%= new Date(tx.createdAt).toLocaleDateString('en-NG', {day:'2-digit', month:'short', year:'numeric'}) %>
+                        <br>
+                        <small class="text-muted"><%= new Date(tx.createdAt).toLocaleTimeString('en-NG', {hour:'2-digit', minute:'2-digit'}) %></small>
+                      </td>
+                      <td style="font-size:13px;"><%= customer %></td>
+                      <td style="font-size:13px;">
+                        <%= productName %>
+                        <% if (product && product.category) { %>
+                        <br><small class="text-muted"><%= product.category %></small>
+                        <% } %>
+                      </td>
+                      <td class="text-right" style="font-size:13px;">₦<%= Number(tx.amount).toLocaleString('en-NG', {minimumFractionDigits:2}) %></td>
+                      <td class="text-right" style="font-size:13px; color:#6b7280;">₦<%= Number(costPrice).toLocaleString('en-NG', {minimumFractionDigits:2}) %></td>
+                      <td class="text-right">
+                        <span style="font-weight:700; color:#16a34a;">₦<%= Number(tx.markup).toLocaleString('en-NG', {minimumFractionDigits:2}) %></span>
+                        <br><small class="text-muted"><%= margin %>%</small>
+                      </td>
+                    </tr>
+                    <% }) %>
+                  </tbody>
+                  <tfoot class="thead-light">
+                    <tr>
+                      <td colspan="3" class="text-right font-weight-700">Total</td>
+                      <td class="text-right font-weight-700">₦<%= Number(summary.totalRevenue || 0).toLocaleString('en-NG', {minimumFractionDigits:2}) %></td>
+                      <td class="text-right font-weight-700 text-muted">—</td>
+                      <td class="text-right font-weight-700" style="color:#16a34a;">₦<%= Number(summary.totalProfit || 0).toLocaleString('en-NG', {minimumFractionDigits:2}) %></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <% } %>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <footer class="main-footer">
+        <div class="footer-left">&copy; <%= new Date().getFullYear() %> Kabacu. All rights reserved.</div>
+        <div class="footer-right"></div>
+      </footer>
+    </div>
+  </div>
+</div>

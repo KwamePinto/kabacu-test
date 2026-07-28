@@ -130,6 +130,7 @@ app.use('/admin/logs',          require('./server/routes/adminRoutes/logsRoute')
 app.use('/admin/networks',      require('./server/routes/adminRoutes/networksRoute'));
 app.use('/admin/ourdatastore',    require('./server/routes/adminRoutes/ourdatastoreRoute'));
 app.use('/admin/push-notifications', require('./server/routes/adminRoutes/notificationsRoute'));
+app.use('/admin/profit',             require('./server/routes/adminRoutes/profitRoute'));
 
 // ── Notification device registration (mobile — x-token auth, no CSRF) ────────
 app.post('/notification/register', require('./server/controllers/apiControllers/notificationController').registerDevice);
