@@ -246,37 +246,88 @@ async function saveAdexId(id) {
   } catch (_) {}
 }
 
-async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 20 } = {}) {
-  const adexId = await getAdexId();
-  const url    = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
+// Probes OurDataStore endpoints to recover the ADEX ID without already knowing it.
+// Called automatically when a 403 is received on the history endpoint.
+async function discoverAdexId() {
+  let cookies;
+  try { cookies = await loginSession(); } catch (_) { return null; }
 
-  async function doRequest(cookies) {
-    return axios.get(url, {
-      params: { page, adex: perPage, status, search },
+  const sessionHeaders = {
+    Accept:       'application/json',
+    Cookie:       cookies,
+    Origin:       'https://app.ourdatastore.com',
+    Referer:      'https://app.ourdatastore.com/',
+    'User-Agent': 'Mozilla/5.0',
+  };
+
+  const idPattern = /"(?:id|account_id|adex_id|adexId)"\s*:\s*"([A-Z0-9]{10,20})"/i;
+
+  // Probe 1: /api/account/my-account without a trailing ID — standard RESTful "my own account"
+  try {
+    const r = await axios.get('https://ourdatastore.com/api/account/my-account', {
+      headers: sessionHeaders,
+      validateStatus: () => true,
+    });
+    if (r.status === 200 && r.data && typeof r.data === 'object') {
+      const m = JSON.stringify(r.data).match(idPattern);
+      if (m) { await saveAdexId(m[1]); return m[1]; }
+    }
+  } catch (_) {}
+
+  // Probe 2: /api/user with session cookies (returns account info in some API versions)
+  try {
+    const r = await axios.get('https://ourdatastore.com/api/user', {
+      headers: sessionHeaders,
+      validateStatus: () => true,
+    });
+    if (r.status === 200 && r.data && typeof r.data === 'object') {
+      const m = JSON.stringify(r.data).match(idPattern);
+      if (m) { await saveAdexId(m[1]); return m[1]; }
+    }
+  } catch (_) {}
+
+  return null;
+}
+
+async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 20 } = {}) {
+  async function attempt() {
+    const adexId = await getAdexId();
+    const url    = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
+    const cookies = await getSession();
+    const r = await axios.get(url, {
+      params:  { page, adex: perPage, status, search },
       headers: {
-        Cookie: cookies,
-        Accept: 'application/json',
-        Origin: 'https://app.ourdatastore.com',
-        Referer: 'https://app.ourdatastore.com/',
+        Cookie:       cookies,
+        Accept:       'application/json',
+        Origin:       'https://app.ourdatastore.com',
+        Referer:      'https://app.ourdatastore.com/',
         'User-Agent': 'Mozilla/5.0',
       },
     });
-  }
-
-  let cookies = await getSession();
-  try {
-    const r = await doRequest(cookies);
-    // Extract ADEX ID from the response path and save it — self-heals if ID changes
+    // Auto-save ADEX ID extracted from the response path — keeps it current for next time
     const pathUrl = r.data?.all_summary?.path || '';
     const match   = pathUrl.match(/\/adex\/([^/]+)\/secure/);
     if (match && match[1] !== adexId) saveAdexId(match[1]);
     return r.data.all_summary;
-  } catch (err) {
-    if (err.response?.status === 403) {
-      logger.warn('[OURDATASTORE] 403 on history — ADEX ID may have changed. Update it in Admin → Site Settings.');
-      throw new Error('ADEX_ID_STALE');
+  }
+
+  try {
+    return await attempt();
+  } catch (firstErr) {
+    if (firstErr.response?.status !== 403) throw firstErr;
+
+    // 403 — try to auto-recover the ADEX ID without admin intervention
+    logger.warn('[OURDATASTORE] 403 on history — attempting automatic ADEX ID recovery');
+    sessionCookies = null; // force a fresh login inside discoverAdexId
+    const newId = await discoverAdexId();
+
+    if (newId) {
+      logger.info('[OURDATASTORE] Auto-recovered ADEX ID: %s — retrying history', newId);
+      try { return await attempt(); } catch (_) {}
     }
-    throw err;
+
+    logger.error('[OURDATASTORE] ADEX ID auto-recovery failed. Check server logs or update via /admin/settings.');
+    throw new Error('ADEX_ID_STALE');
   }
 }
 
