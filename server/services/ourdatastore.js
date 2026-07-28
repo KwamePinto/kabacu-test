@@ -185,10 +185,10 @@ async function loginSession() {
     throw new Error(`OurDataStore login failed: ${r.data?.message || 'unknown'}`);
   }
 
-  // token in the login response IS the ADEX ID — save it every login so it stays current
+  // token in the login response IS the ADEX ID — await so DB write completes before returning
   const adexToken = r.data?.token;
   if (adexToken) {
-    saveAdexId(adexToken);
+    await saveAdexId(adexToken);
     logger.info('[OURDATASTORE] Session refreshed. ADEX ID updated: %s', adexToken);
   }
 
@@ -220,12 +220,9 @@ async function getAccountInfo() {
 }
 
 async function getAdexId() {
-  try {
-    const SiteSettings = require('../models/SiteSettingsModel');
-    const s = await SiteSettings.getSettings();
-    if (s.ourdatastoreAdexId) return s.ourdatastoreAdexId;
-  } catch (_) {}
-  return process.env.OURDATASTORE_ADEX_ID;
+  const SiteSettings = require('../models/SiteSettingsModel');
+  const s = await SiteSettings.getSettings();
+  return s.ourdatastoreAdexId || null;
 }
 
 async function saveAdexId(id) {
@@ -242,9 +239,9 @@ async function saveAdexId(id) {
 
 async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 20 } = {}) {
   async function attempt() {
-    const adexId = await getAdexId();
-    const url    = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
-    const cookies = await getSession();
+    const cookies = await getSession(); // login runs here on cold start, saving ADEX ID to DB first
+    const adexId  = await getAdexId();  // DB is populated by the time we reach this
+    const url     = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
     const r = await axios.get(url, {
       params:  { page, adex: perPage, status, search },
       headers: {
