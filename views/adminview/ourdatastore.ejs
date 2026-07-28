@@ -19,9 +19,21 @@
         <div class="section-body">
 
           <% if (typeof error !== 'undefined' && error) { %>
-          <div class="alert alert-danger">
-            <strong>Error loading data:</strong> <%= error %>
+          <div class="alert alert-danger" id="ods-error-alert">
+            <strong>Error loading data:</strong> <%- error %>
+            <br><small id="ods-refresh-msg">Retrying in <span id="ods-countdown">10</span>s&hellip;</small>
           </div>
+          <script>
+            (function () {
+              var n = 10;
+              var el = document.getElementById('ods-countdown');
+              var iv = setInterval(function () {
+                n--;
+                if (el) el.textContent = n;
+                if (n <= 0) { clearInterval(iv); window.location.reload(); }
+              }, 1000);
+            })();
+          </script>
           <% } %>
 
           <!-- ── Account Overview ── -->
