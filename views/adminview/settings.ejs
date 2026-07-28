@@ -178,6 +178,45 @@
 
                       <div class="settings-divider"></div>
 
+                      <!-- ── OurDataStore ADEX ID ──────────────────────────────── -->
+                      <div class="settings-group" id="group-adex">
+                        <button type="button" class="settings-group__header">
+                          <div class="settings-group__title">
+                            <span class="settings-group__label">OurDataStore ADEX ID</span>
+                            <span class="settings-group__sub">Override the account ID used to fetch data purchase history</span>
+                          </div>
+                          <div class="settings-group__meta">
+                            <span class="settings-badge settings-badge--off" id="badge-adex">
+                              <%= settings.ourdatastoreAdexId ? 'Set' : 'Not set' %>
+                            </span>
+                            <svg class="settings-group__chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                          </div>
+                        </button>
+                        <div class="settings-group__body">
+                          <div class="settings-group__inner">
+
+                            <div class="settings-field">
+                              <label class="settings-field__label" for="ourdatastoreAdexId">ADEX ID (Account ID)</label>
+                              <p class="settings-field__desc">
+                                If the OurDataStore history panel shows a 403 error, the ADEX ID has changed.
+                                To find it: log in to <strong>app.ourdatastore.com</strong>, open DevTools
+                                (F12) → Network tab → reload the page → look for a request to
+                                <code>/api/account/my-account/</code> — the long alphanumeric string at the
+                                end of that URL is the new ADEX ID. Paste it here and save.
+                                Once a successful history response comes through, the ID is saved automatically.
+                              </p>
+                              <input type="text" name="ourdatastoreAdexId" id="ourdatastoreAdexId"
+                                class="form-control" style="max-width:320px; font-family:monospace;"
+                                placeholder="e.g. 6873376118897B6"
+                                value="<%= settings.ourdatastoreAdexId || '' %>">
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="settings-divider"></div>
+
                       <!-- ── Maintenance ───────────────────────────────────────── -->
                       <div class="settings-group" id="group-maintenance">
                         <button type="button" class="settings-group__header">
@@ -393,6 +432,18 @@ document.getElementById('usdtTopupSuspendedMessage').addEventListener('input', f
 document.getElementById('maintenanceMessage').addEventListener('input', function () {
   document.getElementById('maintMsgCount').textContent = this.value.length;
 });
+
+// ── Auto-open group from URL hash ────────────────────────────────────────────
+(function () {
+  var hash = window.location.hash;
+  if (hash) {
+    var target = document.querySelector(hash);
+    if (target && target.classList.contains('settings-group')) {
+      target.classList.add('is-open');
+      setTimeout(function () { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    }
+  }
+})();
 
 // ── Save confirmation ────────────────────────────────────────────────────────
 document.getElementById('saveSettingsBtn').addEventListener('click', function () {

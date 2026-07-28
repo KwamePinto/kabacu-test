@@ -30,6 +30,13 @@ const siteSettingsSchema = new mongoose.Schema({
     default: 'USDT top-up has been temporarily suspended. Please check back later.',
   },
 
+  // OurDataStore ADEX ID — auto-updated from history response, overridable from admin panel
+  ourdatastoreAdexId: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+
   // Maintenance mode
   maintenanceModeEnabled: {
     type: Boolean,

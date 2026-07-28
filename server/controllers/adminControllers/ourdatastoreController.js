@@ -45,7 +45,9 @@ exports.viewDashboard = [
         to:          history.to,
       };
     } catch (err) {
-      error = err.message;
+      error = err.message === 'ADEX_ID_STALE'
+        ? 'The OurDataStore ADEX ID has changed. Go to <a href="/admin/settings#group-adex"><strong>Site Settings → OurDataStore ADEX ID</strong></a> and paste the new ID from your browser DevTools.'
+        : err.message;
     }
 
     res.render('adminview/ourdatastore', {

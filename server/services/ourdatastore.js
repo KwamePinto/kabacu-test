@@ -225,8 +225,29 @@ async function getAccountInfo() {
   };
 }
 
+async function getAdexId() {
+  try {
+    const SiteSettings = require('../models/SiteSettingsModel');
+    const s = await SiteSettings.getSettings();
+    if (s.ourdatastoreAdexId) return s.ourdatastoreAdexId;
+  } catch (_) {}
+  return process.env.OURDATASTORE_ADEX_ID;
+}
+
+async function saveAdexId(id) {
+  try {
+    const SiteSettings = require('../models/SiteSettingsModel');
+    const s = await SiteSettings.getSettings();
+    if (s.ourdatastoreAdexId !== id) {
+      s.ourdatastoreAdexId = id;
+      await s.save();
+      logger.info('[OURDATASTORE] ADEX ID auto-updated to %s', id);
+    }
+  } catch (_) {}
+}
+
 async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 20 } = {}) {
-  const adexId = process.env.OURDATASTORE_ADEX_ID;
+  const adexId = await getAdexId();
   const url    = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
 
   async function doRequest(cookies) {
@@ -236,6 +257,7 @@ async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 2
         Cookie: cookies,
         Accept: 'application/json',
         Origin: 'https://app.ourdatastore.com',
+        Referer: 'https://app.ourdatastore.com/',
         'User-Agent': 'Mozilla/5.0',
       },
     });
@@ -244,16 +266,15 @@ async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 2
   let cookies = await getSession();
   try {
     const r = await doRequest(cookies);
+    // Extract ADEX ID from the response path and save it — self-heals if ID changes
+    const pathUrl = r.data?.all_summary?.path || '';
+    const match   = pathUrl.match(/\/adex\/([^/]+)\/secure/);
+    if (match && match[1] !== adexId) saveAdexId(match[1]);
     return r.data.all_summary;
   } catch (err) {
     if (err.response?.status === 403) {
-      // Session expired server-side — force re-login and retry once
-      logger.warn('[OURDATASTORE] 403 on history — forcing session refresh');
-      sessionCookies = null;
-      sessionTime    = null;
-      cookies = await loginSession();
-      const r = await doRequest(cookies);
-      return r.data.all_summary;
+      logger.warn('[OURDATASTORE] 403 on history — ADEX ID may have changed. Update it in Admin → Site Settings.');
+      throw new Error('ADEX_ID_STALE');
     }
     throw err;
   }

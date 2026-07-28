@@ -36,6 +36,10 @@ exports.updateSettings = [authenticateAdminUser, async (req, res) => {
     const usdtMsg = (req.body.usdtTopupSuspendedMessage || '').trim();
     if (usdtMsg) settings.usdtTopupSuspendedMessage = usdtMsg;
 
+    // ── OurDataStore ADEX ID ───────────────────────────────────────────────────
+    const adexId = (req.body.ourdatastoreAdexId || '').trim();
+    if (adexId) settings.ourdatastoreAdexId = adexId;
+
     // ── Maintenance mode ───────────────────────────────────────────────────────
     settings.maintenanceModeEnabled = req.body.maintenanceModeEnabled === 'true';
     const maintMsg = (req.body.maintenanceMessage || '').trim();
