@@ -35,7 +35,7 @@ function authenticateAdminUser(req, res, next) {
 
   if (!token) {
     console.log("You must be logged in.");
-    return res.redirect('/admin/user/login');
+    return res.redirect('/command');
   }
 
   try {
@@ -54,7 +54,7 @@ function authenticateAdminUser(req, res, next) {
       .then(function (admin) {
         if (!admin || admin.isActive === false) {
           res.clearCookie('admin_token');
-          return res.redirect('/admin/user/login');
+          return res.redirect('/command');
         }
         next();
       })
@@ -63,7 +63,7 @@ function authenticateAdminUser(req, res, next) {
   } catch (error) {
     console.log("Invalid token:", error.message);
     res.clearCookie('admin_token');
-    return res.redirect('/admin/user/login');
+    return res.redirect('/command');
   }
 }
 
