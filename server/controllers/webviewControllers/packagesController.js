@@ -816,6 +816,8 @@ exports.payWithWallet = async (req, res) => {
         success: false,
         insufficientBalance: true,
         message: "Insufficient NAIRA wallet balance",
+        requiredAmount:  total,
+        currentBalance:  wallet.balances.NAIRA,
       });
     }
 

@@ -1,0 +1,275 @@
+<%# Top-up modal — include on any page that calls payWithWallet %>
+<%# Requires csrfToken to be in scope. Call window.showTopupModal(opts) to open. %>
+
+<div id="topup-modal-overlay">
+  <div id="topup-modal-card">
+
+    <button id="topup-modal-close" aria-label="Close">&times;</button>
+
+    <div class="topup-modal-icon">
+      <i data-lucide="wallet"></i>
+    </div>
+
+    <h3 class="topup-modal-title">Top Up to Continue</h3>
+    <p class="topup-modal-sub" id="topup-shortfall-note">Your wallet balance is insufficient for this purchase.</p>
+
+    <div class="topup-modal-field">
+      <label class="topup-modal-label">Payment Method</label>
+      <div class="topup-modal-input-wrap">
+        <i data-lucide="credit-card"></i>
+        <select id="topup-method-select" class="topup-modal-input">
+          <option value="">Loading methods…</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="topup-modal-field">
+      <label class="topup-modal-label">Amount (₦)</label>
+      <div class="topup-modal-input-wrap">
+        <i data-lucide="hash"></i>
+        <input type="number" id="topup-amount-input" class="topup-modal-input" placeholder="Enter amount" min="100">
+      </div>
+    </div>
+
+    <button id="topup-fund-btn" class="topup-modal-btn" disabled>
+      <i data-lucide="external-link"></i>
+      <span id="topup-fund-btn-text">Select a payment method</span>
+    </button>
+
+    <p class="topup-modal-note">
+      <i data-lucide="info"></i>
+      You will be redirected to a secure payment page
+    </p>
+
+    <div class="topup-modal-divider"></div>
+
+    <a href="/my-wallet" class="topup-modal-more">
+      More options
+      <i data-lucide="arrow-right"></i>
+    </a>
+
+  </div>
+</div>
+
+<style>
+#topup-modal-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+#topup-modal-overlay.open { display: flex; }
+
+#topup-modal-card {
+  position: relative;
+  background: var(--color-card, #1a1a2e);
+  color: var(--color-text, #f0f0f0);
+  border-radius: 20px;
+  padding: 32px 28px 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5);
+  animation: topupSlideIn .22s ease;
+}
+@keyframes topupSlideIn {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+#topup-modal-close {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; cursor: pointer;
+  font-size: 22px; line-height: 1;
+  color: var(--color-muted, #888);
+  transition: color .15s;
+}
+#topup-modal-close:hover { color: var(--color-text, #f0f0f0); }
+
+.topup-modal-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: var(--color-primary-alpha, rgba(255,165,0,.15));
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+.topup-modal-icon svg { width:24px; height:24px; color: var(--color-primary, #f90); }
+
+.topup-modal-title {
+  font-size: 18px; font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--color-text, #f0f0f0);
+}
+.topup-modal-sub {
+  font-size: 13px; color: var(--color-muted, #9ca3af);
+  margin: 0 0 20px; line-height: 1.5;
+}
+
+.topup-modal-field { margin-bottom: 14px; }
+.topup-modal-label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--color-muted, #9ca3af);
+  margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px;
+}
+.topup-modal-input-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.topup-modal-input-wrap svg {
+  position: absolute; left: 12px;
+  width: 16px; height: 16px;
+  color: var(--color-muted, #9ca3af);
+  pointer-events: none;
+}
+.topup-modal-input {
+  width: 100%; padding: 11px 14px 11px 38px;
+  background: var(--color-input-bg, rgba(255,255,255,.07));
+  border: 1.5px solid var(--color-border, rgba(255,255,255,.12));
+  border-radius: 10px;
+  color: var(--color-text, #f0f0f0);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.topup-modal-input:focus { border-color: var(--color-primary, #f90); }
+.topup-modal-input option { background: #1a1a2e; color: #f0f0f0; }
+
+.topup-modal-btn {
+  width: 100%; padding: 13px;
+  background: var(--color-primary, #f90);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+  margin-top: 6px;
+  transition: opacity .15s, transform .1s;
+}
+.topup-modal-btn:not(:disabled):hover { opacity: .9; transform: translateY(-1px); }
+.topup-modal-btn:disabled { opacity: .45; cursor: not-allowed; }
+.topup-modal-btn svg { width:16px; height:16px; }
+
+.topup-modal-note {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--color-muted, #9ca3af);
+  margin: 10px 0 0; line-height: 1.4;
+}
+.topup-modal-note svg { width:13px; height:13px; flex-shrink:0; }
+
+.topup-modal-divider {
+  height: 1px;
+  background: var(--color-border, rgba(255,255,255,.1));
+  margin: 18px 0 14px;
+}
+
+.topup-modal-more {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; font-size: 13px; font-weight: 600;
+  color: var(--color-primary, #f90);
+  text-decoration: none;
+  transition: opacity .15s;
+}
+.topup-modal-more:hover { opacity: .75; text-decoration: none; color: var(--color-primary, #f90); }
+.topup-modal-more svg { width:14px; height:14px; }
+</style>
+
+<script>
+(function () {
+  var overlay     = document.getElementById('topup-modal-overlay');
+  var closeBtn    = document.getElementById('topup-modal-close');
+  var methodSel   = document.getElementById('topup-method-select');
+  var amountInput = document.getElementById('topup-amount-input');
+  var fundBtn     = document.getElementById('topup-fund-btn');
+  var fundBtnTxt  = document.getElementById('topup-fund-btn-text');
+  var shortNote   = document.getElementById('topup-shortfall-note');
+  var _csrf       = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+
+  function fmt(n) { return '₦' + Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  async function loadMethods() {
+    try {
+      var r = await fetch('/topup-methods');
+      var d = await r.json();
+      methodSel.innerHTML = '<option value="">Select payment method</option>';
+      (d.methods || []).forEach(function (m) {
+        var o = document.createElement('option');
+        o.value = m.name; o.textContent = m.name;
+        methodSel.appendChild(o);
+      });
+    } catch (_) {
+      methodSel.innerHTML = '<option value="">Unable to load methods</option>';
+    }
+  }
+
+  window.showTopupModal = function (opts) {
+    opts = opts || {};
+    var required = opts.requiredAmount  || 0;
+    var current  = opts.currentBalance  || 0;
+    var shortfall = Math.max(0, required - current);
+    var prefill   = Math.max(shortfall, 100);
+
+    shortNote.textContent = shortfall > 0
+      ? 'You need ' + fmt(shortfall) + ' more to complete this purchase.'
+      : 'Your wallet balance is insufficient for this purchase.';
+
+    amountInput.value    = prefill;
+    fundBtn.disabled     = true;
+    fundBtnTxt.textContent = 'Select a payment method';
+    methodSel.innerHTML  = '<option value="">Loading methods…</option>';
+
+    overlay.classList.add('open');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    loadMethods();
+  };
+
+  window.hideTopupModal = function () { overlay.classList.remove('open'); };
+
+  closeBtn.addEventListener('click', window.hideTopupModal);
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) window.hideTopupModal();
+  });
+
+  methodSel.addEventListener('change', function () {
+    if (this.value) {
+      fundBtn.disabled = false;
+      fundBtnTxt.textContent = 'Fund Wallet';
+    } else {
+      fundBtn.disabled = true;
+      fundBtnTxt.textContent = 'Select a payment method';
+    }
+  });
+
+  fundBtn.addEventListener('click', async function () {
+    var method = methodSel.value;
+    var amount = parseFloat(amountInput.value);
+    if (!method) return;
+    if (!amount || amount < 100) {
+      Swal.fire({ icon: 'warning', title: 'Invalid Amount', text: 'Minimum top-up is ₦100.' });
+      return;
+    }
+    fundBtn.disabled   = true;
+    fundBtnTxt.textContent = 'Please wait…';
+
+    try {
+      var res  = await fetch('/palmpay/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrf },
+        body: JSON.stringify({ amount: amount, paymentMethod: method })
+      });
+      var data = await res.json();
+      if (data.success) {
+        window.location.href = data.paymentUrl;
+      } else {
+        Swal.fire({ icon: 'warning', text: data.message || 'Payment initiation failed.' });
+        fundBtn.disabled   = false;
+        fundBtnTxt.textContent = 'Fund Wallet';
+      }
+    } catch (_) {
+      Swal.fire({ icon: 'error', text: 'Something went wrong. Please try again.' });
+      fundBtn.disabled   = false;
+      fundBtnTxt.textContent = 'Fund Wallet';
+    }
+  });
+})();
+</script>

@@ -65,4 +65,15 @@ router.post( '/wallet/transfer-rp', authenticateUser, getPackages.transferRPToBi
 
 router.get('/conversion-history', authenticateUser, getPackages.conversionHistory);
 
+// Returns active payment methods as JSON — used by the top-up modal on purchase pages
+router.get('/topup-methods', authenticateUser, async (req, res) => {
+  try {
+    const PaymentMethod = require('../../models/PaymentMethodModel');
+    const methods = await PaymentMethod.find({ isActive: true }).sort({ createdAt: 1 });
+    res.json({ success: true, methods });
+  } catch (err) {
+    res.json({ success: false, methods: [] });
+  }
+});
+
 module.exports = router;

@@ -182,6 +182,9 @@ walletBtn.addEventListener('click', async () => {
       Swal.fire({ icon: 'success', text: 'Payment successful' });
       modal.classList.remove('open');
       setTimeout(() => window.location.href = '/', 1500);
+    } else if (data.insufficientBalance) {
+      modal.classList.remove('open');
+      showTopupModal({ requiredAmount: data.requiredAmount, currentBalance: data.currentBalance });
     } else {
       Swal.fire({ icon: 'error', text: data.message });
       walletBtn.style.opacity = '1';
@@ -194,6 +197,8 @@ walletBtn.addEventListener('click', async () => {
   }
 });
 </script>
+
+<%- include('../partials/topupModal.ejs') %>
 
  
 

@@ -4,224 +4,240 @@
     <div class="navbar-bg"></div>
 
     <%- include('../partials/headerAdmin.ejs') %>
-    <%- include('../partials/sideMenuAdmin.ejs') %>
+      <%- include('../partials/sideMenuAdmin.ejs') %>
 
-    <div class="main-content">
-      <section class="section">
-        <div class="section-header">
-          <h1>OurDataStore</h1>
-          <div class="section-header-breadcrumb">
-            <div class="breadcrumb-item active"><a href="/admin/main">Dashboard</a></div>
-            <div class="breadcrumb-item">OurDataStore</div>
-          </div>
+        <div class="main-content">
+          <section class="section">
+            <div class="section-header">
+              <h1>OurDataStore</h1>
+              <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="/admin/main">Dashboard</a></div>
+                <div class="breadcrumb-item">OurDataStore</div>
+              </div>
+            </div>
+
+            <div class="section-body">
+
+              <% if (typeof error !=='undefined' && error) { %>
+                <div class="alert alert-danger" id="ods-error-alert">
+                  <strong>Error loading data:</strong> <%- error %>
+                    <br><small id="ods-refresh-msg">Retrying in <span id="ods-countdown">10</span>s&hellip;</small>
+                </div>
+                <script>
+                  (function () {
+                    var n = 10;
+                    var el = document.getElementById('ods-countdown');
+                    var iv = setInterval(function () {
+                      n--;
+                      if (el) el.textContent = n;
+                      if (n <= 0) { clearInterval(iv); window.location.reload(); }
+                    }, 1000);
+                  })();
+                </script>
+                <% } %>
+
+                  <!-- ── Account Overview ── -->
+                  <% if (accountInfo) { %>
+                    <div class="row mb-4">
+                      <div class="col-12 col-md-4">
+                        <div class="card card-statistic-1">
+                          <div class="card-icon bg-primary">
+                            <i class="fas fa-database"></i>
+                          </div>
+                          <div class="card-wrap">
+                            <div class="card-header">
+                              <h4>Wallet Balance</h4>
+                            </div>
+                            <div class="card-body">
+                              <%= accountInfo.balance %> GB
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-4">
+                        <div class="card card-statistic-1">
+                          <div class="card-icon bg-success">
+                            <i class="fas fa-user-circle"></i>
+                          </div>
+                          <div class="card-wrap">
+                            <div class="card-header">
+                              <h4>Account Name</h4>
+                            </div>
+                            <div class="card-body">
+                              <%= accountInfo.username %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-4">
+                        <div class="card card-statistic-1">
+                          <div class="card-icon bg-warning">
+                            <i class="fas fa-list-alt"></i>
+                          </div>
+                          <div class="card-wrap">
+                            <div class="card-header">
+                              <h4>Total Transactions</h4>
+                            </div>
+                            <div class="card-body">
+                              <%= pagination && pagination.total ? pagination.total.toLocaleString() : '—' %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <% } %>
+
+                      <!-- ── Transaction History ── -->
+                      <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between flex-wrap"
+                          style="gap:10px;">
+                          <h4 class="mb-0">Transaction History</h4>
+                          <!-- Search form -->
+                          <form method="GET" action="/admin/ourdatastore" class="d-flex"
+                            style="gap:8px;flex-wrap:wrap;">
+                            <input type="hidden" name="status" value="<%= filters.status %>">
+                            <input type="text" name="search" value="<%= filters.search %>"
+                              class="form-control form-control-sm" style="width:220px;"
+                              placeholder="Search by Trans ID…">
+                            <button type="submit" class="btn btn-sm btn-primary">
+                              <i class="fas fa-search"></i> Search
+                            </button>
+                            <% if (filters.search) { %>
+                              <a href="/admin/ourdatastore?status=<%= filters.status %>"
+                                class="btn btn-sm btn-secondary">Clear</a>
+                              <% } %>
+                          </form>
+                        </div>
+
+                        <!-- Status filter tabs -->
+                        <div class="card-header" style="padding-top:0;border-top:none;">
+                          <ul class="nav nav-pills">
+                            <% statusOptions.forEach(opt=> { %>
+                              <li class="nav-item">
+                                <a class="nav-link <%= filters.status === opt.value ? 'active' : '' %>"
+                                  href="/admin/ourdatastore?status=<%= opt.value %><%= filters.search ? '&search=' + encodeURIComponent(filters.search) : '' %>">
+                                  <%= opt.label %>
+                                </a>
+                              </li>
+                              <% }) %>
+                          </ul>
+                        </div>
+
+                        <div class="card-body p-0">
+                          <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                              <thead>
+                                <tr>
+                                  <th style="width:48px;">#</th>
+                                  <th>Date</th>
+                                  <th>Trans ID</th>
+                                  <th class="text-right">Deducted</th>
+                                  <th class="text-right">Old Bal</th>
+                                  <th class="text-right">New Bal</th>
+                                  <th>Message</th>
+                                  <th>Status</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <% if (transactions && transactions.length> 0) { %>
+                                  <% transactions.forEach((t, i)=> { %>
+                                    <tr>
+                                      <td>
+                                        <%= pagination.from + i %>
+                                      </td>
+                                      <td>
+                                        <small>
+                                          <%= new Date(t.adex_date).toLocaleString('en-GB', { day:'2-digit',
+                                            month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) %>
+                                        </small>
+                                      </td>
+                                      <td>
+                                        <code style="font-size:11px;"><%= t.transid %></code>
+                                      </td>
+                                      <td class="text-right">
+                                        <strong>
+                                          <%= Number(t.amount).toLocaleString() %>
+                                        </strong>
+                                      </td>
+                                      <td class="text-right text-muted"><small>
+                                          <%= Number(t.oldbal).toLocaleString() %>
+                                        </small></td>
+                                      <td class="text-right text-muted"><small>
+                                          <%= Number(t.newbal).toLocaleString() %>
+                                        </small></td>
+                                      <td style="max-width:260px;">
+                                        <span class="msg-preview" title="<%= t.message %>">
+                                          <%= t.message && t.message.length> 60 ? t.message.slice(0, 60) + '…' :
+                                            t.message %>
+                                        </span>
+                                      </td>
+                                      <td>
+                                        <span class="badge <%= t.statusInfo.cls %>">
+                                          <%= t.statusInfo.label %>
+                                        </span>
+                                      </td>
+                                    </tr>
+                                    <% }) %>
+                                      <% } else { %>
+                                        <tr>
+                                          <td colspan="8" class="text-center py-4 text-muted">
+                                            No transactions found.
+                                          </td>
+                                        </tr>
+                                        <% } %>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <!-- Pagination -->
+                        <% if (pagination && pagination.lastPage> 1) { %>
+                          <div class="card-footer d-flex align-items-center justify-content-between flex-wrap"
+                            style="gap:8px;">
+                            <small class="text-muted">
+                              Showing <%= pagination.from %>–<%= pagination.to %> of <%=
+                                    pagination.total.toLocaleString() %> transactions
+                            </small>
+                            <ul class="pagination pagination-sm mb-0">
+                              <li class="page-item <%= pagination.currentPage <= 1 ? 'disabled' : '' %>">
+                                <a class="page-link"
+                                  href="/admin/ourdatastore?page=<%= pagination.currentPage - 1 %>&status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>">«</a>
+                              </li>
+
+                              <% const cur=pagination.currentPage; const last=pagination.lastPage; let pages=[]; if
+                                (last <=7) { for (let p=1; p <=last; p++) pages.push(p); } else { pages=[1]; if (cur> 3)
+                                pages.push('…');
+                                for (let p = Math.max(2, cur - 1); p <= Math.min(last - 1, cur + 1); p++) pages.push(p);
+                                  if (cur < last - 2) pages.push('…'); pages.push(last); } %>
+                                  <% pages.forEach(p=> { %>
+                                    <% if (p==='…' ) { %>
+                                      <li class="page-item disabled"><span class="page-link">…</span></li>
+                                      <% } else { %>
+                                        <li class="page-item <%= p === cur ? 'active' : '' %>">
+                                          <a class="page-link"
+                                            href="/admin/ourdatastore?page=<%= p %>&status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>">
+                                            <%= p %>
+                                          </a>
+                                        </li>
+                                        <% } %>
+                                          <% }) %>
+
+                                            <li
+                                              class="page-item <%= pagination.currentPage >= pagination.lastPage ? 'disabled' : '' %>">
+                                              <a class="page-link"
+                                                href="/admin/ourdatastore?page=<%= pagination.currentPage + 1 %>&status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>">»</a>
+                                            </li>
+                            </ul>
+                          </div>
+                          <% } %>
+
+                      </div><!-- /card -->
+
+            </div><!-- /section-body -->
+          </section>
         </div>
 
-        <div class="section-body">
-
-          <% if (typeof error !== 'undefined' && error) { %>
-          <div class="alert alert-danger" id="ods-error-alert">
-            <strong>Error loading data:</strong> <%- error %>
-            <br><small id="ods-refresh-msg">Retrying in <span id="ods-countdown">10</span>s&hellip;</small>
-          </div>
-          <script>
-            (function () {
-              var n = 10;
-              var el = document.getElementById('ods-countdown');
-              var iv = setInterval(function () {
-                n--;
-                if (el) el.textContent = n;
-                if (n <= 0) { clearInterval(iv); window.location.reload(); }
-              }, 1000);
-            })();
-          </script>
-          <% } %>
-
-          <!-- ── Account Overview ── -->
-          <% if (accountInfo) { %>
-          <div class="row mb-4">
-            <div class="col-12 col-md-4">
-              <div class="card card-statistic-1">
-                <div class="card-icon bg-primary">
-                  <i class="fas fa-database"></i>
-                </div>
-                <div class="card-wrap">
-                  <div class="card-header">
-                    <h4>Data Balance</h4>
-                  </div>
-                  <div class="card-body">
-                    <%= accountInfo.balance %> GB
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-md-4">
-              <div class="card card-statistic-1">
-                <div class="card-icon bg-success">
-                  <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="card-wrap">
-                  <div class="card-header">
-                    <h4>Account Name</h4>
-                  </div>
-                  <div class="card-body">
-                    <%= accountInfo.username %>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-md-4">
-              <div class="card card-statistic-1">
-                <div class="card-icon bg-warning">
-                  <i class="fas fa-list-alt"></i>
-                </div>
-                <div class="card-wrap">
-                  <div class="card-header">
-                    <h4>Total Transactions</h4>
-                  </div>
-                  <div class="card-body">
-                    <%= pagination && pagination.total ? pagination.total.toLocaleString() : '—' %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <% } %>
-
-          <!-- ── Transaction History ── -->
-          <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between flex-wrap" style="gap:10px;">
-              <h4 class="mb-0">Transaction History</h4>
-              <!-- Search form -->
-              <form method="GET" action="/admin/ourdatastore" class="d-flex" style="gap:8px;flex-wrap:wrap;">
-                <input type="hidden" name="status" value="<%= filters.status %>">
-                <input type="text" name="search" value="<%= filters.search %>"
-                  class="form-control form-control-sm" style="width:220px;"
-                  placeholder="Search by Trans ID…">
-                <button type="submit" class="btn btn-sm btn-primary">
-                  <i class="fas fa-search"></i> Search
-                </button>
-                <% if (filters.search) { %>
-                <a href="/admin/ourdatastore?status=<%= filters.status %>" class="btn btn-sm btn-secondary">Clear</a>
-                <% } %>
-              </form>
-            </div>
-
-            <!-- Status filter tabs -->
-            <div class="card-header" style="padding-top:0;border-top:none;">
-              <ul class="nav nav-pills">
-                <% statusOptions.forEach(opt => { %>
-                <li class="nav-item">
-                  <a class="nav-link <%= filters.status === opt.value ? 'active' : '' %>"
-                    href="/admin/ourdatastore?status=<%= opt.value %><%= filters.search ? '&search=' + encodeURIComponent(filters.search) : '' %>">
-                    <%= opt.label %>
-                  </a>
-                </li>
-                <% }) %>
-              </ul>
-            </div>
-
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-striped table-hover mb-0">
-                  <thead>
-                    <tr>
-                      <th style="width:48px;">#</th>
-                      <th>Date</th>
-                      <th>Trans ID</th>
-                      <th class="text-right">Deducted</th>
-                      <th class="text-right">Old Bal</th>
-                      <th class="text-right">New Bal</th>
-                      <th>Message</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% if (transactions && transactions.length > 0) { %>
-                    <% transactions.forEach((t, i) => { %>
-                    <tr>
-                      <td><%= pagination.from + i %></td>
-                      <td>
-                        <small><%= new Date(t.adex_date).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) %></small>
-                      </td>
-                      <td>
-                        <code style="font-size:11px;"><%= t.transid %></code>
-                      </td>
-                      <td class="text-right">
-                        <strong><%= Number(t.amount).toLocaleString() %></strong>
-                      </td>
-                      <td class="text-right text-muted"><small><%= Number(t.oldbal).toLocaleString() %></small></td>
-                      <td class="text-right text-muted"><small><%= Number(t.newbal).toLocaleString() %></small></td>
-                      <td style="max-width:260px;">
-                        <span class="msg-preview" title="<%= t.message %>">
-                          <%= t.message && t.message.length > 60 ? t.message.slice(0, 60) + '…' : t.message %>
-                        </span>
-                      </td>
-                      <td>
-                        <span class="badge <%= t.statusInfo.cls %>"><%= t.statusInfo.label %></span>
-                      </td>
-                    </tr>
-                    <% }) %>
-                    <% } else { %>
-                    <tr>
-                      <td colspan="8" class="text-center py-4 text-muted">
-                        No transactions found.
-                      </td>
-                    </tr>
-                    <% } %>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Pagination -->
-            <% if (pagination && pagination.lastPage > 1) { %>
-            <div class="card-footer d-flex align-items-center justify-content-between flex-wrap" style="gap:8px;">
-              <small class="text-muted">
-                Showing <%= pagination.from %>–<%= pagination.to %> of <%= pagination.total.toLocaleString() %> transactions
-              </small>
-              <ul class="pagination pagination-sm mb-0">
-                <li class="page-item <%= pagination.currentPage <= 1 ? 'disabled' : '' %>">
-                  <a class="page-link" href="/admin/ourdatastore?page=<%= pagination.currentPage - 1 %>&status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>">«</a>
-                </li>
-
-                <%
-                  const cur  = pagination.currentPage;
-                  const last = pagination.lastPage;
-                  let pages  = [];
-                  if (last <= 7) {
-                    for (let p = 1; p <= last; p++) pages.push(p);
-                  } else {
-                    pages = [1];
-                    if (cur > 3) pages.push('…');
-                    for (let p = Math.max(2, cur - 1); p <= Math.min(last - 1, cur + 1); p++) pages.push(p);
-                    if (cur < last - 2) pages.push('…');
-                    pages.push(last);
-                  }
-                %>
-                <% pages.forEach(p => { %>
-                  <% if (p === '…') { %>
-                  <li class="page-item disabled"><span class="page-link">…</span></li>
-                  <% } else { %>
-                  <li class="page-item <%= p === cur ? 'active' : '' %>">
-                    <a class="page-link" href="/admin/ourdatastore?page=<%= p %>&status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>"><%= p %></a>
-                  </li>
-                  <% } %>
-                <% }) %>
-
-                <li class="page-item <%= pagination.currentPage >= pagination.lastPage ? 'disabled' : '' %>">
-                  <a class="page-link" href="/admin/ourdatastore?page=<%= pagination.currentPage + 1 %>&status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>">»</a>
-                </li>
-              </ul>
-            </div>
-            <% } %>
-
-          </div><!-- /card -->
-
-        </div><!-- /section-body -->
-      </section>
-    </div>
-
-    <%- include('../partials/footerAdmin.ejs') %>
+        <%- include('../partials/footerAdmin.ejs') %>
   </div>
 </div>
 <script src="/admin/assets/js/app.min.js"></script>

@@ -238,7 +238,8 @@ document.getElementById('walletBtn').addEventListener('click', async () => {
       paymentModal.classList.remove('open');
       setTimeout(() => window.location.href = '/', 1500);
     } else if (data.insufficientBalance) {
-      window.location.href = '/my-wallet';
+      paymentModal.classList.remove('open');
+      showTopupModal({ requiredAmount: data.requiredAmount, currentBalance: data.currentBalance });
     } else if (data.pending) {
       walletBtn.style.opacity = '1';
       walletBtn.style.pointerEvents = '';
@@ -256,3 +257,5 @@ document.getElementById('walletBtn').addEventListener('click', async () => {
   }
 });
 </script>
+
+<%- include('../partials/topupModal.ejs') %>
