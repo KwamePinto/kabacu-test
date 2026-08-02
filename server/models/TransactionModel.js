@@ -85,6 +85,9 @@ const transactionSchema = new mongoose.Schema({
     default: 0
 },
 
+    balanceBefore: { type: Number },
+    balanceAfter:  { type: Number },
+
     apiResponse: {
         type: Object
     },

@@ -843,6 +843,7 @@ exports.payWithWallet = async (req, res) => {
     // =====================================
     // ✅ DEDUCT WALLET
     // =====================================
+    const balanceBefore = wallet.balances.NAIRA;
     wallet.balances.NAIRA -= total;
 
     await wallet.save();
@@ -945,6 +946,8 @@ exports.payWithWallet = async (req, res) => {
             paymentMethod: "wallet",
             status: "pending",
             reference: "PAY-" + Date.now(),
+            balanceBefore,
+            balanceAfter: wallet.balances.NAIRA,
             apiResponse,
           });
 
@@ -987,6 +990,9 @@ exports.payWithWallet = async (req, res) => {
 
             reference: "PAY-" + Date.now(),
 
+            balanceBefore,
+            balanceAfter: wallet.balances.NAIRA,
+
             apiResponse,
           });
 
@@ -1026,6 +1032,9 @@ exports.payWithWallet = async (req, res) => {
       status: "success",
 
       reference: "PAY-" + Date.now(),
+
+      balanceBefore,
+      balanceAfter: wallet.balances.NAIRA,
 
       apiResponse,
     });

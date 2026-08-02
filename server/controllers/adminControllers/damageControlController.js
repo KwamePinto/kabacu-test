@@ -44,17 +44,20 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
     }));
 
     const totalAmount = rows.reduce((s, r) => s + (r.amount || 0), 0);
-    const alreadyDeducted = await Transaction.countDocuments({
+
+    const deductedHistory = await Transaction.find({
       paymentMethod: 'wallet',
-      status: 'failed',
       'apiResponse.adminDeducted': true,
-    });
+    }).populate('user', 'username email').sort({ 'apiResponse.adminDeductedAt': -1 }).lean();
+
+    const alreadyDeducted = deductedHistory.length;
 
     res.render('adminview/flagged-transactions', {
       layout: 'layouts/adminLayout',
       rows,
       totalAmount,
       alreadyDeducted,
+      deductedHistory,
     });
   } catch (err) {
     console.error('[damageControl]', err);
@@ -63,6 +66,7 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
       rows: [],
       totalAmount: 0,
       alreadyDeducted: 0,
+      deductedHistory: [],
       error: 'Failed to load data',
     });
   }

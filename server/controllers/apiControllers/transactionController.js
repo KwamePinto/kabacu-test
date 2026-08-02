@@ -80,9 +80,12 @@ exports.retryTransaction = async (req, res) => {
           currentBalance: wallet.balances.NAIRA,
         });
       }
+      const balanceBefore = wallet.balances.NAIRA;
       wallet.balances.NAIRA -= tx.amount;
       await wallet.save();
       tx.status = 'success';
+      tx.balanceBefore = balanceBefore;
+      tx.balanceAfter  = wallet.balances.NAIRA;
 
       if (tx.rpEarned > 0) {
         await User.findByIdAndUpdate(tx.user, { $inc: { rpBalance: tx.rpEarned } });
