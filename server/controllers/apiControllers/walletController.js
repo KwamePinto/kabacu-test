@@ -62,7 +62,13 @@ exports.payWithWallet = async (req, res) => {
     }
 
     if (wallet.balances.NAIRA < total) {
-      return res.json({ success: false, message: 'Insufficient NAIRA wallet balance' });
+      return res.json({
+        success: false,
+        insufficientBalance: true,
+        message: 'Insufficient NAIRA wallet balance',
+        requiredAmount: total,
+        currentBalance: wallet.balances.NAIRA,
+      });
     }
 
     wallet.balances.NAIRA -= total;
@@ -102,7 +108,12 @@ exports.payWithWallet = async (req, res) => {
             new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 25000))
           ]);
         } catch (err) {
-          apiResponse = { status: 'fail' };
+          if (err.message === 'Request timeout') {
+            apiResponse = { status: 'pending', _timedOut: true };
+          } else {
+            console.log('API ERROR:', err.response?.data || err.message);
+            apiResponse = { status: 'fail' };
+          }
         }
 
         if (apiResponse.status === 'pending') {
@@ -119,6 +130,7 @@ exports.payWithWallet = async (req, res) => {
             reference:     'PAY-' + Date.now(),
             apiResponse
           });
+
           return res.json({ success: false, pending: true, message: 'Your order is being processed. Please wait a few minutes — do not retry. Check your transaction history for the update.' });
         }
 

@@ -131,7 +131,8 @@ app.use('/admin/networks',      require('./server/routes/adminRoutes/networksRou
 app.use('/admin/ourdatastore',    require('./server/routes/adminRoutes/ourdatastoreRoute'));
 app.use('/admin/push-notifications', require('./server/routes/adminRoutes/notificationsRoute'));
 app.use('/admin/profit',             require('./server/routes/adminRoutes/profitRoute'));
-app.use('/admin/damage-control',     require('./server/routes/adminRoutes/damageControlRoute'));
+app.use('/admin/flagged-transactions', require('./server/routes/adminRoutes/damageControlRoute'));
+app.use('/admin/notifications',       require('./server/routes/adminRoutes/adminNotificationsRoute'));
 
 // ── Notification device registration (mobile — x-token auth, no CSRF) ────────
 app.post('/notification/register', require('./server/controllers/apiControllers/notificationController').registerDevice);

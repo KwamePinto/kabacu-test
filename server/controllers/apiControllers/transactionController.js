@@ -38,6 +38,10 @@ exports.retryTransaction = async (req, res) => {
     if (!tx) return res.status(404).json({ success: false, message: 'Transaction not found' });
     if (tx.status === 'success') return res.json({ success: false, message: 'Already successful' });
 
+    if (tx.status === 'pending') {
+      return res.json({ success: false, message: 'This transaction is still processing. Please wait a few minutes before checking back.' });
+    }
+
     const wallet = await Wallet.findOne({ user: tx.user });
     if (!wallet) return res.status(404).json({ success: false, message: 'Wallet not found' });
 
@@ -48,18 +52,33 @@ exports.retryTransaction = async (req, res) => {
 
     let apiResponse;
     try {
-      apiResponse = await buyData({
-        network:   await networkCode(product.dataDetails.network),
-        phone:     tx.phone,
-        data_plan: product.dataDetails.plan_id
-      });
+      apiResponse = await Promise.race([
+        buyData({
+          network:   await networkCode(product.dataDetails.network),
+          phone:     tx.phone,
+          data_plan: product.dataDetails.plan_id
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout')), 25000)
+        ),
+      ]);
     } catch (err) {
-      apiResponse = { status: 'fail', message: 'API error' };
+      if (err.message === 'Request timeout') {
+        apiResponse = { status: 'pending', _timedOut: true };
+      } else {
+        apiResponse = { status: 'fail', message: 'API error' };
+      }
     }
 
     if (apiResponse.status === 'success') {
       if (wallet.balances.NAIRA < tx.amount) {
-        return res.json({ success: false, message: 'Insufficient balance' });
+        return res.json({
+          success: false,
+          insufficientBalance: true,
+          message: 'Insufficient balance',
+          requiredAmount: tx.amount,
+          currentBalance: wallet.balances.NAIRA,
+        });
       }
       wallet.balances.NAIRA -= tx.amount;
       await wallet.save();
@@ -68,6 +87,8 @@ exports.retryTransaction = async (req, res) => {
       if (tx.rpEarned > 0) {
         await User.findByIdAndUpdate(tx.user, { $inc: { rpBalance: tx.rpEarned } });
       }
+    } else if (apiResponse.status === 'pending') {
+      tx.status = 'pending';
     } else {
       tx.status = 'failed';
     }
@@ -75,7 +96,13 @@ exports.retryTransaction = async (req, res) => {
     tx.apiResponse = apiResponse;
     await tx.save();
 
-    res.json({ success: tx.status === 'success', message: apiResponse.message });
+    res.json({
+      success: tx.status === 'success',
+      pending: tx.status === 'pending',
+      message: tx.status === 'pending'
+        ? 'Your order is still being processed. Please wait a few minutes — do not retry again.'
+        : apiResponse.message,
+    });
 
   } catch (error) {
     console.log(error);

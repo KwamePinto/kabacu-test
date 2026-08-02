@@ -345,6 +345,10 @@ exports.retryTransaction = async (req, res) => {
       return res.json({ success: false, message: "Already successful" });
     }
 
+    if (tx.status === "pending") {
+      return res.json({ success: false, message: "This transaction is still processing. Please wait a few minutes before checking back." });
+    }
+
     const wallet = await Wallet.findOne({ user: tx.user });
 
     if (!wallet) {
@@ -360,22 +364,32 @@ exports.retryTransaction = async (req, res) => {
     let apiResponse;
 
     try {
-      apiResponse = await buyData({
-        network: await networkCode(product.dataDetails.network),
-        phone: tx.phone,
-        data_plan: product.dataDetails.plan_id,
-      });
+      apiResponse = await Promise.race([
+        buyData({
+          network: await networkCode(product.dataDetails.network),
+          phone: tx.phone,
+          data_plan: product.dataDetails.plan_id,
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Request timeout")), 25000)
+        ),
+      ]);
     } catch (err) {
-      apiResponse = { status: "fail", message: "API error" };
+      if (err.message === "Request timeout") {
+        apiResponse = { status: "pending", _timedOut: true };
+      } else {
+        apiResponse = { status: "fail", message: "API error" };
+      }
     }
 
-    // SUCCESS CASE
     if (apiResponse.status === "success") {
       if (wallet.balances.NAIRA < tx.amount) {
         return res.json({
           success: false,
           insufficientBalance: true,
           message: "Insufficient balance",
+          requiredAmount: tx.amount,
+          currentBalance: wallet.balances.NAIRA,
         });
       }
 
@@ -389,6 +403,8 @@ exports.retryTransaction = async (req, res) => {
           $inc: { rpBalance: tx.rpEarned },
         });
       }
+    } else if (apiResponse.status === "pending") {
+      tx.status = "pending";
     } else {
       tx.status = "failed";
     }
@@ -398,7 +414,10 @@ exports.retryTransaction = async (req, res) => {
 
     return res.json({
       success: tx.status === "success",
-      message: userMessage(apiResponse),
+      pending: tx.status === "pending",
+      message: tx.status === "pending"
+        ? "Your order is still being processed. Please wait a few minutes — do not retry again."
+        : userMessage(apiResponse),
     });
   } catch (error) {
     console.log(error);
@@ -898,11 +917,14 @@ exports.payWithWallet = async (req, res) => {
 
           console.log("BUY RESPONSE:", apiResponse);
         } catch (err) {
-          console.log("API ERROR:", err.response?.data || err.message);
-
-          apiResponse = {
-            status: "fail",
-          };
+          if (err.message === "Request timeout") {
+            // Our 25s timer fired — OurDataStore likely received and is still processing
+            // the request. Keep wallet deducted; save as pending so user can check history.
+            apiResponse = { status: "pending", _timedOut: true };
+          } else {
+            console.log("API ERROR:", err.response?.data || err.message);
+            apiResponse = { status: "fail" };
+          }
         }
 
         // =====================================
@@ -925,6 +947,7 @@ exports.payWithWallet = async (req, res) => {
             reference: "PAY-" + Date.now(),
             apiResponse,
           });
+
           return res.json({
             success: false,
             pending: true,

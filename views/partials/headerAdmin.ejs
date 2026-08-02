@@ -29,8 +29,8 @@
                 <div class="text-center p-3 text-muted" style="font-size:13px;">Loading…</div>
               </div>
               <div class="dropdown-footer text-center">
-                <a href="/admin/product/view-transactions" style="font-size:13px;">
-                  View All Transactions <i class="fas fa-chevron-right"></i>
+                <a href="/admin/flagged-transactions" style="font-size:13px;">
+                  View Flagged Transactions <i class="fas fa-chevron-right"></i>
                 </a>
               </div>
             </div>
@@ -96,7 +96,7 @@
         badge.style.display = 'inline-block';
         badge.textContent   = items.length > 9 ? '9+' : items.length;
         list.innerHTML = items.map(function (n) {
-          return '<a href="#" class="dropdown-item">' +
+          return '<a href="' + (n.link || '#') + '" class="dropdown-item">' +
             '<span class="dropdown-item-icon ' + (n.color || 'bg-primary') + ' text-white">' +
               '<i data-feather="' + (n.icon || 'bell') + '"></i>' +
             '</span>' +
@@ -112,13 +112,16 @@
       });
   }
 
-  // Load on dropdown open
+  // Load badge on page open (after a short delay so it doesn't block the page)
+  setTimeout(function () { loadNotifications(); loaded = true; }, 1500);
+
+  // Load on dropdown open (in case refresh interval reset the flag)
   document.getElementById('notifToggle').addEventListener('click', function () {
     if (!loaded) { loadNotifications(); loaded = true; }
   });
 
   // Refresh every 2 minutes
-  setInterval(function () { loaded = false; }, 120000);
+  setInterval(function () { loaded = false; loadNotifications(); }, 120000);
 
   if (markAll) {
     markAll.addEventListener('click', function (e) {

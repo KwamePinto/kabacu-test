@@ -2,11 +2,8 @@ const { authenticateAdminUser } = require('../../config/authMiddleware');
 const Transaction = require('../../models/TransactionModel');
 const Wallet      = require('../../models/WalletModal');
 
-// Transactions that look like timeout failures:
-// - wallet payment, failed status
-// - apiResponse is bare { status: 'fail' } with no message (set by our catch block, not OurDataStore)
-// - not already manually deducted
-const SUSPICIOUS_FILTER = {
+// Case 1 (pre-fix): timed out → treated as fail → wallet refunded → may need manual deduction
+const OLD_FLAGGED_FILTER = {
   paymentMethod: 'wallet',
   status: 'failed',
   'apiResponse.status': 'fail',
@@ -14,15 +11,26 @@ const SUSPICIOUS_FILTER = {
   'apiResponse.adminDeducted': { $ne: true },
 };
 
+// Case 2 (post-fix): timed out → saved as pending → wallet is already deducted → needs verification
+const NEW_FLAGGED_FILTER = {
+  paymentMethod: 'wallet',
+  status: 'pending',
+  'apiResponse._timedOut': true,
+};
+
 exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
   try {
-    const suspicious = await Transaction.find(SUSPICIOUS_FILTER)
-      .populate('user', 'username email')
-      .sort({ createdAt: -1 });
+    const [oldFlagged, newFlagged] = await Promise.all([
+      Transaction.find(OLD_FLAGGED_FILTER).populate('user', 'username email').sort({ createdAt: -1 }),
+      Transaction.find(NEW_FLAGGED_FILTER).populate('user', 'username email').sort({ createdAt: -1 }),
+    ]);
 
-    // For each suspicious tx, check if the user has a SUCCESSFUL wallet tx for the same
-    // phone + amount within 24 hours after — meaning they retried and paid on that retry.
-    const rows = await Promise.all(suspicious.map(async tx => {
+    // Merge and sort by date descending
+    const allFlagged = [...oldFlagged, ...newFlagged]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // For each, check if a successful retry exists within 24 h
+    const rows = await Promise.all(allFlagged.map(async tx => {
       const windowEnd = new Date(tx.createdAt.getTime() + 24 * 60 * 60 * 1000);
       const successRetry = await Transaction.findOne({
         user:   tx.user,
@@ -42,7 +50,7 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
       'apiResponse.adminDeducted': true,
     });
 
-    res.render('adminview/damage-control', {
+    res.render('adminview/flagged-transactions', {
       layout: 'layouts/adminLayout',
       rows,
       totalAmount,
@@ -50,7 +58,7 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
     });
   } catch (err) {
     console.error('[damageControl]', err);
-    res.render('adminview/damage-control', {
+    res.render('adminview/flagged-transactions', {
       layout: 'layouts/adminLayout',
       rows: [],
       totalAmount: 0,
@@ -60,25 +68,19 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
   }
 }];
 
+// POST /deduct
+// Case 1 (old): status=failed, wallet was refunded — deduct it now if data was delivered.
 exports.deductWallet = [authenticateAdminUser, async (req, res) => {
   try {
     const { transactionId } = req.body;
 
     const tx = await Transaction.findById(transactionId);
-    if (!tx) {
-      return res.json({ success: false, message: 'Transaction not found' });
-    }
-    if (tx.status !== 'failed') {
-      return res.json({ success: false, message: 'Only failed transactions can be manually deducted' });
-    }
-    if (tx.apiResponse?.adminDeducted) {
-      return res.json({ success: false, message: 'Already deducted' });
-    }
+    if (!tx)                        return res.json({ success: false, message: 'Transaction not found' });
+    if (tx.status !== 'failed')     return res.json({ success: false, message: 'Only failed transactions can be manually deducted' });
+    if (tx.apiResponse?.adminDeducted) return res.json({ success: false, message: 'Already deducted' });
 
     const wallet = await Wallet.findOne({ user: tx.user });
-    if (!wallet) {
-      return res.json({ success: false, message: 'User wallet not found' });
-    }
+    if (!wallet) return res.json({ success: false, message: 'User wallet not found' });
 
     const before = wallet.balances.NAIRA;
     if (before < tx.amount) {
@@ -106,7 +108,61 @@ exports.deductWallet = [authenticateAdminUser, async (req, res) => {
       message: `Deducted ₦${tx.amount.toLocaleString()}. Balance: ₦${before.toLocaleString()} → ₦${wallet.balances.NAIRA.toLocaleString()}`,
     });
   } catch (err) {
-    console.error('[damageControl deduct]', err);
+    console.error('[flagged deduct]', err);
+    return res.json({ success: false, message: 'Server error' });
+  }
+}];
+
+// POST /resolve
+// Case 2 (new): status=pending, wallet is already deducted.
+//   action=delivered → mark success (data arrived, charge is correct — no wallet change)
+//   action=refund    → credit wallet back and mark refunded (data never arrived)
+exports.resolveTransaction = [authenticateAdminUser, async (req, res) => {
+  try {
+    const { transactionId, action } = req.body;
+    if (!['delivered', 'refund'].includes(action)) {
+      return res.json({ success: false, message: 'Invalid action' });
+    }
+
+    const tx = await Transaction.findById(transactionId);
+    if (!tx) return res.json({ success: false, message: 'Transaction not found' });
+    if (tx.status !== 'pending') return res.json({ success: false, message: 'Transaction is no longer pending' });
+    if (!tx.apiResponse?._timedOut) return res.json({ success: false, message: 'Not a timeout transaction' });
+
+    if (action === 'delivered') {
+      tx.status = 'success';
+      tx.apiResponse = { status: 'success', _resolvedByAdmin: true, resolvedAt: new Date().toISOString() };
+      tx.markModified('apiResponse');
+      await tx.save();
+      return res.json({ success: true, message: 'Transaction marked as delivered. Wallet charge stands.' });
+    }
+
+    // action === 'refund'
+    const wallet = await Wallet.findOne({ user: tx.user });
+    if (!wallet) return res.json({ success: false, message: 'User wallet not found' });
+
+    const before = wallet.balances.NAIRA;
+    wallet.balances.NAIRA += tx.amount;
+    await wallet.save();
+
+    tx.status = 'refunded';
+    tx.apiResponse = {
+      status: 'fail',
+      _resolvedByAdmin: true,
+      adminRefunded: true,
+      resolvedAt: new Date().toISOString(),
+      balanceBefore: before,
+      balanceAfter: wallet.balances.NAIRA,
+    };
+    tx.markModified('apiResponse');
+    await tx.save();
+
+    return res.json({
+      success: true,
+      message: `Refunded ₦${tx.amount.toLocaleString()} to user. Balance: ₦${before.toLocaleString()} → ₦${wallet.balances.NAIRA.toLocaleString()}`,
+    });
+  } catch (err) {
+    console.error('[flagged resolve]', err);
     return res.json({ success: false, message: 'Server error' });
   }
 }];
