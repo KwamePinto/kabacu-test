@@ -72,13 +72,13 @@
 
           <!-- Legend -->
           <div class="mb-3" style="font-size:13px;">
-            <strong>Old entries</strong> (wallet was refunded — check if data arrived, then deduct):
-            <span class="badge badge-danger ml-1">Wallet Refunded</span>
-            &nbsp;|&nbsp;
-            <strong>New entries</strong> (wallet is held — check OurDataStore, then mark delivered or refund):
-            <span class="badge badge-warning ml-1">Wallet Held</span>
-            &nbsp;|&nbsp;
-            <span class="badge badge-info ml-1">Has Paid Retry</span> User also retried and paid.
+            <span style="display:inline-block;width:12px;height:12px;background:#f5c6cb;border:1px solid #dc3545;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>
+            <strong>Red</strong> — wallet was refunded; deduct if data was delivered
+            &nbsp;&nbsp;
+            <span style="display:inline-block;width:12px;height:12px;background:#ffeeba;border:1px solid #ffc107;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>
+            <strong>Yellow</strong> — wallet is held; mark delivered or refund user
+            &nbsp;&nbsp;
+            <span class="badge badge-secondary">Paid Retry</span> — user retried and paid separately
           </div>
 
           <div class="card">
@@ -87,14 +87,14 @@
             </div>
             <div class="card-body p-0">
               <div class="table-responsive">
-                <table class="table table-striped table-hover mb-0">
-                  <thead>
+                <table class="table table-hover mb-0">
+                  <thead class="thead-light">
                     <tr>
                       <th>Date</th>
                       <th>User</th>
                       <th>Phone</th>
                       <th class="text-right">Amount</th>
-                      <th>Type</th>
+                      <th class="text-center">Type</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -110,7 +110,7 @@
                          var isOld = tx.status === 'failed';
                          var userName = tx.user ? tx.user.username : 'Unknown';
                     %>
-                      <tr id="row-<%= tx._id %>">
+                      <tr id="row-<%= tx._id %>" class="<%= isOld ? 'table-danger' : 'table-warning' %>">
                         <td>
                           <small>
                             <%= new Date(tx.createdAt).toLocaleString('en-GB', {
@@ -125,14 +125,14 @@
                         </td>
                         <td><code><%= tx.phone || '—' %></code></td>
                         <td class="text-right"><strong>₦<%= (tx.amount || 0).toLocaleString() %></strong></td>
-                        <td>
+                        <td class="text-center">
                           <% if (isOld) { %>
-                            <span class="badge badge-danger">Wallet Refunded</span>
+                            <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#dc3545;" title="Wallet Refunded"></span>
                           <% } else { %>
-                            <span class="badge badge-warning">Wallet Held</span>
+                            <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#ffc107;" title="Wallet Held"></span>
                           <% } %>
                           <% if (tx.hasSuccessRetry) { %>
-                            <br><span class="badge badge-info mt-1">Has Paid Retry</span>
+                            <br><span class="badge badge-secondary mt-1" style="font-size:10px;">Paid Retry</span>
                           <% } %>
                         </td>
                         <td>
