@@ -109,11 +109,13 @@ exports.payWithWallet = async (req, res) => {
             new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 25000))
           ]);
         } catch (err) {
-          if (err.message === 'Request timeout') {
-            apiResponse = { status: 'pending', _timedOut: true };
-          } else {
-            console.log('API ERROR:', err.response?.data || err.message);
+          if (err.response) {
+            console.log('API HTTP ERROR:', err.response.status, err.response.data);
             apiResponse = { status: 'fail' };
+          } else {
+            const reason = err.message === 'Request timeout' ? 'timeout' : (err.code || err.message);
+            console.log('API NO-RESPONSE:', reason);
+            apiResponse = { status: 'pending', _timedOut: true, _reason: reason };
           }
         }
 

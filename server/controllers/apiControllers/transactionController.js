@@ -63,10 +63,13 @@ exports.retryTransaction = async (req, res) => {
         ),
       ]);
     } catch (err) {
-      if (err.message === 'Request timeout') {
-        apiResponse = { status: 'pending', _timedOut: true };
-      } else {
+      if (err.response) {
+        console.log('API HTTP ERROR (retry):', err.response.status, err.response.data);
         apiResponse = { status: 'fail', message: 'API error' };
+      } else {
+        const reason = err.message === 'Request timeout' ? 'timeout' : (err.code || err.message);
+        console.log('API NO-RESPONSE (retry):', reason);
+        apiResponse = { status: 'pending', _timedOut: true, _reason: reason };
       }
     }
 

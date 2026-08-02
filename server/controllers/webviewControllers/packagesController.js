@@ -918,13 +918,17 @@ exports.payWithWallet = async (req, res) => {
 
           console.log("BUY RESPONSE:", apiResponse);
         } catch (err) {
-          if (err.message === "Request timeout") {
-            // Our 25s timer fired — OurDataStore likely received and is still processing
-            // the request. Keep wallet deducted; save as pending so user can check history.
-            apiResponse = { status: "pending", _timedOut: true };
-          } else {
-            console.log("API ERROR:", err.response?.data || err.message);
+          if (err.response) {
+            // OurDataStore sent back an HTTP error — they received and rejected our request.
+            // Data was not delivered; safe to refund.
+            console.log("API HTTP ERROR:", err.response.status, err.response.data);
             apiResponse = { status: "fail" };
+          } else {
+            // No response received (timeout, network drop, connection reset, etc.).
+            // OurDataStore may have processed the request — keep wallet deducted.
+            const reason = err.message === "Request timeout" ? "timeout" : (err.code || err.message);
+            console.log("API NO-RESPONSE:", reason);
+            apiResponse = { status: "pending", _timedOut: true, _reason: reason };
           }
         }
 
