@@ -79,6 +79,11 @@
             <span style="display:inline-block;background:#fff3cd;border:1px solid #ffeeba;border-radius:4px;padding:2px 8px;color:#856404;font-weight:600;">Wallet Held</span> — mark delivered or refund
           </div>
 
+          <!-- Search -->
+          <div class="mb-3">
+            <input type="text" id="flaggedSearch" class="form-control" placeholder="Search by user, phone, or amount…" style="max-width:360px;">
+          </div>
+
           <!-- Tabs -->
           <ul class="nav nav-tabs mb-0" id="flaggedTabs" role="tablist">
             <li class="nav-item">
@@ -404,6 +409,15 @@ document.querySelectorAll('.resolve-btn').forEach(function (btn) {
       Swal.fire({ icon: 'error', text: 'Something went wrong' });
       btn.disabled = false; btn.textContent = isDelivered ? 'Mark Delivered' : 'Refund User';
     }
+  });
+});
+
+// ── Live search (Flagged tab only) ───────────────────────────────
+document.getElementById('flaggedSearch').addEventListener('input', function () {
+  var q = this.value.toLowerCase().trim();
+  document.querySelectorAll('#tab-flagged tbody tr').forEach(function (row) {
+    var text = row.textContent.toLowerCase();
+    row.style.display = (!q || text.includes(q)) ? '' : 'none';
   });
 });
 
