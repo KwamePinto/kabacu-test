@@ -88,6 +88,10 @@ const transactionSchema = new mongoose.Schema({
     balanceBefore: { type: Number },
     balanceAfter:  { type: Number },
 
+    adminCleared:   { type: Boolean, default: false },
+    adminClearedAt: { type: Date },
+    adminClearedBy: { type: String },
+
     apiResponse: {
         type: Object
     },

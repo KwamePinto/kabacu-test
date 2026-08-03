@@ -1,4 +1,5 @@
 const Wallet   = require('../../models/WalletModal');
+const { notify } = require('../../services/userNotificationService');
 const User     = require('../../models/UserModel');
 const TopUp    = require('../../models/TopUpModal');
 const Product  = require('../../models/ProductsModal');
@@ -59,16 +60,6 @@ exports.payWithWallet = async (req, res) => {
       itemsToProcess.push({ product, quantity: 1 });
     } else {
       return res.json({ success: false, message: 'productId is required' });
-    }
-
-    if (wallet.balances.NAIRA < total) {
-      return res.json({
-        success: false,
-        insufficientBalance: true,
-        message: 'Insufficient NAIRA wallet balance',
-        requiredAmount: total,
-        currentBalance: wallet.balances.NAIRA,
-      });
     }
 
     const balanceBefore = wallet.balances.NAIRA;
@@ -136,6 +127,11 @@ exports.payWithWallet = async (req, res) => {
             apiResponse
           });
 
+          notify(userId, {
+            type: 'attention',
+            text: `Your data order of ₦${total.toLocaleString()} is being verified. We'll update you shortly.`,
+            link: '/user/transaction-history',
+          });
           return res.json({ success: false, pending: true, message: 'Your order is being processed. Please wait a few minutes — do not retry. Check your transaction history for the update.' });
         }
 
@@ -159,6 +155,11 @@ exports.payWithWallet = async (req, res) => {
             apiResponse
           });
 
+          notify(userId, {
+            type: 'refund',
+            text: `Your data order of ₦${total.toLocaleString()} failed. ₦${total.toLocaleString()} has been refunded to your wallet.`,
+            link: '/user/transaction-history',
+          });
           return res.json({ success: false, message: userMessage(apiResponse, 'Data purchase failed, refunded') });
         }
       }
@@ -182,6 +183,12 @@ exports.payWithWallet = async (req, res) => {
     });
 
     await User.findByIdAndUpdate(userId, { $inc: { rpBalance: totalRP } });
+
+    notify(userId, {
+      type: 'success',
+      text: `Data purchase of ₦${total.toLocaleString()} was successful. Your data is on its way.`,
+      link: '/user/transaction-history',
+    });
 
     res.json({
       success: true,

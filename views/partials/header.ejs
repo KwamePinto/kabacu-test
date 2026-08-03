@@ -19,15 +19,34 @@
 
       <!-- Actions -->
       <div class="app-header__actions">
-                <p class="mobile-only">₦<%= ((wallet && wallet.balances && (wallet.balances.NAIRA).toFixed(2)) || 0.00).toLocaleString() %></p>
+        <p class="mobile-only">₦<%= ((wallet && wallet.balances && (wallet.balances.NAIRA).toFixed(2)) || 0.00).toLocaleString() %></p>
         <button id="searchBtn" class="app-header__icon-btn" aria-label="Search">
           <i data-lucide="search"></i>
         </button>
         <% if (user) { %>
-        <button id="openClaimModal" class="app-header__icon-btn app-header__icon-btn--bell" aria-label="Claim RP">
-          <i data-lucide="bell"></i>
-          <span class="app-header__notif-dot"></span>
-        </button>
+
+        <!-- Notification bell -->
+        <div class="notif-bell-wrap" style="position:relative;display:inline-block;">
+          <button id="notifBellBtn" class="app-header__icon-btn" aria-label="Notifications" style="position:relative;">
+            <i data-lucide="bell"></i>
+            <span id="notifBadge" style="display:none;position:absolute;top:2px;right:2px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:1px solid #fff;"></span>
+          </button>
+
+          <!-- Dropdown panel -->
+          <div id="notifPanel" style="display:none;position:absolute;top:calc(100% + 8px);right:0;width:320px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:9999;overflow:hidden;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f0f0f0;">
+              <strong style="font-size:14px;">Notifications</strong>
+              <button id="notifMarkRead" style="background:none;border:none;font-size:12px;color:#6b7280;cursor:pointer;padding:0;">Mark all read</button>
+            </div>
+            <div id="notifList" style="max-height:340px;overflow-y:auto;">
+              <div style="padding:24px 16px;text-align:center;color:#9ca3af;font-size:13px;">Loading…</div>
+            </div>
+            <div style="padding:10px 16px;border-top:1px solid #f0f0f0;text-align:center;">
+              <a href="#" id="notifClaimRP" style="font-size:12px;color:#6b7280;">Claim Reward Points</a>
+            </div>
+          </div>
+        </div>
+
         <a href="/user-profile" class="app-header__icon-btn desktop-only" aria-label="My Account" title="My Account">
           <i data-lucide="user-circle-2"></i>
         </a>
@@ -43,7 +62,7 @@
     </div>
   </div>
 
-  <!-- Search overlay — slides in from the right over the island/bar -->
+  <!-- Search overlay -->
   <div class="app-header__search-row" id="headerSearchRow">
     <button id="closeSearchBtn" class="app-header__icon-btn" aria-label="Close search">
       <i data-lucide="arrow-left"></i>
@@ -61,3 +80,96 @@
   </div>
 
 </header>
+
+<% if (user) { %>
+<script>
+(function () {
+  var btn   = document.getElementById('notifBellBtn');
+  var panel = document.getElementById('notifPanel');
+  var badge = document.getElementById('notifBadge');
+  var list  = document.getElementById('notifList');
+  var markReadBtn = document.getElementById('notifMarkRead');
+  var claimBtn    = document.getElementById('notifClaimRP');
+  var open  = false;
+
+  var TYPE_COLOR = { purchase:'#3b82f6', success:'#22c55e', failed:'#ef4444', refund:'#f59e0b', attention:'#f97316', info:'#6b7280' };
+
+  function timeAgo(d) {
+    var s = Math.floor((Date.now() - new Date(d)) / 1000);
+    if (s < 60)   return s + 's ago';
+    if (s < 3600) return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+  }
+
+  function loadNotifications() {
+    fetch('/api/notifications', { credentials: 'same-origin' })
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        var items = data.notifications || [];
+        var unread = data.unreadCount || 0;
+
+        badge.style.display = unread > 0 ? 'block' : 'none';
+
+        if (!items.length) {
+          list.innerHTML = '<div style="padding:24px 16px;text-align:center;color:#9ca3af;font-size:13px;">No notifications yet</div>';
+          return;
+        }
+
+        list.innerHTML = items.map(function(n) {
+          var color = TYPE_COLOR[n.type] || '#6b7280';
+          var href  = n.link ? ('href="' + n.link + '"') : 'href="#"';
+          return '<a ' + href + ' style="display:flex;align-items:flex-start;gap:10px;padding:12px 16px;text-decoration:none;border-bottom:1px solid #f9f9f9;' + (!n.read ? 'background:#fafaf8;' : '') + '">' +
+            '<span style="width:8px;height:8px;border-radius:50%;background:' + color + ';flex-shrink:0;margin-top:5px;"></span>' +
+            '<span style="flex:1;">' +
+              '<span style="display:block;font-size:13px;color:#111827;">' + n.text + '</span>' +
+              '<span style="display:block;font-size:11px;color:#9ca3af;margin-top:2px;">' + timeAgo(n.createdAt) + '</span>' +
+            '</span>' +
+          '</a>';
+        }).join('');
+      })
+      .catch(function() {
+        list.innerHTML = '<div style="padding:24px 16px;text-align:center;color:#9ca3af;font-size:13px;">Could not load notifications</div>';
+      });
+  }
+
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    open = !open;
+    panel.style.display = open ? 'block' : 'none';
+    if (open) loadNotifications();
+  });
+
+  document.addEventListener('click', function(e) {
+    if (open && !panel.contains(e.target) && e.target !== btn) {
+      open = false;
+      panel.style.display = 'none';
+    }
+  });
+
+  markReadBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    fetch('/api/notifications/read-all', { method:'POST', credentials:'same-origin' });
+    badge.style.display = 'none';
+    list.querySelectorAll('a').forEach(function(a){ a.style.background=''; });
+  });
+
+  if (claimBtn) {
+    claimBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      panel.style.display = 'none';
+      open = false;
+      var modal = document.getElementById('claimRPModal');
+      if (modal) modal.style.display = 'flex';
+      var openBtn = document.getElementById('openClaimModal');
+      if (openBtn) openBtn.click();
+    });
+  }
+
+  // Load badge on page open after short delay
+  setTimeout(function() { loadNotifications(); }, 1500);
+  // Refresh every 2 minutes
+  setInterval(function() { if (!open) loadNotifications(); }, 120000);
+}());
+</script>
+<% } %>

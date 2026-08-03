@@ -1,0 +1,154 @@
+<%
+  // Default values for optional params
+  var _rows       = typeof rows       !== 'undefined' ? rows       : [];
+  var _showAct    = typeof showActions !== 'undefined' ? showActions : false;
+  var _showReasons= typeof showReasons !== 'undefined' ? showReasons : false;
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    var dt = new Date(d);
+    return dt.toLocaleDateString('en-NG', { day:'2-digit', month:'short', year:'numeric' })
+      + ' ' + dt.toLocaleTimeString('en-NG', { hour:'2-digit', minute:'2-digit' });
+  }
+  function fmtAmt(n) {
+    if (n == null) return '—';
+    return '₦' + Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function statusBadge(tx) {
+    if (tx._isAttention) return '<span class="badge" style="background:#f97316;color:#fff;font-size:11px;">Attention</span>';
+    var map = {
+      success:    '<span class="badge badge-success">Success</span>',
+      failed:     '<span class="badge badge-danger">Failed</span>',
+      pending:    '<span class="badge badge-warning text-dark">Pending</span>',
+      processing: '<span class="badge badge-info">Processing</span>',
+      refunded:   '<span class="badge badge-secondary">Refunded</span>',
+    };
+    return map[tx.status] || ('<span class="badge badge-light">' + tx.status + '</span>');
+  }
+%>
+
+<% if (!_rows || _rows.length === 0) { %>
+  <div class="text-center text-muted py-5">
+    <i class="fas fa-inbox fa-2x mb-2"></i><br>No transactions found.
+  </div>
+<% } else { %>
+<div class="table-responsive" style="border-radius:0 0 4px 4px;">
+  <table class="table table-striped table-hover mb-0" style="font-size:13px;">
+    <thead class="thead-light">
+      <tr>
+        <th>#</th>
+        <th>Date</th>
+        <th>User</th>
+        <th>Phone</th>
+        <th>Product</th>
+        <th>Amount</th>
+        <th>Method</th>
+        <th>Status</th>
+        <% if (_showReasons) { %><th>Flags</th><% } %>
+        <th>Bal Before</th>
+        <th>Bal After</th>
+        <% if (_showAct) { %><th>Actions</th><% } %>
+      </tr>
+    </thead>
+    <tbody>
+      <% _rows.forEach(function(tx, i) {
+        var userId   = tx.user ? (tx.user._id || tx.user).toString() : '';
+        var username = tx.user ? (tx.user.username || tx.user.firstname || tx.user.email || userId) : '—';
+        var txId     = tx._id ? tx._id.toString() : '';
+        var amt      = tx.amount || 0;
+        var productName = '';
+        if (tx.product && tx.product.name) { productName = tx.product.name; }
+        else if (tx.products && tx.products.length > 0 && tx.products[0].product && tx.products[0].product.name) {
+          productName = tx.products[0].product.name + (tx.products.length > 1 ? ' +' + (tx.products.length - 1) + ' more' : '');
+        }
+        var isSuspicious = tx._suspicious && tx._suspicious.length > 0;
+        var rowBg = tx._isAttention ? 'background:#fff8f0;' : (isSuspicious ? 'background:#fff5f5;' : '');
+      %>
+      <tr id="txrow-<%= txId %>" style="<%= rowBg %>">
+        <td class="text-muted"><%= i + 1 %></td>
+        <td style="white-space:nowrap;"><%= fmtDate(tx.createdAt) %></td>
+        <td>
+          <a href="/admin/product/view-users?search=<%= encodeURIComponent(username) %>" style="color:inherit;font-weight:500;">
+            <%= username %>
+          </a>
+        </td>
+        <td><%= tx.phone || '—' %></td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<%= productName %>">
+          <%= productName || '—' %>
+        </td>
+        <td style="font-weight:600;"><%= fmtAmt(amt) %></td>
+        <td><%= tx.paymentMethod || '—' %></td>
+        <td><%- statusBadge(tx) %></td>
+
+        <% if (_showReasons) { %>
+        <td>
+          <% if (isSuspicious) { %>
+            <% tx._suspicious.forEach(function(r) { %>
+              <div class="badge badge-danger mb-1" style="white-space:normal;text-align:left;font-size:11px;display:block;"><%= r %></div>
+            <% }); %>
+          <% } else { %>
+            <span class="text-muted">—</span>
+          <% } %>
+        </td>
+        <% } %>
+
+        <td style="font-size:12px;color:#666;"><%= fmtAmt(tx.balanceBefore) %></td>
+        <td style="font-size:12px;<%= tx.balanceAfter != null && tx.balanceAfter < 0 ? 'color:#dc3545;font-weight:600;' : 'color:#666;' %>">
+          <%= fmtAmt(tx.balanceAfter) %>
+        </td>
+
+        <% if (_showAct) { %>
+        <td style="white-space:nowrap;">
+          <div class="d-flex flex-wrap gap-1" style="gap:4px;">
+
+            <% if (tx._isAttention) { %>
+              <button class="btn btn-sm btn-success btn-resolve-attention"
+                data-id="<%= txId %>"
+                data-action="success"
+                data-amount="<%= amt %>"
+                data-user="<%= username %>">
+                Mark Delivered
+              </button>
+              <button class="btn btn-sm btn-secondary btn-resolve-attention"
+                data-id="<%= txId %>"
+                data-action="refund"
+                data-amount="<%= amt %>"
+                data-user="<%= username %>">
+                Refund
+              </button>
+            <% } %>
+
+            <% if (tx.status === 'success' && tx.paymentMethod === 'wallet' && !(tx.apiResponse && tx.apiResponse.adminForceRefund)) { %>
+              <button class="btn btn-sm btn-outline-danger btn-force-refund"
+                data-id="<%= txId %>"
+                data-amount="<%= amt %>"
+                data-user="<%= username %>">
+                Force Refund
+              </button>
+            <% } %>
+
+            <% if (!tx.adminCleared) { %>
+              <button class="btn btn-sm btn-outline-secondary btn-clear-tx"
+                data-id="<%= txId %>"
+                title="Clear / dismiss this transaction"
+                style="padding:2px 6px;">
+                <i class="fas fa-trash-alt" style="font-size:11px;"></i>
+              </button>
+            <% } %>
+
+            <% if (tx.adminCleared) { %>
+              <span class="text-muted" style="font-size:11px;">
+                Cleared by <%= tx.adminClearedBy || 'admin' %>
+                <% if (tx.adminClearedAt) { %><br><%= fmtDate(tx.adminClearedAt) %><% } %>
+              </span>
+            <% } %>
+
+          </div>
+        </td>
+        <% } %>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+<% } %>

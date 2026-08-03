@@ -8,6 +8,7 @@ const wallet        = require('../controllers/apiControllers/walletController');
 const transaction   = require('../controllers/apiControllers/transactionController');
 const profile       = require('../controllers/apiControllers/profileController');
 const publicCourses = require('../controllers/apiControllers/publicCoursesController');
+const userNotif     = require('../controllers/apiControllers/userNotificationsController');
 
 // ── Auth (public) ──────────────────────────────────────────
 router.post('/auth/login',          auth.login);
@@ -50,5 +51,9 @@ router.put('/profile', apiAuth, profile.updateProfile);
 
 // ── Course access (public — used by external course website) ──
 router.get('/public/course-access', publicCourses.courseAccess);
+
+// ── User notifications ─────────────────────────────────────
+router.get('/notifications',           apiAuth, userNotif.getNotifications);
+router.post('/notifications/read-all', apiAuth, userNotif.markAllRead);
 
 module.exports = router;

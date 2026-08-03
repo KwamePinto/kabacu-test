@@ -2,228 +2,258 @@
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
     <div class="navbar-bg"></div>
+    <%- include('../../partials/headerAdmin.ejs') %>
+    <%- include('../../partials/sideMenuAdmin.ejs') %>
 
-    <%- include('../../partials/headerAdmin.ejs')%>
-
-    <%- include('../../partials/sideMenuAdmin.ejs')%>
-
-    <!-- Main Content -->
     <div class="main-content">
       <section class="section">
+        <div class="section-header">
+          <h1>Transactions</h1>
+          <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="/admin/main">Dashboard</a></div>
+            <div class="breadcrumb-item">Transactions</div>
+          </div>
+        </div>
+
         <div class="section-body">
-          <div class="row">
-            <div class="col-12">
-              <div class="card">
-                <div class="card-header">
-                  <h4>All Transactions</h4>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table table-striped" id="table-1">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Reference</th>
-                          <th>User</th>
-                          <th>Phone</th>
-                          <th>Product</th>
-                          <th>Amount</th>
-                          <th>Wallet</th>
-                          <th>RP Earned</th>
-                          <th>Status</th>
-                          <th>Date</th>
-                        </tr>
-                      </thead>
 
-                      <tbody>
-                        <% if(transactions && transactions.length > 0){ %>
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger"><strong>Error:</strong> <%- error %></div>
+          <% } %>
 
-                        <% transactions.forEach((tx, index) => { %>
+          <%
+            var all        = transactions || [];
+            var success    = all.filter(function(t){ return t.status === 'success' && !t.adminCleared; });
+            var failed     = all.filter(function(t){ return t.status === 'failed'  && !t.adminCleared; });
+            var pending    = all.filter(function(t){ return t.status === 'pending' && !t._isAttention && !t.adminCleared; });
+            var attention  = all.filter(function(t){ return t._isAttention && !t.adminCleared; });
+            var flagged    = all.filter(function(t){
+              return !t.adminCleared && (
+                (t.status === 'failed' && t.apiResponse && t.apiResponse.status === 'fail' && !t.apiResponse.message && !t.apiResponse.adminDeducted) ||
+                t._isAttention ||
+                (t._suspicious && t._suspicious.length > 0)
+              );
+            });
+            var cleared    = all.filter(function(t){ return t.adminCleared; });
+            var active     = all.filter(function(t){ return !t.adminCleared; });
+          %>
 
-                        <tr>
-                          <td><%= index + 1 %></td>
-
-                          <td>
-                            <small><%= tx.reference %></small>
-                          </td>
-
-                          <td>
-                            <% if(tx.user?.firstname || tx.user?.name || tx.user?.email){ %>
-                            <a href="/admin/product/user-details/<%= tx.user._id %>"><%= tx.user?.firstname || tx.user?.username || tx.user?.email %></a>
-                            <% } else { %>
-                            N/A
-                            <% } %>
-                          </td>
-
-                          <td>
-                            <%= tx.phone || 'N/A' %>
-                          </td>
-
-                          <td>
-                            <% if(tx.product){ %>
-                            <%= tx.product.item_name || tx.product.dataDetails?.plan_name || 'N/A' %>
-                            <% } else if(tx.products && tx.products.length > 0){ %>
-                            <%= tx.products.map(p => p.product?.item_name || p.product?.dataDetails?.plan_name || '?').join(', ') %>
-                            <% } else { %>
-                            N/A
-                            <% } %>
-                          </td>
-
-                          <td>
-                            ₦<%= tx.amount.toLocaleString() %>
-                          </td>
-
-                          <td>
-                            <span class="badge badge-info">
-                              <%= tx.walletType %>
-                            </span>
-                          </td>
-
-                          <td>
-                            <span class="badge badge-success">
-                              <%= tx.rpEarned || 0 %>
-                            </span>
-                          </td>
-
-                          <td>
-                            <% if(tx.status === 'success'){ %>
-                            <span class="badge badge-success">
-                              Success
-                            </span>
-
-                            <% } else if(tx.status === 'failed'){ %>
-                            <span class="badge badge-danger">
-                              Failed
-                            </span>
-
-                            <% } else { %>
-                            <span class="badge badge-warning">
-                              <%= tx.status %>
-                            </span>
-                            <% } %>
-                          </td>
-
-                          <td>
-                            <%= new Date(tx.createdAt).toLocaleDateString() %>
-                          </td>
-                        </tr>
-
-                        <% }) %>
-
-                        <% } else { %>
-
-                        <tr>
-                          <td colspan="10" class="text-center">
-                            No transactions found
-                          </td>
-                        </tr>
-
-                        <% } %>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+          <!-- Summary cards -->
+          <div class="row mb-4">
+            <div class="col-6 col-md-2">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-primary"><i class="fas fa-list"></i></div>
+                <div class="card-wrap"><div class="card-header"><h4>All</h4></div><div class="card-body"><%= active.length %></div></div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-success"><i class="fas fa-check"></i></div>
+                <div class="card-wrap"><div class="card-header"><h4>Success</h4></div><div class="card-body"><%= success.length %></div></div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-danger"><i class="fas fa-times"></i></div>
+                <div class="card-wrap"><div class="card-header"><h4>Failed</h4></div><div class="card-body"><%= failed.length %></div></div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-warning"><i class="fas fa-clock"></i></div>
+                <div class="card-wrap"><div class="card-header"><h4>Pending</h4></div><div class="card-body"><%= pending.length %></div></div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-warning" style="background:#f97316!important;"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="card-wrap"><div class="card-header"><h4>Attention</h4></div><div class="card-body"><%= attention.length %></div></div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="card card-statistic-1">
+                <div class="card-icon bg-danger"><i class="fas fa-flag"></i></div>
+                <div class="card-wrap"><div class="card-header"><h4>Flagged</h4></div><div class="card-body"><%= flagged.length %></div></div>
               </div>
             </div>
           </div>
 
+          <!-- Tabs -->
+          <ul class="nav nav-tabs mb-0" id="txTabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tab-all">All <span class="badge badge-secondary ml-1"><%= active.length %></span></a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-success">Success <span class="badge badge-success ml-1"><%= success.length %></span></a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-failed">Failed <span class="badge badge-danger ml-1"><%= failed.length %></span></a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-pending">Pending <span class="badge badge-warning ml-1"><%= pending.length %></span></a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-attention" style="color:#f97316;">Attention <span class="badge ml-1" style="background:#f97316;color:#fff;"><%= attention.length %></span></a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-flagged">Flagged <span class="badge badge-danger ml-1"><%= flagged.length %></span></a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-cleared">Cleared <span class="badge badge-secondary ml-1"><%= cleared.length %></span></a></li>
+          </ul>
+
+          <div class="tab-content">
+
+            <!-- ── ALL ── -->
+            <div class="tab-pane fade show active" id="tab-all">
+              <%- include('../../partials/txTable.ejs', { rows: active, showActions: true }) %>
+            </div>
+
+            <!-- ── SUCCESS ── -->
+            <div class="tab-pane fade" id="tab-success">
+              <%- include('../../partials/txTable.ejs', { rows: success, showActions: true }) %>
+            </div>
+
+            <!-- ── FAILED ── -->
+            <div class="tab-pane fade" id="tab-failed">
+              <%- include('../../partials/txTable.ejs', { rows: failed, showActions: true }) %>
+            </div>
+
+            <!-- ── PENDING ── -->
+            <div class="tab-pane fade" id="tab-pending">
+              <%- include('../../partials/txTable.ejs', { rows: pending, showActions: true }) %>
+            </div>
+
+            <!-- ── ATTENTION ── -->
+            <div class="tab-pane fade" id="tab-attention">
+              <div class="alert alert-warning mt-3">
+                <strong>Attention required.</strong> These transactions received no response from OurDataStore (timeout, network error, etc.).
+                Verify in the OurDataStore dashboard then use the action buttons to mark as delivered or refund the user.
+              </div>
+              <%- include('../../partials/txTable.ejs', { rows: attention, showActions: true }) %>
+            </div>
+
+            <!-- ── FLAGGED ── -->
+            <div class="tab-pane fade" id="tab-flagged">
+              <div class="alert alert-danger mt-3">
+                <strong>Suspicious transactions.</strong> These match one or more flagging rules — check the Reason column before taking action.
+              </div>
+              <%- include('../../partials/txTable.ejs', { rows: flagged, showActions: true, showReasons: true }) %>
+            </div>
+
+            <!-- ── CLEARED ── -->
+            <div class="tab-pane fade" id="tab-cleared">
+              <div class="alert alert-secondary mt-3">
+                These transactions have been manually reviewed and cleared by admin.
+              </div>
+              <%- include('../../partials/txTable.ejs', { rows: cleared, showActions: false }) %>
+            </div>
+
+          </div><!-- /tab-content -->
 
         </div>
       </section>
-      <div class="settingSidebar">
-        <a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
-        </a>
-        <div class="settingSidebar-body ps-container ps-theme-default">
-          <div class=" fade show active">
-            <div class="setting-panel-header">Setting Panel
-            </div>
-            <div class="p-15 border-bottom">
-              <h6 class="font-medium m-b-10">Select Layout</h6>
-              <div class="selectgroup layout-color w-50">
-                <label class="selectgroup-item">
-                  <input type="radio" name="value" value="1" class="selectgroup-input-radio select-layout" checked>
-                  <span class="selectgroup-button">Light</span>
-                </label>
-                <label class="selectgroup-item">
-                  <input type="radio" name="value" value="2" class="selectgroup-input-radio select-layout">
-                  <span class="selectgroup-button">Dark</span>
-                </label>
-              </div>
-            </div>
-            <div class="p-15 border-bottom">
-              <h6 class="font-medium m-b-10">Sidebar Color</h6>
-              <div class="selectgroup selectgroup-pills sidebar-color">
-                <label class="selectgroup-item">
-                  <input type="radio" name="icon-input" value="1" class="selectgroup-input select-sidebar">
-                  <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip" data-original-title="Light Sidebar"><i class="fas fa-sun"></i></span>
-                </label>
-                <label class="selectgroup-item">
-                  <input type="radio" name="icon-input" value="2" class="selectgroup-input select-sidebar" checked>
-                  <span class="selectgroup-button selectgroup-button-icon" data-toggle="tooltip" data-original-title="Dark Sidebar"><i class="fas fa-moon"></i></span>
-                </label>
-              </div>
-            </div>
-            <div class="p-15 border-bottom">
-              <h6 class="font-medium m-b-10">Color Theme</h6>
-              <div class="theme-setting-options">
-                <ul class="choose-theme list-unstyled mb-0">
-                  <li title="white" class="active">
-                    <div class="white"></div>
-                  </li>
-                  <li title="cyan">
-                    <div class="cyan"></div>
-                  </li>
-                  <li title="black">
-                    <div class="black"></div>
-                  </li>
-                  <li title="purple">
-                    <div class="purple"></div>
-                  </li>
-                  <li title="orange">
-                    <div class="orange"></div>
-                  </li>
-                  <li title="green">
-                    <div class="green"></div>
-                  </li>
-                  <li title="red">
-                    <div class="red"></div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="p-15 border-bottom">
-              <div class="theme-setting-options">
-                <label class="m-b-0">
-                  <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input" id="mini_sidebar_setting">
-                  <span class="custom-switch-indicator"></span>
-                  <span class="control-label p-l-10">Mini Sidebar</span>
-                </label>
-              </div>
-            </div>
-            <div class="p-15 border-bottom">
-              <div class="theme-setting-options">
-                <label class="m-b-0">
-                  <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input" id="sticky_header_setting">
-                  <span class="custom-switch-indicator"></span>
-                  <span class="control-label p-l-10">Sticky Header</span>
-                </label>
-              </div>
-            </div>
-            <div class="mt-4 mb-4 p-3 align-center rt-sidebar-last-ele">
-              <a href="#" class="btn btn-icon icon-left btn-primary btn-restore-theme">
-                <i class="fas fa-undo"></i> Restore Default
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-    <footer class="main-footer">
-      <div class="footer-left">
-        <a href="templateshub.net">Templateshub</a></a>
-      </div>
-      <div class="footer-right">
-      </div>
-    </footer>
+
+    <%- include('../../partials/footerAdmin.ejs') %>
   </div>
 </div>
+<script src="/admin/assets/js/app.min.js"></script>
+<script src="/admin/assets/js/scripts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+var _csrf = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+
+async function adminPost(url, body) {
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': _csrf },
+    body: JSON.stringify(body),
+  });
+  return r.json();
+}
+
+function removeRow(id) {
+  var row = document.getElementById('txrow-' + id);
+  if (row) { row.style.opacity = '0.3'; row.style.pointerEvents = 'none'; }
+}
+
+// ── Resolve attention ────────────────────────────────────────────────────────
+document.querySelectorAll('.btn-resolve-attention').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    var id     = this.dataset.id;
+    var action = this.dataset.action;
+    var amount = this.dataset.amount;
+    var user   = this.dataset.user;
+    var isSuccess = action === 'success';
+
+    var confirm = await Swal.fire({
+      icon: isSuccess ? 'question' : 'warning',
+      title: isSuccess ? 'Mark as Delivered?' : 'Refund User?',
+      html: isSuccess
+        ? `Confirm OurDataStore delivered data for <strong>${user}</strong> (₦${Number(amount).toLocaleString()}). Wallet charge stands.`
+        : `Refund <strong>₦${Number(amount).toLocaleString()}</strong> to <strong>${user}</strong>? Only if data was NOT delivered.`,
+      showCancelButton: true,
+      confirmButtonText: isSuccess ? 'Yes, Delivered' : 'Yes, Refund',
+      confirmButtonColor: isSuccess ? '#47c363' : '#6c757d',
+    });
+    if (!confirm.isConfirmed) return;
+    this.disabled = true; this.textContent = 'Working…';
+
+    try {
+      var data = await adminPost('/admin/transactions/resolve-attention', { transactionId: id, action });
+      if (data.success) {
+        Swal.fire({ icon: 'success', title: 'Done', text: data.message, timer: 2000, showConfirmButton: false });
+        removeRow(id);
+      } else {
+        Swal.fire({ icon: 'error', title: 'Failed', text: data.message });
+        this.disabled = false; this.textContent = isSuccess ? 'Mark Delivered' : 'Refund';
+      }
+    } catch(_) {
+      Swal.fire({ icon: 'error', text: 'Something went wrong' });
+      this.disabled = false;
+    }
+  });
+});
+
+// ── Force refund (success → refunded) ────────────────────────────────────────
+document.querySelectorAll('.btn-force-refund').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    var id     = this.dataset.id;
+    var amount = this.dataset.amount;
+    var user   = this.dataset.user;
+
+    var confirm = await Swal.fire({
+      icon: 'warning',
+      title: 'Force Refund?',
+      html: `<strong>Warning:</strong> This will reverse a <em>successful</em> transaction and refund ₦${Number(amount).toLocaleString()} to <strong>${user}</strong>.<br><br>This cannot be undone. Only proceed if you are certain the data was not actually delivered.`,
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Force Refund',
+      confirmButtonColor: '#dc3545',
+    });
+    if (!confirm.isConfirmed) return;
+    this.disabled = true; this.textContent = 'Working…';
+
+    try {
+      var data = await adminPost('/admin/transactions/force-refund', { transactionId: id });
+      if (data.success) {
+        Swal.fire({ icon: 'success', title: 'Refunded', text: data.message, timer: 2500, showConfirmButton: false });
+        removeRow(id);
+      } else {
+        Swal.fire({ icon: 'error', title: 'Failed', text: data.message });
+        this.disabled = false; this.textContent = 'Force Refund';
+      }
+    } catch(_) {
+      Swal.fire({ icon: 'error', text: 'Something went wrong' });
+      this.disabled = false;
+    }
+  });
+});
+
+// ── Clear / dismiss ───────────────────────────────────────────────────────────
+document.querySelectorAll('.btn-clear-tx').forEach(function(btn) {
+  btn.addEventListener('click', async function() {
+    var id = this.dataset.id;
+    this.disabled = true;
+    try {
+      var data = await adminPost('/admin/transactions/clear', { transactionId: id });
+      if (data.success) {
+        removeRow(id);
+      } else {
+        Swal.fire({ icon: 'error', text: data.message });
+        this.disabled = false;
+      }
+    } catch(_) {
+      Swal.fire({ icon: 'error', text: 'Something went wrong' });
+      this.disabled = false;
+    }
+  });
+});
+</script>

@@ -1,4 +1,5 @@
 ﻿const { buyData, networkCode, userMessage } = require("../../services/ourdatastore");
+const { notify } = require("../../services/userNotificationService");
 const Product = require("../../models/ProductsModal");
 const Checkout = require("../../models/CheckoutModal");
 const User = require("../../models/UserModel");
@@ -828,20 +829,7 @@ exports.payWithWallet = async (req, res) => {
     }
 
     // =====================================
-    // ✅ CHECK WALLET BALANCE
-    // =====================================
-    if (wallet.balances.NAIRA < total) {
-      return res.json({
-        success: false,
-        insufficientBalance: true,
-        message: "Insufficient NAIRA wallet balance",
-        requiredAmount:  total,
-        currentBalance:  wallet.balances.NAIRA,
-      });
-    }
-
-    // =====================================
-    // ✅ DEDUCT WALLET
+    // ✅ DEDUCT WALLET (negatives allowed)
     // =====================================
     const balanceBefore = wallet.balances.NAIRA;
     wallet.balances.NAIRA -= total;
@@ -955,6 +943,12 @@ exports.payWithWallet = async (req, res) => {
             apiResponse,
           });
 
+          notify(userId, {
+            type: 'attention',
+            text: `Your data order of ₦${total.toLocaleString()} is being verified. We'll update you shortly.`,
+            link: '/user/transaction-history',
+          });
+
           return res.json({
             success: false,
             pending: true,
@@ -998,6 +992,12 @@ exports.payWithWallet = async (req, res) => {
             balanceAfter: wallet.balances.NAIRA,
 
             apiResponse,
+          });
+
+          notify(userId, {
+            type: 'refund',
+            text: `Your data order of ₦${total.toLocaleString()} could not be completed. ₦${total.toLocaleString()} has been refunded to your wallet.`,
+            link: '/user/transaction-history',
           });
 
           return res.json({
@@ -1064,6 +1064,12 @@ exports.payWithWallet = async (req, res) => {
 
       await cart.save();
     }
+
+    notify(userId, {
+      type: 'success',
+      text: `Data purchase of ₦${total.toLocaleString()} was successful. Your data is on its way.`,
+      link: '/user/transaction-history',
+    });
 
     // =====================================
     // ✅ SUCCESS RESPONSE
