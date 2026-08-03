@@ -242,8 +242,10 @@ async function fetchHistory({ page = 1, status = 'ALL', search = '', perPage = 2
     const cookies = await getSession(); // login runs here on cold start, saving ADEX ID to DB first
     const adexId  = await getAdexId();  // DB is populated by the time we reach this
     const url     = `https://ourdatastore.com/api/system/all/history/adex/${adexId}/secure`;
+    const params = { page, adex: perPage, search };
+    if (status && status !== 'ALL') params.status = status;
     const r = await axios.get(url, {
-      params:  { page, adex: perPage, status, search },
+      params,
       headers: {
         Cookie:       cookies,
         Accept:       'application/json',

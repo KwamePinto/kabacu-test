@@ -2,10 +2,10 @@ const { authenticateAdminUser } = require('../../config/authMiddleware');
 const { getAccountInfo, fetchHistory } = require('../../services/ourdatastore');
 
 const STATUS_OPTIONS = [
-  { value: 'ALL',        label: 'All' },
-  { value: 'success',    label: 'Success' },
-  { value: 'fail',       label: 'Fail' },
-  { value: 'processing', label: 'Processing' },
+  { value: 'ALL', label: 'All' },
+  { value: '1',   label: 'Success' },
+  { value: '2',   label: 'Fail' },
+  { value: '3',   label: 'Processing' },
 ];
 
 const PLAN_STATUS = {

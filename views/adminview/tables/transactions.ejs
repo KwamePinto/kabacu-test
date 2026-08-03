@@ -14,14 +14,8 @@
           <div class="row">
             <div class="col-12">
               <div class="card">
-                <div class="card-header d-flex align-items-center justify-content-between flex-wrap" style="gap:8px;">
-                  <h4 class="mb-0">All Transactions</h4>
-                  <ul class="nav nav-pills mb-0" id="txStatusTabs">
-                    <li class="nav-item"><a class="nav-link active" href="#" data-filter="">All</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-filter="success">Success</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-filter="failed">Failed</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-filter="processing">Processing</a></li>
-                  </ul>
+                <div class="card-header">
+                  <h4>All Transactions</h4>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
@@ -233,26 +227,3 @@
     </footer>
   </div>
 </div>
-<script>
-$(document).ready(function () {
-  // Status column is index 8 (0-based)
-  var STATUS_COL = 8;
-  var table = $('#table-1').DataTable();
-
-  $('#txStatusTabs .nav-link').on('click', function (e) {
-    e.preventDefault();
-    $('#txStatusTabs .nav-link').removeClass('active');
-    $(this).addClass('active');
-
-    var filter = $(this).data('filter');
-    if (!filter) {
-      table.column(STATUS_COL).search('').draw();
-    } else if (filter === 'processing') {
-      // Catch pending + processing statuses (everything that isn't success/failed/refunded)
-      table.column(STATUS_COL).search('pending|processing', true, false).draw();
-    } else {
-      table.column(STATUS_COL).search('^' + filter + '$', true, false).draw();
-    }
-  });
-});
-</script>
