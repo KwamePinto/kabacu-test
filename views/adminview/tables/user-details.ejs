@@ -91,6 +91,15 @@
             </div>
           </div>
 
+          <!-- Admin actions -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <button id="deduct-wallet-btn" class="btn btn-danger btn-sm">
+                <i class="fas fa-minus-circle"></i> Deduct Wallet
+              </button>
+            </div>
+          </div>
+
           <!-- Tabs -->
           <div class="row">
             <div class="col-12">
@@ -353,3 +362,68 @@
     </footer>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+(function () {
+  var csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+  var userId    = '<%= user._id %>';
+  var username  = '<%= user.username || user.email %>';
+
+  document.getElementById('deduct-wallet-btn').addEventListener('click', function () {
+    Swal.fire({
+      title: 'Deduct Wallet',
+      html:
+        '<p class="text-muted mb-3">Deducting from <strong>' + username + '</strong>\'s NAIRA wallet.<br>The balance may go negative.</p>' +
+        '<div class="form-group text-left mb-2">' +
+          '<label>Amount (₦)</label>' +
+          '<input id="swal-amount" type="number" min="1" class="form-control" placeholder="e.g. 500">' +
+        '</div>' +
+        '<div class="form-group text-left">' +
+          '<label>Reason <small class="text-muted">(optional)</small></label>' +
+          '<input id="swal-reason" type="text" class="form-control" placeholder="e.g. Chargeback adjustment">' +
+        '</div>',
+      showCancelButton: true,
+      confirmButtonText: 'Deduct',
+      confirmButtonColor: '#dc3545',
+      preConfirm: function () {
+        var amount = document.getElementById('swal-amount').value;
+        if (!amount || parseFloat(amount) <= 0) {
+          Swal.showValidationMessage('Enter a valid amount greater than 0.');
+          return false;
+        }
+        return {
+          amount: amount,
+          reason: document.getElementById('swal-reason').value,
+        };
+      },
+    }).then(function (result) {
+      if (!result.isConfirmed) return;
+
+      fetch('/admin/product/user-details/' + userId + '/deduct-wallet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+        },
+        body: JSON.stringify(result.value),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deducted',
+              html: data.message + '<br><small class="text-muted">New balance: ₦' + Number(data.balanceAfter).toLocaleString() + '</small>',
+            }).then(function () { location.reload(); });
+          } else {
+            Swal.fire({ icon: 'error', title: 'Failed', text: data.message });
+          }
+        })
+        .catch(function () {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'Request failed. Please try again.' });
+        });
+    });
+  });
+})();
+</script>

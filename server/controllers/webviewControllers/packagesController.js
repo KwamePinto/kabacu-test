@@ -829,8 +829,12 @@ exports.payWithWallet = async (req, res) => {
     }
 
     // =====================================
-    // ✅ DEDUCT WALLET (negatives allowed)
+    // ✅ DEDUCT WALLET
     // =====================================
+    if (wallet.balances.NAIRA < total) {
+      return res.json({ success: false, message: 'Insufficient wallet balance. Please top up your wallet to continue.' });
+    }
+
     const balanceBefore = wallet.balances.NAIRA;
     wallet.balances.NAIRA -= total;
 

@@ -10,6 +10,7 @@ const PaymentMethod = require("../../models/PaymentMethodModel");
 const Network       = require("../../models/NetworkModel");
 
 const { authenticateAdminUser } = require("../../config/authMiddleware");
+const { notify } = require("../../services/userNotificationService");
 
 exports.createProducts = [
   authenticateAdminUser,
@@ -460,6 +461,51 @@ exports.deletePaymentMethod = [
     } catch (err) {
       console.log(err);
       res.redirect("/admin/product/payment-methods");
+    }
+  },
+];
+
+exports.adminDeductWallet = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const { amount, reason } = req.body;
+      const userId = req.params.id;
+
+      const parsed = parseFloat(amount);
+      if (!parsed || parsed <= 0) {
+        return res.json({ success: false, message: 'Enter a valid amount greater than 0.' });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) return res.json({ success: false, message: 'User not found.' });
+
+      const wallet = await Wallet.findOne({ user: userId });
+      if (!wallet) return res.json({ success: false, message: 'Wallet not found for this user.' });
+
+      const balanceBefore = wallet.balances.NAIRA;
+      wallet.balances.NAIRA -= parsed;
+      await wallet.save();
+
+      const balanceAfter = wallet.balances.NAIRA;
+
+      if (balanceAfter < 0) {
+        notify(userId, {
+          type: 'info',
+          text: `Your account has a pending balance of ₦${Math.abs(balanceAfter).toLocaleString()} to be paid. This amount will be debited from your account.`,
+          link: '/user/transaction-history',
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: `₦${parsed.toLocaleString()} has been deducted from ${user.username || user.email}'s wallet.`,
+        balanceBefore,
+        balanceAfter,
+      });
+    } catch (err) {
+      console.log('ADMIN DEDUCT WALLET ERROR:', err);
+      return res.json({ success: false, message: 'An error occurred. Please try again.' });
     }
   },
 ];

@@ -62,6 +62,10 @@ exports.payWithWallet = async (req, res) => {
       return res.json({ success: false, message: 'productId is required' });
     }
 
+    if (wallet.balances.NAIRA < total) {
+      return res.json({ success: false, message: 'Insufficient wallet balance. Please top up your wallet to continue.' });
+    }
+
     const balanceBefore = wallet.balances.NAIRA;
     wallet.balances.NAIRA -= total;
     await wallet.save();
