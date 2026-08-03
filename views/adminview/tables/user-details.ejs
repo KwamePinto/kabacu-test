@@ -291,31 +291,49 @@
                               <th>#</th>
                               <th>Reference</th>
                               <th>Product</th>
+                              <th>Qty</th>
                               <th>Amount</th>
                               <th>Wallet</th>
                               <th>RP Earned</th>
+                              <th>Prev Bal</th>
+                              <th>New Bal</th>
                               <th>Status</th>
                               <th>Date</th>
                             </tr>
                           </thead>
                           <tbody>
                             <% if (transactions && transactions.length > 0) { %>
-                            <% transactions.forEach((tx, index) => { %>
+                            <% transactions.forEach((tx, index) => {
+                                 var productName = 'N/A';
+                                 if (tx.product && tx.product.item_name) {
+                                   productName = tx.product.item_name;
+                                 } else if (tx.product && tx.product.dataDetails && tx.product.dataDetails.plan_name) {
+                                   productName = tx.product.dataDetails.plan_name;
+                                 } else if (tx.products && tx.products.length > 0) {
+                                   var names = tx.products
+                                     .filter(function(p){ return p.product; })
+                                     .map(function(p){ return p.product.item_name || (p.product.dataDetails && p.product.dataDetails.plan_name) || '?'; });
+                                   if (names.length > 0) productName = names.join(', ');
+                                 }
+
+                                 var qty = 1;
+                                 if (tx.products && tx.products.length > 0) {
+                                   qty = tx.products.reduce(function(s, p){ return s + (p.quantity || 1); }, 0);
+                                 }
+
+                                 var prevBal = tx.balanceBefore != null ? '₦' + Number(tx.balanceBefore).toLocaleString() : '—';
+                                 var newBal  = tx.balanceAfter  != null ? '₦' + Number(tx.balanceAfter).toLocaleString()  : '—';
+                            %>
                             <tr>
                               <td><%= index + 1 %></td>
                               <td><small><%= tx.reference %></small></td>
-                              <td>
-                                <% if (tx.product) { %>
-                                <%= tx.product.item_name || tx.product.dataDetails?.plan_name || 'N/A' %>
-                                <% } else if (tx.products && tx.products.length > 0) { %>
-                                <%= tx.products.map(p => p.product?.item_name || p.product?.dataDetails?.plan_name || '?').join(', ') %>
-                                <% } else { %>
-                                N/A
-                                <% } %>
-                              </td>
+                              <td><%= productName %></td>
+                              <td><%= qty %></td>
                               <td>₦<%= tx.amount.toLocaleString() %></td>
                               <td><span class="badge badge-info"><%= tx.walletType %></span></td>
                               <td><span class="badge badge-success"><%= tx.rpEarned || 0 %></span></td>
+                              <td><small><%= prevBal %></small></td>
+                              <td><small><%= newBal %></small></td>
                               <td>
                                 <% if (tx.status === 'success') { %>
                                 <span class="badge badge-success">Success</span>
@@ -325,12 +343,12 @@
                                 <span class="badge badge-warning"><%= tx.status %></span>
                                 <% } %>
                               </td>
-                              <td><%= new Date(tx.createdAt).toLocaleDateString() %></td>
+                              <td><small><%= new Date(tx.createdAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></small></td>
                             </tr>
                             <% }) %>
                             <% } else { %>
                             <tr>
-                              <td colspan="8" class="text-center">No transactions found</td>
+                              <td colspan="11" class="text-center">No transactions found</td>
                             </tr>
                             <% } %>
                           </tbody>
