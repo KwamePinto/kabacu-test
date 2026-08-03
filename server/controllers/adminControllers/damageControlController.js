@@ -45,10 +45,15 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
 
     const totalAmount = rows.reduce((s, r) => s + (r.amount || 0), 0);
 
-    const deductedHistory = await Transaction.find({
-      paymentMethod: 'wallet',
-      'apiResponse.adminDeducted': true,
-    }).populate('user', 'username email').sort({ 'apiResponse.adminDeductedAt': -1 }).lean();
+    const [deductedHistory, clearedRows] = await Promise.all([
+      Transaction.find({
+        paymentMethod: 'wallet',
+        'apiResponse.adminDeducted': true,
+      }).populate('user', 'username email').sort({ 'apiResponse.adminDeductedAt': -1 }).lean(),
+      Transaction.find({
+        adminCleared: true,
+      }).populate('user', 'username email').sort({ adminClearedAt: -1 }).lean(),
+    ]);
 
     const alreadyDeducted = deductedHistory.length;
 
@@ -58,6 +63,7 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
       totalAmount,
       alreadyDeducted,
       deductedHistory,
+      clearedRows,
     });
   } catch (err) {
     console.error('[damageControl]', err);
@@ -67,6 +73,7 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
       totalAmount: 0,
       alreadyDeducted: 0,
       deductedHistory: [],
+      clearedRows: [],
       error: 'Failed to load data',
     });
   }
@@ -113,6 +120,26 @@ exports.deductWallet = [authenticateAdminUser, async (req, res) => {
     });
   } catch (err) {
     console.error('[flagged deduct]', err);
+    return res.json({ success: false, message: 'Server error' });
+  }
+}];
+
+// POST /clear
+// Dismiss a flagged entry — moves it to the Cleared tab.
+exports.clearTransaction = [authenticateAdminUser, async (req, res) => {
+  try {
+    const { transactionId } = req.body;
+    const tx = await Transaction.findById(transactionId);
+    if (!tx) return res.json({ success: false, message: 'Transaction not found' });
+
+    tx.adminCleared   = true;
+    tx.adminClearedAt = new Date();
+    tx.adminClearedBy = req.user?.username || 'admin';
+    await tx.save();
+
+    return res.json({ success: true, message: 'Transaction cleared.' });
+  } catch (err) {
+    console.error('[flagged clear]', err);
     return res.json({ success: false, message: 'Server error' });
   }
 }];
