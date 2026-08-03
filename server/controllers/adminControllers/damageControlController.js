@@ -1,6 +1,7 @@
 const { authenticateAdminUser } = require('../../config/authMiddleware');
 const Transaction = require('../../models/TransactionModel');
 const Wallet      = require('../../models/WalletModal');
+const { notify }  = require('../../services/userNotificationService');
 
 // Case 1 (pre-fix): timed out → treated as fail → wallet refunded → may need manual deduction
 const OLD_FLAGGED_FILTER = {
@@ -9,6 +10,7 @@ const OLD_FLAGGED_FILTER = {
   'apiResponse.status': 'fail',
   'apiResponse.message': { $exists: false },
   'apiResponse.adminDeducted': { $ne: true },
+  adminCleared: { $ne: true },
 };
 
 // Case 2 (post-fix): timed out → saved as pending → wallet is already deducted → needs verification
@@ -16,6 +18,7 @@ const NEW_FLAGGED_FILTER = {
   paymentMethod: 'wallet',
   status: 'pending',
   'apiResponse._timedOut': true,
+  adminCleared: { $ne: true },
 };
 
 exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
@@ -94,13 +97,6 @@ exports.deductWallet = [authenticateAdminUser, async (req, res) => {
     if (!wallet) return res.json({ success: false, message: 'User wallet not found' });
 
     const before = wallet.balances.NAIRA;
-    if (before < tx.amount) {
-      return res.json({
-        success: false,
-        message: `Insufficient balance — user has ₦${before.toLocaleString()}, transaction was ₦${tx.amount.toLocaleString()}`,
-      });
-    }
-
     wallet.balances.NAIRA -= tx.amount;
     await wallet.save();
 
@@ -113,6 +109,14 @@ exports.deductWallet = [authenticateAdminUser, async (req, res) => {
     };
     tx.markModified('apiResponse');
     await tx.save();
+
+    if (wallet.balances.NAIRA < 0) {
+      notify(tx.user, {
+        type: 'info',
+        text: `Your account has a pending balance of ₦${Math.abs(wallet.balances.NAIRA).toLocaleString()} to be paid. This amount will be debited from your account when you recharge.`,
+        link: '/user/transaction-history',
+      });
+    }
 
     return res.json({
       success: true,
