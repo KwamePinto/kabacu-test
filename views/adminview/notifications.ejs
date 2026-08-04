@@ -126,7 +126,7 @@
                   <% if (!registeredUsers || !registeredUsers.length) { %>
                   <p class="text-muted">No registered devices yet.</p>
                   <% } else { %>
-                  <form method="POST" action="/admin/push-notifications/send" id="sendUserForm">
+                  <form id="sendUserForm">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <div class="form-group">
                       <label>User</label>
@@ -140,8 +140,9 @@
                       </select>
                     </div>
                     <%- include('../partials/notificationMessageSelect.ejs') %>
-                    <button type="submit" class="btn btn-primary btn-block">Send</button>
+                    <button type="submit" class="btn btn-primary btn-block" id="sendUserBtn">Send</button>
                   </form>
+                  <div id="sendUserResult" style="display:none;margin-top:16px;"></div>
                   <% } %>
                 </div>
               </div>
@@ -155,7 +156,7 @@
                   <small class="text-muted ml-2">Check users below for selective broadcast, or leave unchecked to send to all.</small>
                 </div>
                 <div class="card-body">
-                  <form method="POST" action="/admin/push-notifications/broadcast" id="broadcastForm">
+                  <form id="broadcastForm">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <%- include('../partials/notificationMessageSelect.ejs') %>
 
@@ -175,11 +176,12 @@
                       </div>
                     </div>
                     <% } else { %>
-                    <p class="text-muted">No registered devices yet.</p>
+                    <p class="text-muted">No registered devices yet. Broadcast will still reach all users via in-app notifications.</p>
                     <% } %>
 
-                    <button type="submit" class="btn btn-warning btn-block">Broadcast</button>
+                    <button type="submit" class="btn btn-warning btn-block" id="broadcastBtn">Broadcast</button>
                   </form>
+                  <div id="broadcastResult" style="display:none;margin-top:16px;"></div>
                 </div>
               </div>
             </div>
@@ -213,4 +215,98 @@
     sel.addEventListener('change', toggle);
     toggle();
   });
+
+  // ── Dual-status result renderer ──────────────────────────────
+  function renderResult(containerEl, data) {
+    if (!data.success) {
+      containerEl.innerHTML =
+        '<div class="alert alert-danger mb-0"><i class="fas fa-times-circle mr-1"></i>' + data.message + '</div>';
+      containerEl.style.display = '';
+      return;
+    }
+
+    function statusRow(label, result) {
+      var ok    = result && result.success;
+      var icon  = ok ? 'check-circle' : 'exclamation-circle';
+      var color = ok ? '#28a745'       : '#ffc107';
+      var text  = result ? result.message : 'No data';
+      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;">' +
+               '<i class="fas fa-' + icon + '" style="color:' + color + ';font-size:18px;margin-top:1px;flex-shrink:0;"></i>' +
+               '<div>' +
+                 '<div style="font-weight:600;font-size:13px;">' + label + '</div>' +
+                 '<div style="font-size:13px;color:#6c757d;">' + text + '</div>' +
+               '</div>' +
+             '</div>';
+    }
+
+    containerEl.innerHTML =
+      '<div style="background:#fff;border:1px solid #e4e6fc;border-radius:6px;padding:12px 16px;">' +
+        '<div style="font-weight:700;font-size:13px;margin-bottom:4px;">Delivery Report</div>' +
+        statusRow('In-App Notification (bell icon)', data.inApp) +
+        '<div style="border-bottom:none;">' + statusRow('Mobile Push Notification', data.push) + '</div>' +
+      '</div>';
+    containerEl.style.display = '';
+  }
+
+  // ── Send to User ─────────────────────────────────────────────
+  var sendUserForm = document.getElementById('sendUserForm');
+  if (sendUserForm) {
+    sendUserForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('sendUserBtn');
+      var resultEl = document.getElementById('sendUserResult');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      try {
+        var formData = new FormData(sendUserForm);
+        var params   = new URLSearchParams(formData).toString();
+        var csrf     = formData.get('_csrf') || '';
+
+        var res  = await fetch('/admin/push-notifications/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': csrf },
+          body: params,
+        });
+        var data = await res.json();
+        renderResult(resultEl, data);
+      } catch (err) {
+        renderResult(resultEl, { success: false, message: 'Request failed: ' + err.message });
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Send';
+    });
+  }
+
+  // ── Broadcast ────────────────────────────────────────────────
+  var broadcastForm = document.getElementById('broadcastForm');
+  if (broadcastForm) {
+    broadcastForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('broadcastBtn');
+      var resultEl = document.getElementById('broadcastResult');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      try {
+        var formData = new FormData(broadcastForm);
+        var params   = new URLSearchParams(formData).toString();
+        var csrf     = formData.get('_csrf') || '';
+
+        var res  = await fetch('/admin/push-notifications/broadcast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': csrf },
+          body: params,
+        });
+        var data = await res.json();
+        renderResult(resultEl, data);
+      } catch (err) {
+        renderResult(resultEl, { success: false, message: 'Request failed: ' + err.message });
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Broadcast';
+    });
+  }
 </script>

@@ -2,6 +2,7 @@ const UserDevice          = require('../../models/UserDeviceModel');
 const NotificationMessage = require('../../models/NotificationMessageModel');
 const User                = require('../../models/UserModel');
 const { sendToPlayers, sendToAll } = require('../../services/oneSignalService');
+const { notify }          = require('../../services/userNotificationService');
 const logger = require('../../config/logger');
 
 async function viewPanel(req, res) {
@@ -77,10 +78,7 @@ async function sendToUser(req, res) {
     let title, body;
     if (messageId && messageId !== 'custom') {
       const msg = await NotificationMessage.findById(messageId);
-      if (!msg) {
-        req.flash('error', 'Message not found');
-        return res.redirect('/admin/push-notifications?tab=send');
-      }
+      if (!msg) return res.json({ success: false, message: 'Message not found' });
       title = msg.title;
       body  = msg.body;
     } else {
@@ -88,24 +86,40 @@ async function sendToUser(req, res) {
       body  = customBody;
     }
 
-    if (!title || !body) {
-      req.flash('error', 'Title and body are required');
-      return res.redirect('/admin/push-notifications?tab=send');
+    if (!title || !body) return res.json({ success: false, message: 'Title and body are required' });
+    if (!userId)         return res.json({ success: false, message: 'No user selected' });
+
+    // 1. In-app notification (bell icon on website)
+    const inApp = { success: false, message: '' };
+    try {
+      await notify(userId, { type: 'info', text: body, link: null });
+      inApp.success = true;
+      inApp.message = 'In-app notification delivered to user.';
+    } catch (err) {
+      logger.error('sendToUser in-app: %s', err.message);
+      inApp.message = 'In-app notification failed: ' + err.message;
     }
 
-    const devices = await UserDevice.find({ user: userId });
-    if (!devices.length) {
-      req.flash('error', 'No registered devices for this user');
-      return res.redirect('/admin/push-notifications?tab=send');
+    // 2. Push notification (mobile devices)
+    const push = { success: false, message: '' };
+    try {
+      const devices = await UserDevice.find({ user: userId });
+      if (!devices.length) {
+        push.message = 'No registered mobile devices for this user — push skipped.';
+      } else {
+        await sendToPlayers(devices.map(d => d.fcmToken), title, body);
+        push.success = true;
+        push.message = `Push sent to ${devices.length} device${devices.length > 1 ? 's' : ''}.`;
+      }
+    } catch (err) {
+      logger.error('sendToUser push: %s', err.message);
+      push.message = 'Push notification failed: ' + err.message;
     }
 
-    await sendToPlayers(devices.map(d => d.fcmToken), title, body);
-    req.flash('success', 'Notification sent');
-    return res.redirect('/admin/push-notifications?tab=send');
+    return res.json({ success: true, inApp, push });
   } catch (err) {
     logger.error('notificationsController.sendToUser: %s', err.message);
-    req.flash('error', 'Failed to send notification: ' + err.message);
-    return res.redirect('/admin/push-notifications?tab=send');
+    return res.json({ success: false, message: 'Server error: ' + err.message });
   }
 }
 
@@ -116,10 +130,7 @@ async function broadcast(req, res) {
     let title, body;
     if (messageId && messageId !== 'custom') {
       const msg = await NotificationMessage.findById(messageId);
-      if (!msg) {
-        req.flash('error', 'Message not found');
-        return res.redirect('/admin/push-notifications?tab=send');
-      }
+      if (!msg) return res.json({ success: false, message: 'Message not found' });
       title = msg.title;
       body  = msg.body;
     } else {
@@ -127,31 +138,57 @@ async function broadcast(req, res) {
       body  = customBody;
     }
 
-    if (!title || !body) {
-      req.flash('error', 'Title and body are required');
-      return res.redirect('/admin/push-notifications?tab=send');
-    }
+    if (!title || !body) return res.json({ success: false, message: 'Title and body are required' });
 
-    // If specific users selected, send to their devices only
-    if (userIds && userIds.length) {
-      const ids  = Array.isArray(userIds) ? userIds : [userIds];
-      const devs = await UserDevice.find({ user: { $in: ids } });
-      if (!devs.length) {
-        req.flash('error', 'No registered devices for the selected users');
-        return res.redirect('/admin/push-notifications?tab=send');
+    const targetIds = userIds
+      ? (Array.isArray(userIds) ? userIds : [userIds]).filter(Boolean)
+      : [];
+
+    // 1. In-app notifications (bell icon on website)
+    const inApp = { success: false, message: '', count: 0 };
+    try {
+      let recipients;
+      if (targetIds.length) {
+        recipients = targetIds;
+      } else {
+        const allUsers = await User.find({}, '_id').lean();
+        recipients = allUsers.map(u => u._id);
       }
-      await sendToPlayers(devs.map(d => d.fcmToken), title, body);
-    } else {
-      // Broadcast to all registered devices
-      await sendToAll(title, body);
+      await Promise.all(recipients.map(uid => notify(uid, { type: 'info', text: body, link: null })));
+      inApp.success = true;
+      inApp.count   = recipients.length;
+      inApp.message = `In-app notification sent to ${recipients.length} user${recipients.length !== 1 ? 's' : ''}.`;
+    } catch (err) {
+      logger.error('broadcast in-app: %s', err.message);
+      inApp.message = 'In-app notifications failed: ' + err.message;
     }
 
-    req.flash('success', 'Broadcast sent');
-    return res.redirect('/admin/push-notifications?tab=send');
+    // 2. Push notification (mobile devices)
+    const push = { success: false, message: '' };
+    try {
+      if (targetIds.length) {
+        const devs = await UserDevice.find({ user: { $in: targetIds } });
+        if (!devs.length) {
+          push.message = 'No registered mobile devices for the selected users — push skipped.';
+        } else {
+          await sendToPlayers(devs.map(d => d.fcmToken), title, body);
+          push.success = true;
+          push.message = `Push sent to ${devs.length} device${devs.length !== 1 ? 's' : ''}.`;
+        }
+      } else {
+        await sendToAll(title, body);
+        push.success = true;
+        push.message = 'Push notification broadcast to all registered mobile devices.';
+      }
+    } catch (err) {
+      logger.error('broadcast push: %s', err.message);
+      push.message = 'Push notification failed: ' + err.message;
+    }
+
+    return res.json({ success: true, inApp, push });
   } catch (err) {
     logger.error('notificationsController.broadcast: %s', err.message);
-    req.flash('error', 'Failed to broadcast: ' + err.message);
-    return res.redirect('/admin/push-notifications?tab=send');
+    return res.json({ success: false, message: 'Server error: ' + err.message });
   }
 }
 
