@@ -7,9 +7,10 @@ const logger = require('../../config/logger');
 
 async function viewPanel(req, res) {
   try {
-    const [messages, devices] = await Promise.all([
+    const [messages, devices, allUsers] = await Promise.all([
       NotificationMessage.find().sort({ createdAt: -1 }),
       UserDevice.find().populate('user', 'firstname lastname email'),
+      User.find({}, 'firstname lastname email _id').sort({ firstname: 1 }).lean(),
     ]);
 
     // Group devices by user
@@ -29,6 +30,7 @@ async function viewPanel(req, res) {
       title: 'Notifications',
       messages,
       registeredUsers,
+      allUsers,
       tab: req.query.tab || 'messages',
     });
   } catch (err) {
@@ -38,6 +40,7 @@ async function viewPanel(req, res) {
       title: 'Notifications',
       messages: [],
       registeredUsers: [],
+      allUsers: [],
       tab: 'messages',
       error: err.message,
     });

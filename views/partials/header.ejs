@@ -33,7 +33,7 @@
           </button>
 
           <!-- Dropdown panel -->
-          <div id="notifPanel" style="display:none;position:absolute;top:calc(100% + 8px);right:0;width:320px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:9999;overflow:hidden;">
+          <div id="notifPanel" style="display:none;position:fixed;width:320px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:99999;overflow:hidden;">
             <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f0f0f0;">
               <strong style="font-size:14px;">Notifications</strong>
               <button id="notifMarkRead" style="background:none;border:none;font-size:12px;color:#6b7280;cursor:pointer;padding:0;">Mark all read</button>
@@ -91,6 +91,7 @@
   var markReadBtn = document.getElementById('notifMarkRead');
   var claimBtn    = document.getElementById('notifClaimRP');
   var open  = false;
+  var csrf  = '<%= csrfToken %>';
 
   var TYPE_COLOR = { purchase:'#3b82f6', success:'#22c55e', failed:'#ef4444', refund:'#f59e0b', attention:'#f97316', info:'#6b7280' };
 
@@ -103,7 +104,7 @@
   }
 
   function loadNotifications() {
-    fetch('/api/notifications', { credentials: 'same-origin' })
+    fetch('/user/notifications', { credentials: 'same-origin' })
       .then(function(r){ return r.json(); })
       .then(function(data) {
         var items = data.notifications || [];
@@ -133,11 +134,24 @@
       });
   }
 
+  function positionPanel() {
+    var rect = btn.getBoundingClientRect();
+    var panelWidth = 320;
+    var left = Math.min(Math.max(8, rect.right - panelWidth), window.innerWidth - panelWidth - 8);
+    panel.style.top  = (rect.bottom + 8) + 'px';
+    panel.style.left = left + 'px';
+  }
+
   btn.addEventListener('click', function(e) {
     e.stopPropagation();
     open = !open;
-    panel.style.display = open ? 'block' : 'none';
-    if (open) loadNotifications();
+    if (open) {
+      positionPanel();
+      panel.style.display = 'block';
+      loadNotifications();
+    } else {
+      panel.style.display = 'none';
+    }
   });
 
   document.addEventListener('click', function(e) {
@@ -147,9 +161,17 @@
     }
   });
 
+  window.addEventListener('scroll', function() {
+    if (open) { open = false; panel.style.display = 'none'; }
+  }, { passive: true });
+
   markReadBtn.addEventListener('click', function(e) {
     e.preventDefault();
-    fetch('/api/notifications/read-all', { method:'POST', credentials:'same-origin' });
+    fetch('/user/notifications/read-all', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'X-CSRF-Token': csrf },
+    });
     badge.style.display = 'none';
     list.querySelectorAll('a').forEach(function(a){ a.style.background=''; });
   });

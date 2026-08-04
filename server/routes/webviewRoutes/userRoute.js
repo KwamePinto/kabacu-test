@@ -3,7 +3,8 @@ const router = express.Router();
 const rateLimit = require('express-rate-limit');
 
 const getUser = require('../../controllers/webviewControllers/userController');
-const { authenticateUser } = require('../../config/authMiddleware');
+const { authenticateUser, optionalUser } = require('../../config/authMiddleware');
+const UserNotification = require('../../models/UserNotificationModel');
 
 // ── Rate limiters ─────────────────────────────────────────────────────────────
 
@@ -86,5 +87,31 @@ router.post('/profile-change-password-otp', authenticateUser, otpLimiter, getUse
 
 router.get('/profile-change-password-new', authenticateUser, getUser.profileChangePasswordNew);
 router.post('/profile-change-password-new', authenticateUser, passwordLimiter, getUser.profileChangePasswordNewPost);
+
+// ── User notifications (cookie-auth, returns JSON) ────────────────────────────
+
+router.get('/notifications', optionalUser, async (req, res) => {
+  if (!req.user) return res.status(401).json({ success: false, notifications: [], unreadCount: 0 });
+  try {
+    const notifications = await UserNotification.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean();
+    const unreadCount = notifications.filter(n => !n.read).length;
+    res.json({ success: true, notifications, unreadCount });
+  } catch (err) {
+    res.json({ success: false, notifications: [], unreadCount: 0 });
+  }
+});
+
+router.post('/notifications/read-all', optionalUser, async (req, res) => {
+  if (!req.user) return res.status(401).json({ success: false });
+  try {
+    await UserNotification.updateMany({ user: req.user.id, read: false }, { read: true });
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ success: false });
+  }
+});
 
 module.exports = router;
