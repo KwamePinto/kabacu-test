@@ -232,6 +232,7 @@
 </div>
 <script src="/admin/assets/js/app.min.js"></script>
 <script src="/admin/assets/js/scripts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   // ── User list filter ──────────────────────────────────────────
   function escH(s) {
@@ -305,6 +306,17 @@
     }
   }
 
+  // ── Alert helper ─────────────────────────────────────────────
+  function notifToast(data) {
+    var delivered = data && data.success && ((data.inApp && data.inApp.success) || (data.push && data.push.success));
+    if (delivered) {
+      Swal.fire({ icon: 'success', title: 'Message sent', text: 'The notification was delivered successfully.', timer: 2500, showConfirmButton: false });
+    } else {
+      var msg = (data && data.message) || 'Could not deliver the notification. Please try again.';
+      Swal.fire({ icon: 'error', title: 'Delivery failed', text: msg, confirmButtonColor: '#6777ef' });
+    }
+  }
+
   // ── Send form submit helper ───────────────────────────────────
   async function submitSendForm(form, btnId) {
     var btn = document.getElementById(btnId);
@@ -324,12 +336,16 @@
       var formData = new FormData(form);
       var params   = new URLSearchParams(formData).toString();
       var csrf     = formData.get('_csrf') || '';
-      await fetch('/admin/push-notifications/send', {
+      var res  = await fetch('/admin/push-notifications/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': csrf },
         body: params,
       });
-    } catch (err) {}
+      var data = await res.json();
+      notifToast(data);
+    } catch (err) {
+      notifToast(null);
+    }
     btn.disabled = false;
     btn.textContent = orig;
   }
@@ -364,12 +380,16 @@
         var formData = new FormData(broadcastForm);
         var params   = new URLSearchParams(formData).toString();
         var csrf     = formData.get('_csrf') || '';
-        await fetch('/admin/push-notifications/broadcast', {
+        var res  = await fetch('/admin/push-notifications/broadcast', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': csrf },
           body: params,
         });
-      } catch (err) {}
+        var data = await res.json();
+        notifToast(data);
+      } catch (err) {
+        notifToast(null);
+      }
       btn.disabled = false;
       btn.textContent = 'Broadcast';
     });
