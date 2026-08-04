@@ -145,14 +145,12 @@
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <div class="form-group">
                         <label>User</label>
-                        <select name="userId" class="form-control" required>
-                          <option value="">— Select user —</option>
-                          <% registeredUsers.forEach(ru => { %>
-                          <option value="<%= ru.user._id %>">
-                            <%= ru.user.firstname %> <%= ru.user.lastname %> (<%= ru.user.email %>) — <%= ru.devices.length %> device<%= ru.devices.length > 1 ? 's' : '' %>
-                          </option>
-                          <% }) %>
-                        </select>
+                        <div class="user-search-wrap" style="position:relative;">
+                          <input type="text" class="form-control user-search-input"
+                            placeholder="Type name or email to search…" autocomplete="off">
+                          <input type="hidden" name="userId">
+                          <div class="user-search-dropdown"></div>
+                        </div>
                       </div>
                       <%- include('../partials/notificationMessageSelect.ejs') %>
                       <button type="submit" class="btn btn-primary btn-block" id="sendUserBtn">Send</button>
@@ -169,14 +167,12 @@
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <div class="form-group">
                         <label>User</label>
-                        <select name="userId" class="form-control" required>
-                          <option value="">— Select user —</option>
-                          <% allUsers.forEach(u => { %>
-                          <option value="<%= u._id %>">
-                            <%= u.firstname %> <%= u.lastname %> (<%= u.email %>)
-                          </option>
-                          <% }) %>
-                        </select>
+                        <div class="user-search-wrap" style="position:relative;">
+                          <input type="text" class="form-search-input form-control user-search-input"
+                            placeholder="Type name or email to search…" autocomplete="off">
+                          <input type="hidden" name="userId">
+                          <div class="user-search-dropdown"></div>
+                        </div>
                       </div>
                       <%- include('../partials/notificationMessageSelect.ejs') %>
                       <button type="submit" class="btn btn-primary btn-block" id="sendAllUsersBtn">Send</button>
@@ -238,8 +234,87 @@
 </div>
 <script src="/admin/assets/js/app.min.js"></script>
 <script src="/admin/assets/js/scripts.js"></script>
+<style>
+  .user-search-dropdown {
+    display: none;
+    position: absolute;
+    left: 0; right: 0; top: 100%;
+    z-index: 1050;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    max-height: 210px;
+    overflow-y: auto;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+    margin-top: 2px;
+  }
+  .usr-opt {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #f5f5f5;
+    line-height: 1.35;
+  }
+  .usr-opt:hover { background: #f0f4ff; }
+  .usr-opt:last-child { border-bottom: none; }
+  .user-search-input.is-invalid { border-color: #dc3545 !important; }
+</style>
 <script>
-  // Toggle custom message fields when "Custom" is selected in message dropdowns
+  // ── User search/autocomplete picker ──────────────────────────
+  function escH(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function initUserSearch(wrapEl, users) {
+    var input    = wrapEl.querySelector('.user-search-input');
+    var hidden   = wrapEl.querySelector('input[name="userId"]');
+    var dropdown = wrapEl.querySelector('.user-search-dropdown');
+
+    function render(query) {
+      var q = query.trim().toLowerCase();
+      var matches = users.filter(function(u) {
+        return !q || u.label.toLowerCase().indexOf(q) !== -1;
+      }).slice(0, 12);
+
+      if (!matches.length) {
+        dropdown.innerHTML = '<div style="padding:9px 12px;color:#9ca3af;font-size:13px;">No matches found</div>';
+      } else {
+        dropdown.innerHTML = matches.map(function(u) {
+          return '<div class="usr-opt" data-id="' + escH(u.id) + '">' + escH(u.label) + '</div>';
+        }).join('');
+        dropdown.querySelectorAll('.usr-opt').forEach(function(item) {
+          item.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            hidden.value = item.dataset.id;
+            input.value  = item.textContent.trim();
+            input.classList.remove('is-invalid');
+            dropdown.style.display = 'none';
+          });
+        });
+      }
+      dropdown.style.display = '';
+    }
+
+    input.addEventListener('input',  function() { hidden.value = ''; render(input.value); });
+    input.addEventListener('focus',  function() { render(input.value); });
+    input.addEventListener('blur',   function() { setTimeout(function() { dropdown.style.display = 'none'; }, 200); });
+  }
+
+  // Embed user data
+  var registeredUsersData = <%- JSON.stringify((registeredUsers || []).map(function(ru) {
+    return { id: String(ru.user._id), label: ru.user.firstname + ' ' + ru.user.lastname + ' — ' + ru.user.email };
+  })) %>;
+  var allUsersData = <%- JSON.stringify((allUsers || []).map(function(u) {
+    return { id: String(u._id), label: u.firstname + ' ' + u.lastname + ' — ' + u.email };
+  })) %>;
+
+  // Initialise pickers
+  var devicesWrap  = document.querySelector('#sendUserForm .user-search-wrap');
+  var allUsersWrap = document.querySelector('#sendAllUsersForm .user-search-wrap');
+  if (devicesWrap)  initUserSearch(devicesWrap,  registeredUsersData);
+  if (allUsersWrap) initUserSearch(allUsersWrap, allUsersData);
+
+  // ── Toggle custom message fields ──────────────────────────────
   document.querySelectorAll('.msg-select').forEach(function(sel) {
     var wrap = sel.closest('form').querySelector('.custom-msg-wrap');
     function toggle() {
@@ -274,9 +349,18 @@
     }
   }
 
+  // ── Send form submit helper ───────────────────────────────────
   async function submitSendForm(form, btnId) {
     var btn = document.getElementById(btnId);
     if (!btn) return;
+
+    var hiddenId = form.querySelector('input[name="userId"]');
+    if (hiddenId && !hiddenId.value) {
+      var searchInput = form.querySelector('.user-search-input');
+      if (searchInput) { searchInput.classList.add('is-invalid'); searchInput.focus(); }
+      return;
+    }
+
     btn.disabled = true;
     var orig = btn.textContent;
     btn.textContent = 'Sending…';

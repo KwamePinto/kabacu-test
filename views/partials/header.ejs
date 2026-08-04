@@ -93,6 +93,9 @@
   var open  = false;
   var csrf  = '<%= csrfToken %>';
 
+  // Move panel to <body> so it escapes any header stacking context or overflow
+  document.body.appendChild(panel);
+
   var TYPE_COLOR = { purchase:'#3b82f6', success:'#22c55e', failed:'#ef4444', refund:'#f59e0b', attention:'#f97316', info:'#6b7280' };
 
   function timeAgo(d) {
