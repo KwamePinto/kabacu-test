@@ -221,7 +221,7 @@ exports.addAdminPost = [
 
       const loginUrl = `${req.protocol}://${req.get("host")}/command`;
 
-      await sendEmail({
+      sendEmail({
         to: email.toLowerCase().trim(),
         subject: "Your Kabacu Admin Account Details",
         html: adminCredentialsEmail({
@@ -232,6 +232,8 @@ exports.addAdminPost = [
           loginUrl,
         }),
         text: `Welcome ${username}. Email: ${email} | Password: ${plainPassword} | Role: ${role}. Login at ${loginUrl}`,
+      }).catch(emailErr => {
+        console.error("ADD ADMIN — credentials email failed:", emailErr.message);
       });
 
       res.redirect("/admin/admins?success=1");
