@@ -27,6 +27,7 @@ router.post("/admins/add", getAdminUsers.addAdminPost);
 router.post("/admins/toggle-status", getAdminUsers.toggleAdminStatus);
 router.get("/admins/:id", getAdminUsers.adminDetails);
 router.post("/admins/:id/role", getAdminUsers.updateAdminRole);
+router.post("/admins/:id/delete", getAdminUsers.deleteAdmin);
 
 // ── Notifications JSON ─────────────────────────────────────
 router.get("/notifications", getAdminUsers.getNotifications);

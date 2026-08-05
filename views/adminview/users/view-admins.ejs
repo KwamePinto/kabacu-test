@@ -86,21 +86,26 @@
                         <% } %>
                       </td>
                       <% if (user && user.role === 'super_admin') { %>
-                      <td style="display: flex; justify-content: space-between; align-items: center; max-width: 220px;">
-                        <% const isSelf = user.id && admin._id.toString() === user.id.toString(); %>
-                        <% if (!isSelf) { %>
-                        <button class="btn btn-sm toggle-status-btn" style="font-size:12px; flex-shrink: 0;" data-id="<%= admin._id %>" data-name="<%= admin.username %>" data-active="<%= admin.isActive !== false ? '1' : '0' %>" id="btn-<%= admin._id %>">
-                          <% if (admin.isActive !== false) { %>
-                          <i data-feather="user-x" style="width:13px;height:13px;margin-right:3px;"></i>Deactivate
+                      <td>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;">
+                          <% const isSelf = user.id && admin._id.toString() === user.id.toString(); %>
+                          <% if (!isSelf) { %>
+                          <button class="btn btn-sm toggle-status-btn" style="font-size:12px;white-space:nowrap;" data-id="<%= admin._id %>" data-name="<%= admin.username %>" data-active="<%= admin.isActive !== false ? '1' : '0' %>" id="btn-<%= admin._id %>">
+                            <% if (admin.isActive !== false) { %>
+                            <i data-feather="user-x" style="width:13px;height:13px;margin-right:3px;"></i>Deactivate
+                            <% } else { %>
+                            <i data-feather="user-check" style="width:13px;height:13px;margin-right:3px;"></i>Reactivate
+                            <% } %>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger delete-admin-btn" title="Delete account"
+                            data-id="<%= admin._id %>" data-name="<%= admin.username %>">
+                            <i data-feather="trash-2" style="width:13px;height:13px;"></i>
+                          </button>
                           <% } else { %>
-                          <i data-feather="user-check" style="width:13px;height:13px;margin-right:3px;"></i>Reactivate
+                          <span class="text-muted" style="font-size:12px;">You</span>
                           <% } %>
-                        </button>
-                        <% } else { %>
-                        <span class="text-muted" style="font-size:12px;">You</span>
-                        <% } %>
-                        <a href="/admin/admins/<%= admin._id %>" style="flex-shrink: 0;">View Details</a>
-
+                          <a href="/admin/admins/<%= admin._id %>" style="font-size:12px;white-space:nowrap;">View Details</a>
+                        </div>
                       </td>
                       <% } %>
                     </tr>
@@ -218,6 +223,38 @@
   </div>
 </div>
 
+<!-- ── Delete confirmation modal ── -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background:#fff5f5;border-bottom:1px solid #fecaca;">
+        <h5 class="modal-title text-danger">
+          <i data-feather="trash-2" style="width:16px;height:16px;margin-right:6px;"></i>
+          Delete Admin Account
+        </h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <p id="deleteModalText" style="font-size:14px;margin-bottom:16px;"></p>
+        <div class="form-group mb-0">
+          <label style="font-size:13px;font-weight:600;">Your Password <span class="text-danger">*</span></label>
+          <input type="password" id="deletePassword" class="form-control" placeholder="Enter your password to confirm" autocomplete="current-password">
+          <div id="deleteError" class="text-danger mt-2" style="font-size:12px;display:none;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="deleteSubmitBtn">
+          <span id="deleteBtnLabel">Delete Account</span>
+          <span id="deleteBtnSpinner" style="display:none;">
+            <span class="spinner-border spinner-border-sm mr-1" role="status"></span> Deleting…
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   (function() {
     var csrfToken = '<%= csrfToken %>';
@@ -326,6 +363,73 @@
     document.getElementById('confirmModal').addEventListener('hidden.bs.modal', function() {
       document.getElementById('confirmError').style.display = 'none';
       document.getElementById('confirmPassword').value = '';
+    });
+
+    // ── Delete admin ───────────────────────────────────────
+    var deletePendingId   = null;
+    var deletePendingName = null;
+
+    document.querySelectorAll('.delete-admin-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        deletePendingId   = this.dataset.id;
+        deletePendingName = this.dataset.name;
+
+        document.getElementById('deleteModalText').innerHTML =
+          'You are about to <strong>permanently delete</strong> <strong>' + deletePendingName + '\'s</strong> account. This cannot be undone. Enter your password to confirm.';
+        document.getElementById('deletePassword').value = '';
+        document.getElementById('deleteError').style.display = 'none';
+        $('#deleteModal').modal('show');
+      });
+    });
+
+    document.getElementById('deleteSubmitBtn').addEventListener('click', function() {
+      var password = document.getElementById('deletePassword').value.trim();
+      var errorBox = document.getElementById('deleteError');
+
+      if (!password) {
+        errorBox.textContent = 'Password is required.';
+        errorBox.style.display = 'block';
+        return;
+      }
+
+      errorBox.style.display = 'none';
+      document.getElementById('deleteBtnLabel').style.display = 'none';
+      document.getElementById('deleteBtnSpinner').style.display = 'inline';
+      this.disabled = true;
+
+      var body = new URLSearchParams({ password: password, _csrf: csrfToken }).toString();
+
+      fetch('/admin/admins/' + deletePendingId + '/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body,
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success) {
+            var row = document.getElementById('row-' + deletePendingId);
+            if (row) row.remove();
+            $('#deleteModal').modal('hide');
+          } else {
+            errorBox.textContent = data.error || 'An error occurred. Please try again.';
+            errorBox.style.display = 'block';
+            document.getElementById('deleteBtnLabel').style.display = 'inline';
+            document.getElementById('deleteBtnSpinner').style.display = 'none';
+            document.getElementById('deleteSubmitBtn').disabled = false;
+          }
+        })
+        .catch(function() {
+          errorBox.textContent = 'Network error. Please try again.';
+          errorBox.style.display = 'block';
+          document.getElementById('deleteBtnLabel').style.display = 'inline';
+          document.getElementById('deleteBtnSpinner').style.display = 'none';
+          document.getElementById('deleteSubmitBtn').disabled = false;
+        });
+    });
+
+    document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function() {
+      document.getElementById('deleteError').style.display = 'none';
+      document.getElementById('deletePassword').value = '';
     });
 
     // ── Approve password reset ──────────────────────────────

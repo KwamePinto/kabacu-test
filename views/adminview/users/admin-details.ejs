@@ -62,6 +62,31 @@
               </div>
             </div>
 
+            <% if (user && user.role === 'super_admin' && !isSelf) { %>
+            <div class="row mb-3">
+              <div class="col-12">
+                <div class="card" style="border:1px solid #fecaca;">
+                  <div class="card-header" style="background:#fff5f5;border-bottom:1px solid #fecaca;">
+                    <h4 class="text-danger mb-0" style="font-size:15px;">
+                      <i data-feather="alert-triangle" style="width:15px;height:15px;margin-right:6px;"></i>
+                      Danger Zone
+                    </h4>
+                  </div>
+                  <div class="card-body d-flex align-items-center justify-content-between flex-wrap" style="gap:12px;">
+                    <div>
+                      <div style="font-weight:600;font-size:13px;">Delete this admin account</div>
+                      <div class="text-muted" style="font-size:12px;">Permanently removes the account. This action cannot be undone.</div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm" id="openDeleteModalBtn">
+                      <i data-feather="trash-2" style="width:13px;height:13px;margin-right:4px;"></i>
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% } %>
+
             <div class="row">
               <!-- Account info -->
               <div class="col-md-6">
@@ -245,6 +270,102 @@
   document.getElementById('confirmRoleModal').addEventListener('hidden.bs.modal', function () {
     document.getElementById('confirmRoleError').style.display = 'none';
     document.getElementById('confirmRolePassword').value = '';
+  });
+}());
+</script>
+
+<!-- ── Delete modal ── -->
+<div class="modal fade" id="deleteAdminModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header" style="background:#fff5f5;border-bottom:1px solid #fecaca;">
+        <h5 class="modal-title text-danger">
+          <i data-feather="trash-2" style="width:16px;height:16px;margin-right:6px;"></i>
+          Delete Admin Account
+        </h5>
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;margin-bottom:16px;">
+          You are about to <strong>permanently delete</strong> <strong><%= admin.username %>'s</strong> account.
+          This cannot be undone. Enter your password to confirm.
+        </p>
+        <div class="form-group mb-0">
+          <label style="font-size:13px;font-weight:600;">Your Password <span class="text-danger">*</span></label>
+          <input type="password" id="deleteAdminPassword" class="form-control" placeholder="Enter your password to confirm" autocomplete="current-password">
+          <div id="deleteAdminError" class="text-danger mt-2" style="font-size:12px;display:none;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="deleteAdminSubmitBtn">
+          <span id="deleteAdminBtnLabel">Delete Account</span>
+          <span id="deleteAdminBtnSpinner" style="display:none;">
+            <span class="spinner-border spinner-border-sm mr-1" role="status"></span> Deleting…
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var csrfToken = '<%= csrfToken %>';
+  var adminId   = '<%= admin._id %>';
+
+  document.getElementById('openDeleteModalBtn').addEventListener('click', function () {
+    document.getElementById('deleteAdminPassword').value = '';
+    document.getElementById('deleteAdminError').style.display = 'none';
+    $('#deleteAdminModal').modal('show');
+  });
+
+  document.getElementById('deleteAdminSubmitBtn').addEventListener('click', function () {
+    var password = document.getElementById('deleteAdminPassword').value.trim();
+    var errorBox = document.getElementById('deleteAdminError');
+
+    if (!password) {
+      errorBox.textContent = 'Password is required.';
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    errorBox.style.display = 'none';
+    document.getElementById('deleteAdminBtnLabel').style.display = 'none';
+    document.getElementById('deleteAdminBtnSpinner').style.display = 'inline';
+    this.disabled = true;
+
+    var body = new URLSearchParams({ password: password, _csrf: csrfToken }).toString();
+
+    fetch('/admin/admins/' + adminId + '/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body,
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          window.location.href = '/admin/admins';
+        } else {
+          errorBox.textContent = data.error || 'An error occurred. Please try again.';
+          errorBox.style.display = 'block';
+          document.getElementById('deleteAdminBtnLabel').style.display = 'inline';
+          document.getElementById('deleteAdminBtnSpinner').style.display = 'none';
+          document.getElementById('deleteAdminSubmitBtn').disabled = false;
+        }
+      })
+      .catch(function () {
+        errorBox.textContent = 'Network error. Please try again.';
+        errorBox.style.display = 'block';
+        document.getElementById('deleteAdminBtnLabel').style.display = 'inline';
+        document.getElementById('deleteAdminBtnSpinner').style.display = 'none';
+        document.getElementById('deleteAdminSubmitBtn').disabled = false;
+      });
+  });
+
+  document.getElementById('deleteAdminModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('deleteAdminError').style.display = 'none';
+    document.getElementById('deleteAdminPassword').value = '';
   });
 }());
 </script>

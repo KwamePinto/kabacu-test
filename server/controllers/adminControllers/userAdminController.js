@@ -388,6 +388,43 @@ exports.updateAdminRole = [
   },
 ];
 
+/* ── Delete admin account (super_admin only) ────────────── */
+exports.deleteAdmin = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      if (req.user.role !== "super_admin") {
+        return res.status(403).json({ error: "Only super admins can delete admin accounts." });
+      }
+
+      const { password } = req.body;
+      if (!password) {
+        return res.status(400).json({ error: "Password is required." });
+      }
+
+      if (req.params.id === req.user.id) {
+        return res.status(400).json({ error: "You cannot delete your own account." });
+      }
+
+      const self = await UserAdminModel.findById(req.user.id);
+      if (!self) return res.status(401).json({ error: "Session invalid. Please log in again." });
+
+      const passwordValid = await bcrypt.compare(password, self.password);
+      if (!passwordValid) return res.status(401).json({ error: "Incorrect password. Action cancelled." });
+
+      const target = await UserAdminModel.findById(req.params.id);
+      if (!target) return res.status(404).json({ error: "Admin account not found." });
+
+      await UserAdminModel.findByIdAndDelete(req.params.id);
+
+      res.json({ success: true, message: `${target.username}'s account has been permanently deleted.` });
+    } catch (error) {
+      console.log("DELETE ADMIN ERROR:", error);
+      res.status(500).json({ error: error.message });
+    }
+  },
+];
+
 /* ── Profile ────────────────────────────────────────────── */
 exports.adminProfile = [
   authenticateAdminUser,
