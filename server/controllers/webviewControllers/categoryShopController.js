@@ -104,7 +104,7 @@ exports.dataCategory = async (req, res) => {
     const reqPage  = parseInt(req.query.page) || 1;
 
     /* Fetch all DATA products sorted: network A-Z, lowest price first within each */
-    const all = await Product.find({ category: 'DATA' })
+    const all = await Product.find({ category: 'DATA', isActive: { $ne: false } })
       .sort({ 'dataDetails.network': 1, 'dataDetails.amount': 1 });
 
     /* Group every product by network */
@@ -145,7 +145,7 @@ exports.dataCategory = async (req, res) => {
 
 exports.eletronicCategory = async (req,res)=>{
 try{
-    const electronicProducts = await Product.find({ category: 'ELECTRONICS' }).sort({ createdAt: -1 }).limit(9);
+    const electronicProducts = await Product.find({ category: 'ELECTRONICS', isActive: { $ne: false } }).sort({ createdAt: -1 }).limit(9);
     res.render('webview/electronic-category',{
         electronicProducts
     })
@@ -158,7 +158,7 @@ try{
 
 exports.automobileCategory = async (req,res)=>{
 try{
-    const automobileProducts = await Product.find({ category: 'AUTOMOBILE' }).sort({ createdAt: -1 }).limit(9);
+    const automobileProducts = await Product.find({ category: 'AUTOMOBILE', isActive: { $ne: false } }).sort({ createdAt: -1 }).limit(9);
     res.render('webview/automobile-category',{
         automobileProducts
     })
