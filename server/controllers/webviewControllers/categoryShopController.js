@@ -310,6 +310,9 @@ exports.coursePurchase = async (req, res) => {
       throw createErr;
     }
 
+    const localProduct = await Product.findById(courseId).select('reward_point').lean().catch(() => null);
+    const rpEarned = localProduct?.reward_point || 0;
+
     await Transaction.create({
       user: user._id,
       amount: price,
@@ -317,7 +320,12 @@ exports.coursePurchase = async (req, res) => {
       paymentMethod: 'Wallet',
       status: 'success',
       reference: ref,
+      rpEarned,
     });
+
+    if (rpEarned > 0) {
+      await User.findByIdAndUpdate(user._id, { $inc: { rpBalance: rpEarned } });
+    }
 
     const loginUrl = process.env.CSKILLSHUB_LOGIN_URL || 'http://localhost:3000/login';
     sendEmail({
