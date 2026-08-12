@@ -266,6 +266,28 @@ exports.adminRefundDeduction = [authenticateAdminUser, async (req, res) => {
       tx.markModified('apiResponse');
       await tx.save();
 
+      // Create a separate ledger entry so the refund appears as its own statement row
+      await Transaction.create({
+        user:          tx.user._id || tx.user,
+        amount:        tx.amount,
+        walletType:    tx.walletType || 'NAIRA',
+        paymentMethod: 'Admin',
+        status:        'success',
+        reference:     'ADMIN-REFUND-' + Date.now(),
+        balanceBefore: before,
+        balanceAfter:  wallet.balances.NAIRA,
+        apiResponse: {
+          adminRefund:     true,
+          adminRefundOf:   tx._id.toString(),
+          originalRef:     tx.reference,
+          refundReason:    reason.trim(),
+          refundBy:        req.user.username,
+          adminRefundedAt: new Date().toISOString(),
+          balanceBefore:   before,
+          balanceAfter:    wallet.balances.NAIRA,
+        },
+      });
+
       notify(tx.user._id || tx.user, {
         type: 'info',
         text: `Your wallet has been credited with ₦${tx.amount.toLocaleString()}. Reason: ${reason.trim()}`,
@@ -331,6 +353,28 @@ exports.approveRefundRequest = [authenticateAdminUser, async (req, res) => {
     tx.markModified('apiResponse');
     await tx.save();
 
+    // Create a separate ledger entry so the refund appears as its own statement row
+    await Transaction.create({
+      user:          tx.user._id || tx.user,
+      amount:        tx.amount,
+      walletType:    tx.walletType || 'NAIRA',
+      paymentMethod: 'Admin',
+      status:        'success',
+      reference:     'ADMIN-REFUND-' + Date.now(),
+      balanceBefore: before,
+      balanceAfter:  wallet.balances.NAIRA,
+      apiResponse: {
+        adminRefund:     true,
+        adminRefundOf:   tx._id.toString(),
+        originalRef:     tx.reference,
+        refundReason:    reason || 'Admin refund approved',
+        refundBy:        req.user.username,
+        adminRefundedAt: new Date().toISOString(),
+        balanceBefore:   before,
+        balanceAfter:    wallet.balances.NAIRA,
+      },
+    });
+
     notify(tx.user._id || tx.user, {
       type: 'info',
       text: `Your wallet has been credited with ₦${tx.amount.toLocaleString()}. Reason: ${reason || 'Admin refund approved'}`,
@@ -389,6 +433,28 @@ exports.resolveTransaction = [authenticateAdminUser, async (req, res) => {
     };
     tx.markModified('apiResponse');
     await tx.save();
+
+    // Create a separate ledger entry so the refund appears as its own statement row
+    await Transaction.create({
+      user:          tx.user,
+      amount:        tx.amount,
+      walletType:    tx.walletType || 'NAIRA',
+      paymentMethod: 'Admin',
+      status:        'success',
+      reference:     'ADMIN-REFUND-' + Date.now(),
+      balanceBefore: before,
+      balanceAfter:  wallet.balances.NAIRA,
+      apiResponse: {
+        adminRefund:     true,
+        adminRefundOf:   tx._id.toString(),
+        originalRef:     tx.reference,
+        refundReason:    'Flagged transaction resolved — refunded by admin',
+        refundBy:        req.user?.username || 'admin',
+        adminRefundedAt: new Date().toISOString(),
+        balanceBefore:   before,
+        balanceAfter:    wallet.balances.NAIRA,
+      },
+    });
 
     return res.json({
       success: true,

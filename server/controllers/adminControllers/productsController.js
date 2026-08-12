@@ -305,8 +305,17 @@ exports.getUsersData = [
 
       let filter = {};
       if (search) {
-        const re = new RegExp(search, 'i');
-        filter = { $or: [{ username: re }, { email: re }, { firstname: re }, { lastname: re }, { phone_number: re }] };
+        // Escape regex special characters so e.g. "+" in phone numbers doesn't throw
+        const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        filter = {
+          $or: [
+            { username:     { $regex: safeSearch, $options: 'i' } },
+            { email:        { $regex: safeSearch, $options: 'i' } },
+            { firstname:    { $regex: safeSearch, $options: 'i' } },
+            { lastname:     { $regex: safeSearch, $options: 'i' } },
+            { phone_number: { $regex: safeSearch, $options: 'i' } },
+          ],
+        };
       }
 
       const [totalCount, filteredCount, users] = await Promise.all([
@@ -380,12 +389,76 @@ exports.userDetails = [
         (tx) => tx.status === "failed"
       ).length;
 
+      // Build unified account statements (all money movements sorted by date)
+      const accountStatements = [
+        ...transactions.map(tx => {
+          const ar = tx.apiResponse || {};
+          let entryType = 'payment';
+          if (tx.paymentMethod === 'Admin') {
+            if (ar.adminRefund) entryType = 'refund';
+            else if (ar.adminDeducted) entryType = 'deduction';
+            else entryType = 'credit';
+          } else if (tx.reference && /^ADMIN-REFUND/.test(tx.reference)) {
+            entryType = 'refund';
+          } else if (tx.reference && /^ADMIN-/.test(tx.reference)) {
+            entryType = 'credit';
+          } else if (tx.status === 'refunded') {
+            entryType = 'system-refund';
+          }
+          const balBefore = tx.balanceBefore != null ? tx.balanceBefore
+                          : (ar.balanceBefore != null ? ar.balanceBefore : null);
+          const balAfter  = tx.balanceAfter  != null ? tx.balanceAfter
+                          : (ar.balanceAfter  != null ? ar.balanceAfter
+                          : (ar.refundBalAfter != null ? ar.refundBalAfter : null));
+          let description = '';
+          if (entryType === 'deduction') description = ar.adminDeductReason || '';
+          else if (entryType === 'refund' || entryType === 'credit') description = ar.refundReason || ar.adminDeductReason || '';
+          if (!description) {
+            if (tx.product) {
+              description = tx.product.item_name || (tx.product.dataDetails && tx.product.dataDetails.plan_name) || '';
+            } else if (tx.products && tx.products.length) {
+              description = tx.products.filter(p => p.product)
+                .map(p => p.product.item_name || (p.product.dataDetails && p.product.dataDetails.plan_name) || '')
+                .filter(Boolean).join(', ');
+            }
+          }
+          return {
+            _source: 'transaction', _entryType: entryType,
+            _id: tx._id, reference: tx.reference || '',
+            description: description || '—',
+            amount: tx.amount || 0, walletType: tx.walletType || 'NAIRA',
+            balanceBefore: balBefore, balanceAfter: balAfter,
+            status: tx.status, createdAt: tx.createdAt,
+            rpEarned: tx.rpEarned || 0, paymentMethod: tx.paymentMethod || '',
+            phone: tx.phone || '',
+            performedBy: ar.adminDeductedBy || ar.refundApprovedBy || ar.refundBy || '',
+            _refundOf: ar.adminRefundOf || '', _originalRef: ar.originalRef || '',
+          };
+        }),
+        ...topups.map(tp => {
+          const pmDisplay = tp.balanceType && ['RP','BTT','USDT'].includes(tp.balanceType) ? 'Bittoken' : (tp.paymentMethod || 'External');
+          return {
+            _source: 'topup', _entryType: 'topup',
+            _id: tp._id, reference: tp.reference || '',
+            description: (tp.balanceType || 'NAIRA') + ' wallet top-up',
+            amount: tp.nairaAmount || tp.amount || 0, walletType: tp.balanceType || 'NAIRA',
+            balanceBefore: null, balanceAfter: null,
+            status: tp.status === 'COMPLETED' ? 'success' : (tp.status ? tp.status.toLowerCase() : 'pending'),
+            createdAt: tp.createdAt, rpEarned: 0,
+            paymentMethod: pmDisplay, phone: '', performedBy: pmDisplay,
+            _refundOf: '', _originalRef: '',
+            _topupWalletCredited: tp.walletCredited, _topupBalanceType: tp.balanceType,
+          };
+        }),
+      ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
       res.render("adminview/tables/user-details", {
         layout: adminLayouts,
         user,
         walletBalances,
         transactions,
         topups,
+        accountStatements,
         totalSpent,
         totalToppedUp,
         successfulTransactions,
@@ -575,11 +648,15 @@ exports.adminDeductWallet = [
         paymentMethod: 'Admin',
         status:        'success',
         reference:     'ADMIN-DEDUCT-' + Date.now(),
+        balanceBefore: balanceBefore,
+        balanceAfter:  balanceAfter,
         apiResponse: {
           adminDeducted:      true,
           adminDeductedBy:    req.user?.username || 'admin',
           adminDeductedAt:    new Date().toISOString(),
           adminDeductReason:  reason || '',
+          balanceBefore:      balanceBefore,
+          balanceAfter:       balanceAfter,
         },
       });
 
@@ -660,6 +737,28 @@ exports.adminRefundDeduction = [
       tx.apiResponse.refundBalAfter   = wallet.balances.NAIRA;
       tx.markModified('apiResponse');
       await tx.save();
+
+      // Create a separate ledger entry for the refund so it appears as its own statement row
+      await Transaction.create({
+        user:          userId,
+        amount:        tx.amount,
+        walletType:    tx.walletType || 'NAIRA',
+        paymentMethod: 'Admin',
+        status:        'success',
+        reference:     'ADMIN-REFUND-' + Date.now(),
+        balanceBefore: balanceBefore,
+        balanceAfter:  wallet.balances.NAIRA,
+        apiResponse: {
+          adminRefund:     true,
+          adminRefundOf:   tx._id.toString(),
+          originalRef:     tx.reference,
+          refundReason:    reason.trim(),
+          refundBy:        req.user?.username || 'admin',
+          adminRefundedAt: new Date().toISOString(),
+          balanceBefore:   balanceBefore,
+          balanceAfter:    wallet.balances.NAIRA,
+        },
+      });
 
       notify(userId, {
         type: 'success',
