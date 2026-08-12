@@ -494,13 +494,20 @@
   }
 
   // ── Live search — Top-ups ─────────────────────────────────────────────────────
+  // datatables.js initializes #table-topups with DataTables pagination,
+  // so we must use the DataTables API to search all rows (not just the current page).
   var topupSearch = document.getElementById('topup-search');
   if (topupSearch) {
     topupSearch.addEventListener('input', function() {
-      var q = this.value.toLowerCase().trim();
-      document.querySelectorAll('#table-topups tbody tr').forEach(function(row) {
-        row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
-      });
+      var q = this.value.trim();
+      if (window.topupsTable && typeof window.topupsTable.search === 'function') {
+        window.topupsTable.search(q).draw();
+      } else {
+        // Fallback: plain DOM filter (works when DataTables is not active)
+        document.querySelectorAll('#table-topups tbody tr').forEach(function(row) {
+          row.style.display = (!q || row.textContent.toLowerCase().includes(q.toLowerCase())) ? '' : 'none';
+        });
+      }
     });
   }
 

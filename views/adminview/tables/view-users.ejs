@@ -53,8 +53,10 @@
           <div class="row">
             <div class="col-12">
               <div class="card">
-                <div class="card-header">
-                  <h4>All Users</h4>
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:8px;">
+                  <h4 class="mb-0">All Users</h4>
+                  <input type="text" id="users-search-input" class="form-control"
+                         placeholder="Search name, email, phone…" style="max-width:300px;">
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
@@ -79,11 +81,12 @@
 
                 <script>
                 window.addEventListener('load', function () {
-                  $('#admin-users-server').DataTable({
+                  var dt = $('#admin-users-server').DataTable({
                     serverSide: true,
                     processing: true,
                     destroy:    true,
                     ajax: { url: '/admin/product/view-users/data', type: 'GET' },
+                    dom: 'lrtip',
                     columns: [
                       { data: 'rowNum', orderable: false },
                       { data: 'username', render: function(d, t, row) {
@@ -116,6 +119,13 @@
                       processing: 'Loading users…',
                       emptyTable:  'No users found',
                     },
+                  });
+
+                  var searchTimer;
+                  document.getElementById('users-search-input').addEventListener('input', function () {
+                    var q = this.value;
+                    clearTimeout(searchTimer);
+                    searchTimer = setTimeout(function () { dt.search(q).draw(); }, 400);
                   });
                 });
                 </script>
