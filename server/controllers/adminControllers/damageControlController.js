@@ -50,11 +50,9 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
       Transaction.find(ODS_DAMAGE_FILTER).populate('user', 'username email').sort({ createdAt: -1 }).lean(),
     ]);
 
-    // Merge and sort by date descending
     const allFlagged = [...oldFlagged, ...newFlagged, ...pollerFailed, ...odsDamage]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    // Batch retry check — one query for all users instead of one per flagged item
     let rows = allFlagged.map(tx => ({ ...tx, hasSuccessRetry: false }));
     if (allFlagged.length > 0) {
       const since = new Date(Math.min(...allFlagged.map(tx => new Date(tx.createdAt).getTime())));
@@ -87,37 +85,19 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
 
     const totalAmount = rows.reduce((s, r) => s + (r.amount || 0), 0);
 
-    const [deductedHistory, clearedRows, refundedHistory] = await Promise.all([
-      Transaction.find({
-        paymentMethod: 'wallet',
-        'apiResponse.adminDeducted': true,
-        'apiResponse.adminRefunded': { $ne: true },
-        'apiResponse.refundPending':  { $ne: true },
-      }).populate('user', 'username email').sort({ 'apiResponse.adminDeductedAt': -1 }).lean(),
-      Transaction.find({
-        adminCleared: true,
-        adminClearedAt: { $gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
-      }).populate('user', 'username email').sort({ adminClearedAt: -1 }).limit(500).lean(),
-      Transaction.find({
-        paymentMethod: 'wallet',
-        'apiResponse.adminDeducted': true,
-        $or: [
-          { 'apiResponse.adminRefunded': true },
-          { 'apiResponse.refundPending': true },
-        ],
-      }).populate('user', 'username email').sort({ createdAt: -1 }).lean(),
-    ]);
-
-    const alreadyDeducted = deductedHistory.length;
+    // Count only — full lists are loaded lazily per tab
+    const alreadyDeducted = await Transaction.countDocuments({
+      paymentMethod: 'wallet',
+      'apiResponse.adminDeducted': true,
+      'apiResponse.adminRefunded': { $ne: true },
+      'apiResponse.refundPending': { $ne: true },
+    });
 
     res.render('adminview/flagged-transactions', {
       layout: 'layouts/adminLayout',
       rows,
       totalAmount,
       alreadyDeducted,
-      deductedHistory,
-      clearedRows,
-      refundedHistory,
     });
   } catch (err) {
     console.error('[damageControl]', err);
@@ -126,11 +106,47 @@ exports.viewDamageControl = [authenticateAdminUser, async (req, res) => {
       rows: [],
       totalAmount: 0,
       alreadyDeducted: 0,
-      deductedHistory: [],
-      clearedRows: [],
-      refundedHistory: [],
       error: 'Failed to load data',
     });
+  }
+}];
+
+// GET /tab-data?tab=deducted|cleared|refunded — lazy-loads secondary tab content
+exports.getTabData = [authenticateAdminUser, async (req, res) => {
+  try {
+    const { tab } = req.query;
+
+    if (tab === 'deducted') {
+      const rows = await Transaction.find({
+        paymentMethod: 'wallet',
+        'apiResponse.adminDeducted': true,
+        'apiResponse.adminRefunded': { $ne: true },
+        'apiResponse.refundPending': { $ne: true },
+      }).populate('user', 'username email').sort({ 'apiResponse.adminDeductedAt': -1 }).lean();
+      return res.json({ rows });
+    }
+
+    if (tab === 'cleared') {
+      const rows = await Transaction.find({
+        adminCleared: true,
+        adminClearedAt: { $gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+      }).populate('user', 'username email').sort({ adminClearedAt: -1 }).limit(500).lean();
+      return res.json({ rows });
+    }
+
+    if (tab === 'refunded') {
+      const rows = await Transaction.find({
+        paymentMethod: 'wallet',
+        'apiResponse.adminDeducted': true,
+        $or: [{ 'apiResponse.adminRefunded': true }, { 'apiResponse.refundPending': true }],
+      }).populate('user', 'username email').sort({ createdAt: -1 }).lean();
+      return res.json({ rows, isSuperAdmin: req.user.role === 'super_admin' });
+    }
+
+    return res.status(400).json({ error: 'Invalid tab' });
+  } catch (err) {
+    console.error('[getTabData]', err);
+    res.status(500).json({ error: 'Server error' });
   }
 }];
 

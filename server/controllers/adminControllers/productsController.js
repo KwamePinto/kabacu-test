@@ -272,17 +272,70 @@ exports.userView = [
   authenticateAdminUser,
   async (req, res) => {
     try {
-      const users = await User.find()
-        .select('username email firstname lastname createdAt isVerified role country phone_number')
-        .sort({ createdAt: -1 })
-        .lean();
+      const [total, verified, unverified, withMinerId] = await Promise.all([
+        User.countDocuments(),
+        User.countDocuments({ isVerified: true }),
+        User.countDocuments({ isVerified: false }),
+        User.countDocuments({ minerId: { $exists: true, $ne: null } }),
+      ]);
       res.render("adminview/tables/view-users", {
-        users,
+        stats: { total, verified, unverified, withMinerId },
         layout: adminLayouts,
       });
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
+    }
+  },
+];
+
+exports.getUsersData = [
+  authenticateAdminUser,
+  async (req, res) => {
+    try {
+      const draw   = parseInt(req.query.draw) || 1;
+      const start  = parseInt(req.query.start) || 0;
+      const length = Math.min(parseInt(req.query.length) || 25, 500);
+      const search = req.query.search?.value?.trim() || '';
+
+      const SORT_COLS = { 1: 'username', 2: 'phone_number', 3: 'country', 7: 'createdAt' };
+      const orderColIdx = parseInt(req.query['order[0][column]'] ?? req.query.order?.[0]?.column) || 7;
+      const orderDir = (req.query['order[0][dir]'] ?? req.query.order?.[0]?.dir) === 'asc' ? 1 : -1;
+      const sortField = SORT_COLS[orderColIdx] || 'createdAt';
+
+      let filter = {};
+      if (search) {
+        const re = new RegExp(search, 'i');
+        filter = { $or: [{ username: re }, { email: re }, { firstname: re }, { lastname: re }, { phone_number: re }] };
+      }
+
+      const [totalCount, filteredCount, users] = await Promise.all([
+        User.countDocuments(),
+        User.countDocuments(filter),
+        User.find(filter)
+          .select('username email firstname lastname createdAt isVerified country phone_number minerId')
+          .sort({ [sortField]: orderDir })
+          .skip(start)
+          .limit(length)
+          .lean(),
+      ]);
+
+      const data = users.map((u, i) => ({
+        rowNum:     start + i + 1,
+        id:         u._id,
+        username:   u.username || '—',
+        email:      u.email || '—',
+        phone:      u.phone_number || '—',
+        country:    u.country || '—',
+        minerId:    u.minerId || null,
+        isVerified: u.isVerified,
+        createdAt:  new Date(u.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      }));
+
+      res.json({ draw, recordsTotal: totalCount, recordsFiltered: filteredCount, data });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err.message });
     }
   },
 ];
