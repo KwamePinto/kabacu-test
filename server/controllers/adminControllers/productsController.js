@@ -296,7 +296,7 @@ exports.getUsersData = [
       const draw   = parseInt(req.query.draw) || 1;
       const start  = parseInt(req.query.start) || 0;
       const length = Math.min(parseInt(req.query.length) || 25, 500);
-      const search = req.query.search?.value?.trim() || '';
+      const search = (req.query['search[value]'] ?? req.query.search?.value)?.trim() || '';
 
       const SORT_COLS = { 1: 'username', 2: 'phone_number', 3: 'country', 7: 'createdAt' };
       const orderColIdx = parseInt(req.query['order[0][column]'] ?? req.query.order?.[0]?.column) || 7;
@@ -338,7 +338,7 @@ exports.getUsersData = [
         country:    u.country || '—',
         minerId:    u.minerId || null,
         isVerified: u.isVerified,
-        createdAt:  new Date(u.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        createdAt:  new Date(u.createdAt || parseInt(u._id.toString().substring(0, 8), 16) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       }));
 
       res.json({ draw, recordsTotal: totalCount, recordsFiltered: filteredCount, data });

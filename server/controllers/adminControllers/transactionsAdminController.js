@@ -74,7 +74,7 @@ exports.getTransactionsData = [authenticateAdminUser, async (req, res) => {
     const draw   = parseInt(req.query.draw)   || 1;
     const start  = parseInt(req.query.start)  || 0;
     const length = Math.min(parseInt(req.query.length) || 50, 500);
-    const search = req.query.search?.value?.trim() || '';
+    const search = (req.query['search[value]'] ?? req.query.search?.value)?.trim() || '';
 
     // Sortable column map (index matches thead order)
     const SORT_COLS = {
