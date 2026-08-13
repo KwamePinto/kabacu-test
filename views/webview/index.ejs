@@ -708,10 +708,10 @@
   var selectedPackageId = null;
   var selectedNetwork   = null;
 
-  // Nigerian network prefixes — used to catch a phone number that clearly
-  // belongs to a different network than the bundle being purchased.
+  // Nigerian network prefixes — soft hint only (number portability means these
+  // are not authoritative; OurDataStore validates the actual network on purchase).
   var NETWORK_PREFIXES = {
-    MTN:    ['0803','0806','0703','0706','0810','0813','0814','0816','0903','0906','0913','0916'],
+    MTN:    ['0803','0806','0703','0706','0707','0810','0813','0814','0816','0903','0906','0913','0916'],
     AIRTEL: ['0802','0808','0701','0708','0812','0901','0902','0904','0907','0912'],
     GLO:    ['0805','0807','0705','0811','0815','0905','0915']
   };
@@ -724,9 +724,10 @@
     return null;
   }
 
+  // Returns true if known match, false if looks wrong, null if no data for this network.
   function phoneMatchesNetwork(phone, networkName) {
     var key = detectNetworkKey(networkName);
-    if (!key) return true; // e.g. 9mobile — no prefix list to check against
+    if (!key) return null;
     return NETWORK_PREFIXES[key].indexOf(phone.slice(0, 4)) !== -1;
   }
 
@@ -763,9 +764,12 @@
   var saveBeneficiaryCheckbox  = document.getElementById('saveBeneficiaryCheckbox');
   var beneficiaryNicknameInput = document.getElementById('beneficiaryNicknameInput');
 
+  var networkWarningDismissed = false;
+
   function resetBuyModalForm() {
     phoneInput.value = '';
     phoneError.style.display = 'none';
+    networkWarningDismissed = false;
     if (beneficiaryChips) {
       beneficiaryChips.querySelectorAll('.beneficiary-chip').forEach(function(c) { c.classList.remove('active'); });
     }
@@ -781,6 +785,8 @@
 
   phoneInput.addEventListener('input', function() {
     this.value = this.value.replace(/\D/g, '').slice(0, 11);
+    networkWarningDismissed = false;
+    phoneError.style.display = 'none';
     if (beneficiaryChips) {
       beneficiaryChips.querySelectorAll('.beneficiary-chip').forEach(function(c) { c.classList.remove('active'); });
     }
@@ -815,12 +821,15 @@
       phoneError.style.display = 'block';
       return;
     }
-    if (!phoneMatchesNetwork(phone, selectedNetwork)) {
-      phoneError.textContent = 'This number doesn\'t look like a ' + selectedNetwork + ' number';
+    var networkMatch = phoneMatchesNetwork(phone, selectedNetwork);
+    if (networkMatch === false && !networkWarningDismissed) {
+      phoneError.textContent = 'This number may not be a ' + selectedNetwork + ' number (could be ported). Tap Proceed again to continue anyway.';
       phoneError.style.display = 'block';
+      networkWarningDismissed = true;
       return;
     }
     phoneError.style.display = 'none';
+    networkWarningDismissed = false;
     if (!selectedPackageId) {
       Swal.fire({
         icon: 'error',
