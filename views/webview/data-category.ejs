@@ -162,10 +162,10 @@ document.querySelectorAll('.network-tab-btn').forEach(btn => {
 let selectedPackageId = null;
 let selectedNetwork   = null;
 
-// Nigerian network prefixes — used to catch a phone number that clearly
-// belongs to a different network than the bundle being purchased.
+// Nigerian network prefixes — soft hint only (number portability means these
+// are not authoritative; OurDataStore validates the actual network on purchase).
 const NETWORK_PREFIXES = {
-  MTN:    ['0803','0806','0703','0706','0810','0813','0814','0816','0903','0906','0913','0916'],
+  MTN:    ['0803','0806','0703','0706','0707','0810','0813','0814','0816','0903','0906','0913','0916'],
   AIRTEL: ['0802','0808','0701','0708','0812','0901','0902','0904','0907','0912'],
   GLO:    ['0805','0807','0705','0811','0815','0905','0915']
 };
@@ -178,9 +178,11 @@ function detectNetworkKey(name) {
   return null;
 }
 
+// Returns true if the prefix is a known match, false if it looks wrong,
+// or null if we have no data for this network (always allow).
 function phoneMatchesNetwork(phone, networkName) {
   const key = detectNetworkKey(networkName);
-  if (!key) return true; // e.g. 9mobile — no prefix list to check against
+  if (!key) return null;
   return NETWORK_PREFIXES[key].indexOf(phone.slice(0, 4)) !== -1;
 }
 
@@ -219,6 +221,7 @@ const beneficiaryNicknameInput   = document.getElementById('beneficiaryNicknameI
 function resetBuyModalForm() {
   phoneInput.value = '';
   phoneError.style.display = 'none';
+  networkWarningDismissed = false;
   if (beneficiaryChips) {
     beneficiaryChips.querySelectorAll('.beneficiary-chip').forEach(c => c.classList.remove('active'));
   }
@@ -234,6 +237,8 @@ function resetBuyModalForm() {
 
 phoneInput.addEventListener('input', function() {
   this.value = this.value.replace(/\D/g, '').slice(0, 11);
+  networkWarningDismissed = false;
+  phoneError.style.display = 'none';
   if (beneficiaryChips) {
     beneficiaryChips.querySelectorAll('.beneficiary-chip').forEach(c => c.classList.remove('active'));
   }
@@ -262,19 +267,24 @@ if (saveBeneficiaryCheckbox) {
   });
 }
 
+let networkWarningDismissed = false;
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
   const phone = phoneInput.value.trim();
   if (!/^\d{11}$/.test(phone)) {
     phoneError.textContent = 'Phone number must be exactly 11 digits';
     phoneError.style.display = 'block';
+    networkWarningDismissed = false;
     return;
   }
-  if (!phoneMatchesNetwork(phone, selectedNetwork)) {
-    phoneError.textContent = 'This number doesn\'t look like a ' + selectedNetwork + ' number';
+  const networkMatch = phoneMatchesNetwork(phone, selectedNetwork);
+  if (networkMatch === false && !networkWarningDismissed) {
+    phoneError.textContent = 'This number may not be a ' + selectedNetwork + ' number (could be ported). Tap Proceed again to continue anyway.';
     phoneError.style.display = 'block';
+    networkWarningDismissed = true;
     return;
   }
   phoneError.style.display = 'none';
+  networkWarningDismissed = false;
 
   if (saveBeneficiaryCheckbox && saveBeneficiaryCheckbox.checked) {
     fetch('/beneficiaries/add', {
