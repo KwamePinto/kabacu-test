@@ -1356,13 +1356,28 @@ exports.palmPayWebhook = async (req, res) => {
         return res.json({ success: true, message: 'TopUp already processed' });
       }
 
-      // Atomic wallet credit — prevents lost increments from concurrent saves
+      // Atomic wallet credit — prevents lost increments from concurrent saves.
+      // new:false returns the pre-update document, which is the only reliable
+      // way to capture the true before-balance without re-reading (and racing).
       const walletField = `balances.${topUp.balanceType}`;
-      await Wallet.findOneAndUpdate(
+      const creditAmount = topUp.amount / 100;
+      const walletSnap = await Wallet.findOneAndUpdate(
         { user: topUp.user },
-        { $inc: { [walletField]: topUp.amount / 100 } },
-        { upsert: true, setOnInsert: { user: topUp.user, balances: { BTT: 0, RP: 0, USDT: 0, NAIRA: 0 } } }
+        { $inc: { [walletField]: creditAmount } },
+        { upsert: true, new: false, setOnInsert: { user: topUp.user, balances: { BTT: 0, RP: 0, USDT: 0, NAIRA: 0 } } }
       );
+
+      // Record both sides so this top-up reads like any other statement row.
+      // Never let a bookkeeping failure undo a credit that already succeeded.
+      try {
+        const before = (walletSnap && walletSnap.balances && walletSnap.balances[topUp.balanceType]) || 0;
+        await TopUp.updateOne(
+          { _id: topUp._id },
+          { $set: { balanceBefore: before, balanceAfter: before + creditAmount, balanceSource: 'live' } }
+        );
+      } catch (snapErr) {
+        console.error('[palmpay webhook] balance snapshot failed:', snapErr.message);
+      }
 
       return res.json({
         success: true,
@@ -1479,12 +1494,22 @@ exports.convertUSDTtoNaira = async (req, res) => {
     const nairaAmount = amount * finalRate;
     const rateSpread = Math.max(...validRates) - lowestRate;
 
+    // Snapshot both sides before mutating so the conversion can be shown on
+    // the admin account statement like any other wallet movement.
+    const nairaBefore = wallet.balances.NAIRA || 0;
+    const usdtBefore  = wallet.balances.USDT || 0;
+
     wallet.balances.USDT -= amount;
     wallet.balances.NAIRA += nairaAmount;
     await wallet.save();
 
     await Conversion.create({
       user: userId,
+      balanceBefore: nairaBefore,
+      balanceAfter: nairaBefore + nairaAmount,
+      usdtBalanceBefore: usdtBefore,
+      usdtBalanceAfter: usdtBefore - amount,
+      balanceSource: 'live',
       usdtAmount: amount,
       nairaAmount,
       finalRate,
